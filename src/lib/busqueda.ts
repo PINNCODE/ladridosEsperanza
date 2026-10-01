@@ -1,7 +1,9 @@
-// Búsqueda del catálogo (SPEC 04, RF-02): sin mayúsculas ni acentos, y cada palabra
-// de la consulta debe aparecer. El texto de cada negocio se normaliza al compilar;
-// el <script> del catálogo solo normaliza la consulta.
-import type { Negocio } from './datos';
+// Búsqueda del catálogo (SPEC 04, RF-02) y del menú de cada negocio (SPEC 05, RF-06):
+// sin mayúsculas ni acentos, y cada palabra de la consulta debe aparecer. El texto de cada
+// negocio y de cada platillo se normaliza al compilar; los <script> solo normalizan la consulta.
+import type { GrupoMenu, Negocio } from './datos';
+
+type Platillo = GrupoMenu['secciones'][number]['platillos'][number];
 
 /** "Café  Frío" → "cafe frio" */
 export function normalizar(texto: string): string {
@@ -26,6 +28,19 @@ export function textoBusqueda({ data }: Negocio, categoria: string): string {
 		}
 	}
 	return normalizar(partes.join(' '));
+}
+
+/** Nombre, descripción y sección del platillo; las notas de sección no entran. */
+export function textoPlatillo(platillo: Platillo, seccion: string): string {
+	return normalizar([platillo.nombre, platillo.descripcion ?? '', seccion].join(' '));
+}
+
+/** "Sin café" → "menu-sin-cafe": `id` del grupo en la página y hash de su pestaña. */
+export function idGrupo(nombre: string): string {
+	const base = normalizar(nombre)
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+	return `menu-${base}`;
 }
 
 /** `texto` ya normalizado; una consulta vacía coincide con todo. */
