@@ -1,10 +1,8 @@
 ---
 // Resumen de donativos en la portada: por qué donar y las necesidades vigentes (RF-26).
-// La página completa (/donar) llega en la SPEC 03.
+// La página completa es /donar (SPEC 03).
 import Icono from '../Icono.astro';
-import { necesidadesVigentes } from '../../lib/datos';
-
-const necesidades = await necesidadesVigentes(new Date());
+import ListaNecesidades from '../ListaNecesidades.astro';
 ---
 
 <section id="donar" aria-labelledby="donar-titulo" class="aparecer">
@@ -16,27 +14,7 @@ const necesidades = await necesidadesVigentes(new Date());
 		Cuidar animales cuesta todos los días. Cada aporte, grande o pequeño, se convierte en comida,
 		atención veterinaria, esterilizaciones y rescates.
 	</p>
-	{
-		necesidades.length > 0 && (
-			<div class="mt-5 max-w-md rounded-2xl border border-lineas bg-superficie p-5">
-				<h3 class="text-lg font-bold">Necesidades del mes</h3>
-				<ul class="mt-2 divide-y divide-lineas">
-					{necesidades.map(({ data }) => (
-						<li class="flex items-center justify-between gap-4 py-2">
-							<span>{data.descripcion}</span>
-							{data.urgencia === 'urgente' ? (
-								<span class="rounded-full bg-acento px-3 py-1 text-sm font-bold text-sobre-acento">
-									Urgente
-								</span>
-							) : (
-								<span class="rounded-full bg-suave px-3 py-1 text-sm text-sobre-suave">Necesaria</span>
-							)}
-						</li>
-					))}
-				</ul>
-			</div>
-		)
-	}
+	<ListaNecesidades class="mt-5 max-w-md" />
 	<a
 		href="/donar"
 		class="mt-5 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"

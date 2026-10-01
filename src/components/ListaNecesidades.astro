@@ -1,0 +1,37 @@
+---
+// "Necesidades del mes" (RF-26): necesidades vigentes con su etiqueta de urgencia.
+// La usan la portada y /donar, para que el orden y las etiquetas sean siempre los mismos.
+// Sin necesidades vigentes, no se muestra.
+import { necesidadesVigentes } from '../lib/datos';
+
+interface Props {
+	/** Nivel del título según dónde vive la lista: "h3" en la portada, "h4" dentro de una tarjeta. */
+	nivel?: 'h3' | 'h4';
+	class?: string;
+}
+
+const { nivel: Titulo = 'h3', class: clase } = Astro.props;
+const necesidades = await necesidadesVigentes(new Date());
+---
+
+{
+	necesidades.length > 0 && (
+		<div class:list={['rounded-2xl border border-lineas bg-superficie p-5', clase]}>
+			<Titulo class="text-lg font-bold">Necesidades del mes</Titulo>
+			<ul class="mt-2 divide-y divide-lineas">
+				{necesidades.map(({ data }) => (
+					<li class="flex items-center justify-between gap-4 py-2">
+						<span>{data.descripcion}</span>
+						{data.urgencia === 'urgente' ? (
+							<span class="rounded-full bg-acento px-3 py-1 text-sm font-bold text-sobre-acento">
+								Urgente
+							</span>
+						) : (
+							<span class="rounded-full bg-suave px-3 py-1 text-sm text-sobre-suave">Necesaria</span>
+						)}
+					</li>
+				))}
+			</ul>
+		</div>
+	)
+}
