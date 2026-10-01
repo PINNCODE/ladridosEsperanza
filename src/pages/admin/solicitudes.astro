@@ -1,0 +1,160 @@
+---
+// /admin/solicitudes (SPEC 07, RF-15): bandeja del formulario Súmate, solo para el administrador.
+// Lista de la más nueva a la más vieja, filtro por estado (por defecto "nueva") y cambio de estado.
+// Los textos vienen de un formulario público: se pintan con textContent, nunca como HTML.
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+
+const estados = [
+	{ valor: 'nueva', plural: 'Nuevas', singular: 'Nueva' },
+	{ valor: 'contactada', plural: 'Contactadas', singular: 'Contactada' },
+	{ valor: 'publicada', plural: 'Publicadas', singular: 'Publicada' },
+	{ valor: 'descartada', plural: 'Descartadas', singular: 'Descartada' },
+];
+---
+
+<LayoutPanel titulo="Solicitudes">
+	<div class="mt-6 flex flex-wrap items-end gap-4">
+		<div>
+			<label for="filtro-estado" class="block font-bold">Mostrar</label>
+			<select
+				id="filtro-estado"
+				data-filtro
+				class="mt-1 min-h-12 rounded-xl border border-lineas bg-superficie px-4 py-2 text-base"
+			>
+				{estados.map(({ valor, plural }) => <option value={valor}>{plural}</option>)}
+				<option value="">Todas</option>
+			</select>
+		</div>
+		<p data-contador role="status" class="min-h-12 content-center text-texto-secundario"></p>
+	</div>
+
+	<p data-error hidden class="mt-6 font-bold">No pudimos cargar las solicitudes. Recarga la página.</p>
+	<ul data-lista class="mt-6 space-y-4"></ul>
+
+	<template data-plantilla>
+		<li class="rounded-2xl border border-lineas bg-superficie p-5">
+			<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+				<h2 data-campo="nombre_negocio" class="text-xl font-bold break-words"></h2>
+				<span data-ejemplo hidden class="rounded-full bg-suave px-3 py-0.5 text-sm font-bold text-sobre-suave"
+					>Ejemplo</span
+				>
+			</div>
+			<p class="mt-1 text-texto-secundario">
+				<span data-campo="tipo"></span> · <span data-campo="creada_en"></span>
+			</p>
+			<dl class="mt-3 grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]">
+				<dt class="font-bold">WhatsApp</dt>
+				<dd data-campo="whatsapp"></dd>
+				<dt data-con="nombre_contacto" class="font-bold">Contacto</dt>
+				<dd data-con="nombre_contacto" data-campo="nombre_contacto" class="break-words"></dd>
+				<dt data-con="mensaje" class="font-bold">Mensaje</dt>
+				<dd data-con="mensaje" data-campo="mensaje" class="break-words whitespace-pre-line"></dd>
+			</dl>
+			<div class="mt-4 flex flex-wrap items-center gap-3">
+				<label class="font-bold" data-etiqueta-estado>Estado</label>
+				<select data-estado class="min-h-11 rounded-xl border border-lineas bg-superficie px-3 py-2 text-base">
+					{estados.map(({ valor, singular }) => <option value={valor}>{singular}</option>)}
+				</select>
+				<span data-guardado role="status" class="text-sm text-texto-secundario"></span>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Solicitud = {
+		id: string;
+		nombre_negocio: string;
+		tipo: string;
+		whatsapp: string;
+		nombre_contacto: string | null;
+		mensaje: string | null;
+		estado: string;
+		creada_en: string;
+		es_ejemplo: boolean;
+	};
+
+	const fecha = new Intl.DateTimeFormat('es-MX', {
+		dateStyle: 'medium',
+		timeStyle: 'short',
+		timeZone: 'America/Mexico_City',
+	});
+
+	const cuenta = await prepararPanel('administrador');
+
+	if (cuenta) {
+		const supabase = supabaseNavegador();
+		const filtro = document.querySelector<HTMLSelectElement>('[data-filtro]')!;
+		const lista = document.querySelector<HTMLUListElement>('[data-lista]')!;
+		const contador = document.querySelector<HTMLElement>('[data-contador]')!;
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+
+		const { data, error } = await supabase
+			.from('solicitudes_negocio')
+			.select('id, nombre_negocio, tipo, whatsapp, nombre_contacto, mensaje, estado, creada_en, es_ejemplo')
+			.order('creada_en', { ascending: false })
+			.overrideTypes<Solicitud[], { merge: false }>();
+
+		if (error) {
+			document.querySelector<HTMLElement>('[data-error]')!.hidden = false;
+		}
+		const solicitudes = data ?? [];
+
+		function fila(solicitud: Solicitud): HTMLLIElement {
+			const elemento = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+			const campo = (nombre: string) => elemento.querySelector<HTMLElement>(`[data-campo="${nombre}"]`)!;
+
+			campo('nombre_negocio').textContent = solicitud.nombre_negocio;
+			campo('tipo').textContent = solicitud.tipo;
+			campo('creada_en').textContent = fecha.format(new Date(solicitud.creada_en));
+			campo('whatsapp').textContent = solicitud.whatsapp.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+			for (const nombre of ['nombre_contacto', 'mensaje'] as const) {
+				const valor = solicitud[nombre];
+				if (valor) campo(nombre).textContent = valor;
+				else for (const parte of elemento.querySelectorAll(`[data-con="${nombre}"]`)) parte.remove();
+			}
+			elemento.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !solicitud.es_ejemplo;
+
+			const estado = elemento.querySelector<HTMLSelectElement>('[data-estado]')!;
+			const etiqueta = elemento.querySelector<HTMLLabelElement>('[data-etiqueta-estado]')!;
+			const guardado = elemento.querySelector<HTMLElement>('[data-guardado]')!;
+			estado.id = `estado-${solicitud.id}`;
+			etiqueta.htmlFor = estado.id;
+			estado.value = solicitud.estado;
+
+			estado.addEventListener('change', async () => {
+				const anterior = solicitud.estado;
+				estado.disabled = true;
+				guardado.textContent = 'Guardando…';
+				const { error: fallo } = await supabase
+					.from('solicitudes_negocio')
+					.update({ estado: estado.value })
+					.eq('id', solicitud.id);
+				estado.disabled = false;
+				if (fallo) {
+					estado.value = anterior;
+					guardado.textContent = 'No se guardó. Intenta de nuevo.';
+					return;
+				}
+				solicitud.estado = estado.value;
+				guardado.textContent = 'Guardado';
+			});
+
+			return elemento;
+		}
+
+		// Al cambiar el filtro se vuelve a armar la lista; un cambio de estado no saca la fila
+		// de la vista actual hasta el siguiente filtro, para no moverla bajo el cursor.
+		function pintar() {
+			const visibles = solicitudes.filter(({ estado }) => !filtro.value || estado === filtro.value);
+			lista.replaceChildren(...visibles.map(fila));
+			contador.textContent = visibles.length === 1 ? '1 solicitud' : `${visibles.length} solicitudes`;
+		}
+
+		filtro.addEventListener('change', pintar);
+		pintar();
+	}
+</script>
