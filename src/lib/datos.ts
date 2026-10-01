@@ -141,3 +141,27 @@ export async function categoriasConNegocios(negocios: Negocio[]): Promise<Catego
 		.filter(({ id }) => usadas.has(id))
 		.sort((a, b) => a.data.orden - b.data.orden);
 }
+
+// Consultas de la página de cada negocio (SPEC 05).
+
+export type GrupoMenu = Negocio['data']['menu'][number];
+
+/**
+ * Menú sin los platillos con `disponible: false`, ni secciones o grupos que quedan vacíos,
+ * por `orden`. Un platillo que no se puede pedir no se muestra ni se encuentra.
+ */
+export function menuDisponible({ data }: Negocio): GrupoMenu[] {
+	return data.menu
+		.map((grupo) => ({
+			...grupo,
+			secciones: grupo.secciones
+				.map((seccion) => ({
+					...seccion,
+					platillos: seccion.platillos.filter(({ disponible }) => disponible),
+				}))
+				.filter(({ platillos }) => platillos.length > 0)
+				.sort((a, b) => a.orden - b.orden),
+		}))
+		.filter(({ secciones }) => secciones.length > 0)
+		.sort((a, b) => a.orden - b.orden);
+}
