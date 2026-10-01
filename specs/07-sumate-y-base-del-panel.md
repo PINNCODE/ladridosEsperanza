@@ -117,8 +117,10 @@ Ninguna otra tabla gana políticas en esta spec.
 | --- | --- |
 | `auth.site_url` | `"http://localhost:4321"` |
 | `auth.additional_redirect_urls` | `["http://localhost:4321/admin/contrasena"]` |
-| `auth.enable_signup` y `auth.email.enable_signup` | `false` (las cuentas se invitan desde Studio) |
+| `auth.enable_signup` | `false` (las cuentas se invitan desde Studio) |
+| `auth.email.enable_signup` | `true`: en `false` la CLI apaga el proveedor de correo y nadie puede entrar |
 | `auth.mfa.totp.enroll_enabled` y `verify_enabled` | `true` |
+| `auth.email.template.invite` y `auth.email.template.recovery` | Plantillas en español de `supabase/plantillas/` con el enlace `{{ .SiteURL }}/admin/contrasena?token_hash={{ .TokenHash }}&type=invite` (o `recovery`) |
 
 ### Variables de entorno
 
@@ -143,7 +145,7 @@ Sin cualquiera de las tres, `astro build` se detiene con un error que nombra la 
 | `src/layouts/LayoutPanel.astro` | HTML del panel con `noindex`, sin cinta de ejemplos, sin `Encabezado` ni `Pie` públicos |
 | `src/components/admin/EncabezadoPanel.astro` | Nombre, rol, enlaces según el rol y botón "Salir" |
 | `src/pages/admin/entrar.astro` | Correo y contraseña, luego alta del TOTP (primera vez) o código de 6 dígitos; enlace "¿Olvidaste tu contraseña?" |
-| `src/pages/admin/contrasena.astro` | Destino de los correos de invitación y recuperación; pide la contraseña nueva |
+| `src/pages/admin/contrasena.astro` | Destino de los correos de invitación y recuperación; verifica el `token_hash`, pide el código TOTP si la cuenta ya tiene uno y luego la contraseña nueva |
 | `src/pages/admin/index.astro` | Inicio del panel según el rol |
 | `src/pages/admin/solicitudes.astro` | Bandeja de solicitudes |
 | `src/pages/admin/qr.astro` | Lista de negocios publicados con sus QR |
@@ -195,67 +197,86 @@ El QR usa el paquete `qrcode`: SVG con `toString` y PNG de 1024 px con `toDataUR
 9. Crear `EncabezadoPanel` y `/admin` con las dos vistas por rol y la de cuenta sin rol.
 10. Crear `/admin/solicitudes`.
 11. Agregar `qrcode` y `@types/qrcode`, y crear `/admin/qr`.
-12. Paso manual en la nube (cuando existan los proyectos de la SPEC 06): `npx supabase db push`; en el panel de Supabase activar TOTP, desactivar el registro abierto y poner el Site URL y la URL de redirección `/admin/contrasena` de Vercel; cargar las tres variables `PUBLIC_` en Vercel; invitar a la primera cuenta desde Studio e insertar su fila `administrador` en `usuarios_panel`.
+12. Paso manual en la nube (cuando existan los proyectos de la SPEC 06): `npx supabase db push`; en el panel de Supabase activar TOTP, desactivar el registro abierto (sin apagar el proveedor de correo), poner el Site URL y la URL de redirección `/admin/contrasena` de Vercel y copiar las dos plantillas de `supabase/plantillas/` en Authentication → Emails; cargar las tres variables `PUBLIC_` en Vercel; invitar a la primera cuenta desde Studio e insertar su fila `administrador` en `usuarios_panel`.
 13. Actualizar `specs/README.md` (la 07 con este título y RF-15, RF-17 y la base de RF-16; nuevas filas 08 "Panel del refugio", 09 "Panel de negocios y menús" y 10 "Anuncios, analítica, SEO y aviso de privacidad"; RF-29 pasa a la 08; quitar las pendientes de la 07 y mover las de la 08 a la 10) y `CLAUDE.md` (rutas nuevas, `src/lib/supabaseNavegador.ts`, `src/lib/panel.ts`, `LayoutPanel`, `src/components/admin/`, variables nuevas y el script de cuentas de prueba).
 
 ## Criterios de aceptación
 
 ### Formulario Súmate
 
-- [ ] El botón "Quiero sumar mi negocio" de `/colabora` lleva a `/colabora/sumate`.
-- [ ] El `<select>` de tipo lista las categorías del catálogo y "Otro"; elegir "Otro" muestra un campo de texto obligatorio.
-- [ ] Enviar sin marcar la casilla del aviso no envía nada y el navegador marca la casilla.
-- [ ] Un envío válido muestra "¡Gracias! Te escribiremos por WhatsApp en los próximos días." y crea una fila `nueva` con `acepto_aviso = true` y `es_ejemplo = false`.
-- [ ] "55 1234-5678" se guarda como `5512345678`.
-- [ ] Un segundo envío con el mismo WhatsApp en menos de 24 horas muestra el mensaje de solicitud repetida y no crea fila.
-- [ ] Con 20 solicitudes en la última hora, el siguiente envío muestra "No pudimos enviar tu solicitud." con el enlace de WhatsApp.
-- [ ] Con el campo `sitio_web` lleno, se ve el mensaje de éxito y no se crea fila.
-- [ ] Con JavaScript desactivado, `/colabora/sumate` muestra el enlace de WhatsApp del refugio.
-- [ ] Con la llave publicable, un `insert` por PostgREST que incluye `estado` o `es_ejemplo` falla por permisos.
-- [ ] Con la llave publicable, `select * from solicitudes_negocio` devuelve 0 filas.
-- [ ] `/aviso-de-privacidad` abre desde la casilla y desde el pie, y dice "Texto provisional, pendiente de revisión legal".
-- [ ] `/colabora/sumate` no tiene desplazamiento horizontal a 360 px.
+- [x] El botón "Quiero sumar mi negocio" de `/colabora` lleva a `/colabora/sumate`.
+- [x] El `<select>` de tipo lista las categorías del catálogo y "Otro"; elegir "Otro" muestra un campo de texto obligatorio.
+- [x] Enviar sin marcar la casilla del aviso no envía nada y el navegador marca la casilla.
+- [x] Un envío válido muestra "¡Gracias! Te escribiremos por WhatsApp en los próximos días." y crea una fila `nueva` con `acepto_aviso = true` y `es_ejemplo = false`.
+- [x] "55 1234-5678" se guarda como `5512345678`.
+- [x] Un segundo envío con el mismo WhatsApp en menos de 24 horas muestra el mensaje de solicitud repetida y no crea fila.
+- [x] Con 20 solicitudes en la última hora, el siguiente envío muestra "No pudimos enviar tu solicitud." con el enlace de WhatsApp.
+- [x] Con el campo `sitio_web` lleno, se ve el mensaje de éxito y no se crea fila.
+- [x] Con JavaScript desactivado, `/colabora/sumate` muestra el enlace de WhatsApp del refugio.
+- [x] Con la llave publicable, un `insert` por PostgREST que incluye `estado` o `es_ejemplo` falla por permisos.
+- [x] Con la llave publicable, `select * from solicitudes_negocio` devuelve 0 filas.
+- [x] `/aviso-de-privacidad` abre desde la casilla y desde el pie, y dice "Texto provisional, pendiente de revisión legal".
+- [x] `/colabora/sumate` no tiene desplazamiento horizontal a 360 px.
 
 ### Sesión y roles
 
-- [ ] `/admin`, `/admin/solicitudes` y `/admin/qr` sin sesión redirigen a `/admin/entrar` sin mostrar datos.
-- [ ] Una cuenta sin TOTP ve el código QR de alta y el secreto en texto, y no entra al panel hasta confirmar un código válido.
-- [ ] Una cuenta con TOTP que pone una contraseña correcta y no pone el código no ve datos del panel.
-- [ ] Con sesión `aal1` (solo contraseña), `select` a `solicitudes_negocio` por PostgREST devuelve 0 filas.
-- [ ] Un código TOTP incorrecto muestra un error y no entra.
-- [ ] La cuenta de prueba `refugio` ve el aviso "Pronto podrás editar…" y no ve enlaces a solicitudes ni a QR; abrir `/admin/solicitudes` la regresa a `/admin`.
-- [ ] Con la sesión `aal2` de la cuenta `refugio`, `select` a `solicitudes_negocio` y a `negocios` por PostgREST devuelve 0 filas.
-- [ ] Una cuenta sin fila en `usuarios_panel` ve "Tu cuenta no tiene acceso al panel…".
-- [ ] `supabase.auth.signUp` con la llave publicable falla porque el registro está desactivado.
-- [ ] El correo de recuperación (en Mailpit local) lleva a `/admin/contrasena`, y la contraseña nueva sirve para entrar.
-- [ ] "Salir" cierra la sesión y regresa a `/admin/entrar`.
-- [ ] Las páginas de `/admin` llevan `<meta name="robots" content="noindex">` y no muestran la cinta "Datos de ejemplo".
+- [x] `/admin`, `/admin/solicitudes` y `/admin/qr` sin sesión redirigen a `/admin/entrar` sin mostrar datos.
+- [x] Una cuenta sin TOTP ve el código QR de alta y el secreto en texto, y no entra al panel hasta confirmar un código válido.
+- [x] Una cuenta con TOTP que pone una contraseña correcta y no pone el código no ve datos del panel.
+- [x] Con sesión `aal1` (solo contraseña), `select` a `solicitudes_negocio` por PostgREST devuelve 0 filas.
+- [x] Un código TOTP incorrecto muestra un error y no entra.
+- [x] La cuenta de prueba `refugio` ve el aviso "Pronto podrás editar…" y no ve enlaces a solicitudes ni a QR; abrir `/admin/solicitudes` la regresa a `/admin`.
+- [x] Con la sesión `aal2` de la cuenta `refugio`, `select` a `solicitudes_negocio` y a `negocios` por PostgREST devuelve 0 filas.
+- [x] Una cuenta sin fila en `usuarios_panel` ve "Tu cuenta no tiene acceso al panel…".
+- [x] `supabase.auth.signUp` con la llave publicable falla porque el registro está desactivado.
+- [x] El correo de recuperación (en Mailpit local) lleva a `/admin/contrasena`, y la contraseña nueva sirve para entrar.
+- [x] "Salir" cierra la sesión y regresa a `/admin/entrar`.
+- [x] Las páginas de `/admin` llevan `<meta name="robots" content="noindex">` y no muestran la cinta "Datos de ejemplo".
 
 ### Bandeja y QR
 
-- [ ] `/admin` del administrador muestra el número de solicitudes `nueva` y coincide con la base.
-- [ ] `/admin/solicitudes` abre filtrada en `nueva`, de la más nueva a la más vieja, y las de la semilla llevan la etiqueta "Ejemplo".
-- [ ] Cambiar una solicitud a `contactada` la guarda, llena `actualizada_en` y se conserva al recargar.
-- [ ] Guardar un cambio de estado no inicia un despliegue (no hay llamada en `net.http_request_queue`).
-- [ ] `/admin/qr` lista los negocios `publicado` y no los `pausado` ni `borrador`.
-- [ ] "SVG" descarga `qr-tacos-don-chuy.svg` y "PNG" descarga `qr-tacos-don-chuy.png` de 1024 × 1024 px.
-- [ ] Leer el QR con un teléfono abre `{PUBLIC_URL_SITIO}/colabora/tacos-don-chuy`.
-- [ ] Con `PUBLIC_URL_SITIO` en `*.vercel.app`, `/admin/qr` muestra el aviso del dominio.
+- [x] `/admin` del administrador muestra el número de solicitudes `nueva` y coincide con la base.
+- [x] `/admin/solicitudes` abre filtrada en `nueva`, de la más nueva a la más vieja, y las de la semilla llevan la etiqueta "Ejemplo".
+- [x] Cambiar una solicitud a `contactada` la guarda, llena `actualizada_en` y se conserva al recargar.
+- [x] Guardar un cambio de estado no inicia un despliegue (no hay llamada en `net.http_request_queue`).
+- [x] `/admin/qr` lista los negocios `publicado` y no los `pausado` ni `borrador`.
+- [x] "SVG" descarga `qr-tacos-don-chuy.svg` y "PNG" descarga `qr-tacos-don-chuy.png` de 1024 × 1024 px.
+- [x] Leer el QR con un teléfono abre `{PUBLIC_URL_SITIO}/colabora/tacos-don-chuy`.
+- [x] Con `PUBLIC_URL_SITIO` en `*.vercel.app`, `/admin/qr` muestra el aviso del dominio.
 
 ### Compilación y seguridad
 
-- [ ] `npx supabase db reset` aplica las 5 migraciones y la semilla sin errores, con 3 solicitudes de ejemplo.
-- [ ] Sin `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `astro build` se detiene con un mensaje que la nombra; igual con `PUBLIC_SUPABASE_URL` y `PUBLIC_URL_SITIO`.
-- [ ] `astro build` y `astro check` terminan sin errores.
-- [ ] La llave secreta no aparece en ningún archivo de `dist/`.
-- [ ] Solo `src/lib/cargadores.ts` importa `src/lib/supabase.ts`, y solo el formulario y el panel importan `src/lib/supabaseNavegador.ts`.
-- [ ] Las páginas públicas existentes generan el mismo HTML que antes, salvo el enlace del pie y el botón de Súmate.
+- [x] `npx supabase db reset` aplica las 5 migraciones y la semilla sin errores, con 3 solicitudes de ejemplo.
+- [x] Sin `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `astro build` se detiene con un mensaje que la nombra; igual con `PUBLIC_SUPABASE_URL` y `PUBLIC_URL_SITIO`.
+- [x] `astro build` y `astro check` terminan sin errores.
+- [x] La llave secreta no aparece en ningún archivo de `dist/`.
+- [x] Solo `src/lib/cargadores.ts` importa `src/lib/supabase.ts`, y solo el formulario y el panel importan `src/lib/supabaseNavegador.ts`.
+- [x] Las páginas públicas existentes generan el mismo HTML que antes, salvo el enlace del pie y el botón de Súmate.
 
 ### Nube (después del paso 12)
 
 - [ ] Un envío desde `*.vercel.app/colabora/sumate` aparece en `/admin/solicitudes` de la nube.
 - [ ] La cuenta invitada desde Studio recibe el correo, pone su contraseña, da de alta su TOTP y entra.
 - [ ] El registro abierto está desactivado en el proyecto de la nube.
+
+### Observaciones de la validación
+
+Validado el 2026-10-01 en local, con Supabase en Docker (Colima) y la compilación de producción servida con `astro preview`; Playwright a 360 y 1024 px. Los códigos TOTP se calcularon en la página con WebCrypto a partir del secreto que muestra el alta.
+
+- **Pendiente: paso 12.** No se tocó el proyecto de Supabase en la nube ni Vercel. Los tres criterios de la nube quedan sin marcar.
+- **`auth.email.enable_signup`.** La spec pedía `false`, pero en la CLI esa clave apaga el proveedor de correo: el inicio de sesión respondía `email_provider_disabled`. Queda en `true`; el registro abierto lo cierra `auth.enable_signup = false` y `signUp` responde `signup_disabled`.
+- **Plantillas de correo.** Una invitación desde Studio no deja elegir la redirección y el enlace por defecto cae en `site_url` (la portada). Se agregaron plantillas en español (`supabase/plantillas/`) que llevan a `/admin/contrasena?token_hash=…&type=…`, y la página lo verifica con `verifyOtp`. En la nube hay que copiarlas a mano (paso 12).
+- **Contraseña con TOTP.** Supabase exige `aal2` para cambiar la contraseña de una cuenta con TOTP (`insufficient_aal`). `/admin/contrasena` pide primero el código cuando la cuenta ya tiene un factor y después entra directo a `/admin`; una invitación nueva pasa a `/admin/entrar` para dar de alta el TOTP.
+- **`rol_panel()` también exige `aal2`.** Así cualquier política futura que use el rol queda protegida por el segundo paso, como pide la decisión de exigir `aal2` en las funciones.
+- **Permisos de `solicitudes_negocio`.** `anon` tiene `select` sin política, como las tablas de contenido, para que la API devuelva `[]` y no un error de permisos. `authenticated` también puede insertar las columnas del formulario, porque el navegador manda la sesión del panel si la hay.
+- **Tipo de negocio.** El `<select>` lista todas las categorías por `orden` (`categoriasOrdenadas()` en `src/lib/datos.ts`), no solo las que ya tienen negocios: un negocio nuevo puede ser de una categoría sin negocios publicados.
+- **Formulario.** "55 1234-5678" se guardó como `5512345678`; el repetido mostró su mensaje; con 20 solicitudes en la hora, el siguiente envío mostró "No pudimos enviar tu solicitud." con el enlace de WhatsApp; con `sitio_web` lleno no se creó fila. Sin JavaScript, el formulario queda oculto y se ve el enlace de WhatsApp.
+- **API pública.** Con la llave publicable, un `insert` con `estado` o `es_ejemplo` responde 401 `permission denied`; uno sin `acepto_aviso` falla por el `check`; `select` devuelve `[]`. Con sesión `aal1` (admin) y con `aal2` de la cuenta `refugio`, `solicitudes_negocio` y `negocios` devuelven `[]`.
+- **QR.** `qr-tacos-don-chuy.png` mide 1024 × 1024 px. En lugar de un teléfono, el PNG se decodificó con `jsqr` y dio `http://localhost:4321/colabora/tacos-don-chuy`. Con Pizzería Nonna Lupe en `pausado` y Panadería San Juan en `borrador`, la lista mostró solo los otros 3; después se restauraron. Con `PUBLIC_URL_SITIO=https://ladridos-prueba.vercel.app` apareció el aviso del dominio y las URL usaron ese host.
+- **Recompilación.** `solicitudes_negocio` solo tiene los disparadores `limitar` y `actualizada`; tras cambiar un estado, `net.http_request_queue` quedó vacía.
+- **HTML público.** Comparado con una compilación de antes del cambio (11 páginas), solo cambian el enlace "Aviso de privacidad" del pie en todas y el botón de `/colabora`; se agregan 7 páginas (`/colabora/sumate`, `/aviso-de-privacidad` y las 5 de `/admin`).
+- **`.env.local`.** El equipo tiene un `.env.local` (de la CLI de Vercel) con el `SUPABASE_URL` de la nube, que gana sobre `.env`. Para compilar contra Supabase local hay que pasar `SUPABASE_URL` y `SUPABASE_SECRET_KEY` locales en el entorno.
+- **Después de `db reset`.** PostgREST tarda unos segundos en recargar su caché; si `crear-cuentas-prueba.mjs` falla con `PGRST002`, basta con correrlo otra vez.
 
 ## Decisiones
 
