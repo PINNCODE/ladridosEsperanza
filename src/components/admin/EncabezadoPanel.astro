@@ -1,0 +1,27 @@
+---
+// Encabezado del panel /admin (SPEC 07): nombre y rol de la cuenta, enlaces según el rol y "Salir".
+// prepararPanel() de src/lib/panel.ts lo llena; los enlaces de administrador empiezan ocultos.
+const enlace = 'flex min-h-11 items-center rounded-lg px-3 hover:bg-suave';
+---
+
+<header class="border-b border-lineas bg-superficie">
+	<div class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+		<a href="/admin" class="font-titulos text-lg font-bold">Panel · Ladridos de Esperanza</a>
+		<nav aria-label="Panel" data-navegacion hidden class="flex flex-wrap gap-1">
+			<a href="/admin" class={enlace}>Inicio</a>
+			<a href="/admin/solicitudes" data-solo-administrador hidden class={enlace}>Solicitudes</a>
+			<a href="/admin/qr" data-solo-administrador hidden class={enlace}>QR</a>
+		</nav>
+		<div class="ml-auto flex items-center gap-3">
+			<p data-cuenta class="text-sm text-texto-secundario"></p>
+			<button
+				type="button"
+				data-salir
+				hidden
+				class="inline-flex min-h-11 items-center rounded-xl border border-lineas px-4 font-bold"
+			>
+				Salir
+			</button>
+		</div>
+	</div>
+</header>

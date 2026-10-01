@@ -1,0 +1,60 @@
+---
+// HTML del panel /admin (SPEC 07): sin cinta de ejemplos, sin Encabezado ni Pie públicos y fuera
+// de los buscadores. Con `protegido` (por defecto), el contenido queda oculto hasta que
+// prepararPanel() de src/lib/panel.ts confirma la sesión aal2 y el rol; los datos los protege RLS.
+import { Font } from 'astro:assets';
+import EncabezadoPanel from '../components/admin/EncabezadoPanel.astro';
+import '../styles/global.css';
+
+interface Props {
+	/** Título de la página; la pestaña agrega "Panel · Ladridos de Esperanza". */
+	titulo: string;
+	/** false en las páginas que se abren sin sesión: entrar y contraseña. */
+	protegido?: boolean;
+}
+
+const { titulo, protegido = true } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es-MX">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<Font cssVariable="--fuente-titulos" preload />
+		<Font cssVariable="--fuente-texto" preload />
+		<title>{`${titulo} · Panel · Ladridos de Esperanza`}</title>
+	</head>
+	<body class="flex min-h-dvh flex-col">
+		{
+			protegido ? (
+				<>
+					<EncabezadoPanel />
+					<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+						<p data-cargando class="text-texto-secundario">
+							Cargando…
+						</p>
+						<div data-sin-rol hidden class="max-w-prose rounded-2xl bg-suave p-5 text-sobre-suave">
+							<p class="font-bold">
+								Tu cuenta no tiene acceso al panel. Pide al administrador que te asigne un rol.
+							</p>
+						</div>
+						<div data-panel hidden>
+							<h1 class="text-3xl font-extrabold">{titulo}</h1>
+							<slot />
+						</div>
+					</main>
+				</>
+			) : (
+				<main class="mx-auto w-full max-w-md flex-1 px-4 py-12">
+					<p class="font-titulos text-lg font-bold text-acento">Ladridos de Esperanza · Panel</p>
+					<h1 class="mt-2 text-3xl font-extrabold">{titulo}</h1>
+					<slot />
+				</main>
+			)
+		}
+	</body>
+</html>
