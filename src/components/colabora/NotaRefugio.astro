@@ -1,0 +1,33 @@
+---
+// Nota del refugio en la página de cada negocio (SPEC 05, RF-13): adopciones y, si hay,
+// la próxima campaña de esterilización con su fecha. El cartel vive en /esterilizacion.
+import Icono from '../Icono.astro';
+import { obtenerRefugio, proximaCampana } from '../../lib/datos';
+import { formatearFecha } from '../../lib/formato';
+
+const refugio = await obtenerRefugio();
+const campana = await proximaCampana(new Date());
+---
+
+<aside aria-label={`Nota de ${refugio.nombre}`} class="rounded-2xl bg-suave p-5 text-sobre-suave">
+	<p class="flex items-start gap-2 font-bold">
+		<Icono nombre="paw-print" size={20} class="mt-0.5 shrink-0" />
+		Con tu visita ayudas a {refugio.nombre}.
+	</p>
+	<ul class="mt-2 grid gap-1">
+		<li>
+			<a href="/adopta" class="inline-flex min-h-11 items-center underline underline-offset-4">
+				Conoce a los peludos en adopción
+			</a>
+		</li>
+		{
+			campana && (
+				<li>
+					<a href="/esterilizacion" class="inline-flex min-h-11 items-center underline underline-offset-4">
+						Próxima campaña de esterilización: {formatearFecha(campana.data.fecha)}
+					</a>
+				</li>
+			)
+		}
+	</ul>
+</aside>

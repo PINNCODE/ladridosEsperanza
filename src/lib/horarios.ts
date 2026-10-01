@@ -63,8 +63,19 @@ function abiertoHoy(turno: Turno, minutos: number): boolean {
 		: minutos >= abre && minutos < enMinutos(turno.cierra);
 }
 
+function listaDeTurnos(turnos: Turno[]): string {
+	return lista.format(turnos.map((t) => `${formatearHora(t.abre)} a ${formatearHora(t.cierra)}`));
+}
+
 function turnosDeHoy(turnos: Turno[]): string {
-	return `Hoy ${lista.format(turnos.map((t) => `${formatearHora(t.abre)} a ${formatearHora(t.cierra)}`))}`;
+	return `Hoy ${listaDeTurnos(turnos)}`;
+}
+
+/** Texto de un día en la tabla de horarios: turnos, "Cerrado" o, si falta, "Por confirmar". */
+export function textoDia(valor: Horarios[Dia]): string {
+	if (valor === undefined) return 'Por confirmar';
+	if (valor === 'cerrado') return 'Cerrado';
+	return listaDeTurnos(valor);
 }
 
 /**

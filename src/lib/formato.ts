@@ -26,6 +26,17 @@ export function formatearPesos(monto: number): string {
 	return pesos.format(monto);
 }
 
+type Precio = { etiqueta: string | null; monto: number | null; texto_alterno: string | null };
+
+/**
+ * { etiqueta: "Caliente", monto: 49 } → "Caliente $49"; sin monto, su `texto_alterno` ("Incluido").
+ * Un extra se suma a otro platillo: "+$12".
+ */
+export function formatearPrecio({ etiqueta, monto, texto_alterno }: Precio, esExtra: boolean): string {
+	const valor = monto === null ? (texto_alterno ?? '') : `${esExtra ? '+' : ''}${formatearPesos(monto)}`;
+	return etiqueta ? `${etiqueta} ${valor}` : valor;
+}
+
 /** 2026-10-24 → "sábado 24 de octubre" */
 export function formatearFecha(dia: Date): string {
 	return fecha.format(dia).replace(',', '');

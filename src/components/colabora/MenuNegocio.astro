@@ -1,0 +1,186 @@
+---
+// Menú de un negocio (SPEC 05, RF-05 y RF-06): grupos, secciones y platillos disponibles.
+// Sin JavaScript se ve todo seguido. El script muestra las pestañas (si hay más de un grupo),
+// deja visible solo el grupo activo, guarda su hash en la URL y agrega el buscador.
+import Icono from '../Icono.astro';
+import { idGrupo, textoPlatillo } from '../../lib/busqueda';
+import { menuDisponible, type Negocio } from '../../lib/datos';
+import { formatearPrecio } from '../../lib/formato';
+
+interface Props {
+	negocio: Negocio;
+}
+
+const { negocio } = Astro.props;
+const grupos = menuDisponible(negocio).map((grupo) => ({ ...grupo, id: idGrupo(grupo.nombre) }));
+const conPestanas = grupos.length > 1;
+
+// Dos grupos con el mismo id romperían el hash de su pestaña.
+const repetidos = grupos.filter((grupo, i) => grupos.findIndex(({ id }) => id === grupo.id) !== i);
+if (repetidos.length > 0) {
+	throw new Error(
+		`El menú de "${negocio.data.nombre}" (${negocio.id}) tiene grupos con el mismo id: ` +
+			repetidos.map(({ nombre, id }) => `"${nombre}" → ${id}`).join(', '),
+	);
+}
+
+const chip =
+	'flex min-h-11 shrink-0 items-center rounded-full border border-lineas bg-superficie px-4 whitespace-nowrap aria-pressed:border-acento aria-pressed:bg-acento aria-pressed:font-bold aria-pressed:text-sobre-acento';
+---
+
+<section aria-labelledby="menu-titulo" data-menu class="min-w-0">
+	<h2 id="menu-titulo" class="text-2xl font-bold">Menú</h2>
+
+	<form role="search" data-buscador hidden class="relative mt-4">
+		<label for="consulta-menu" class="sr-only">Buscar en el menú</label>
+		<Icono nombre="search" size={20} class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2" />
+		<input
+			id="consulta-menu"
+			type="search"
+			data-consulta
+			autocomplete="off"
+			placeholder="Buscar en el menú, por ejemplo: latte"
+			class="min-h-12 w-full rounded-xl border border-lineas bg-superficie py-2 pr-4 pl-12 text-base"
+		/>
+	</form>
+
+	{
+		conPestanas && (
+			<div
+				role="group"
+				aria-label="Grupos del menú"
+				data-pestanas
+				hidden
+				class="sticky top-0 z-[5] -mx-4 mt-3 flex scroll-px-4 gap-2 overflow-x-auto bg-fondo px-4 py-2 [scrollbar-width:none]"
+			>
+				{grupos.map(({ id, nombre }, i) => (
+					<button type="button" data-pestana={id} aria-pressed={i === 0 ? 'true' : 'false'} class={chip}>
+						{nombre}
+					</button>
+				))}
+			</div>
+		)
+	}
+
+	<p data-contador aria-live="polite" class="mt-3 text-sm text-texto-secundario empty:hidden"></p>
+	<p data-sin-resultados hidden class="mt-3 rounded-2xl bg-suave p-5 text-sobre-suave">
+		No encontramos ese platillo en el menú. Prueba con otra palabra.
+	</p>
+
+	{
+		grupos.map(({ id, nombre, secciones }) => (
+			<section id={id} data-grupo class="mt-6 scroll-mt-16">
+				{conPestanas && <h3 data-titulo-grupo class="font-titulos text-xl font-bold">{nombre}</h3>}
+				{secciones.map((seccion) => (
+					<div data-seccion class="mt-4">
+						<h4 class="text-lg font-bold">{seccion.nombre}</h4>
+						{seccion.nota && <p class="text-sm text-texto-secundario">{seccion.nota}</p>}
+						<ul class="mt-2 divide-y divide-lineas rounded-2xl border border-lineas bg-superficie">
+							{seccion.platillos.map((platillo) => (
+								<li
+									data-platillo
+									data-busqueda={textoPlatillo(platillo, seccion.nombre)}
+									class="flex items-start justify-between gap-4 px-4 py-3"
+								>
+									<div class="min-w-0">
+										<p class="font-bold">{platillo.nombre}</p>
+										{platillo.descripcion && (
+											<p class="text-sm text-texto-secundario">{platillo.descripcion}</p>
+										)}
+									</div>
+									<p class="shrink-0 text-right font-bold text-sobre-suave">
+										{platillo.precios.map((precio) => formatearPrecio(precio, platillo.es_extra)).join(' · ')}
+									</p>
+								</li>
+							))}
+						</ul>
+					</div>
+				))}
+			</section>
+		))
+	}
+</section>
+
+<script>
+	import { coincide } from '../../lib/busqueda';
+
+	const menu = document.querySelector<HTMLElement>('[data-menu]');
+	const buscador = menu?.querySelector<HTMLFormElement>('[data-buscador]');
+
+	if (menu && buscador) {
+		const consulta = buscador.querySelector<HTMLInputElement>('[data-consulta]')!;
+		const pestanas = menu.querySelector<HTMLElement>('[data-pestanas]');
+		const botones = [...(pestanas?.querySelectorAll<HTMLButtonElement>('[data-pestana]') ?? [])];
+		const contador = menu.querySelector<HTMLElement>('[data-contador]')!;
+		const sinResultados = menu.querySelector<HTMLElement>('[data-sin-resultados]')!;
+		const grupos = [...menu.querySelectorAll<HTMLElement>('[data-grupo]')];
+		const titulosGrupo = [...menu.querySelectorAll<HTMLElement>('[data-titulo-grupo]')];
+		const secciones = [...menu.querySelectorAll<HTMLElement>('[data-seccion]')];
+		const platillos = [...menu.querySelectorAll<HTMLElement>('[data-platillo]')];
+
+		// Un hash que coincide con un grupo activa su pestaña; si no, la primera.
+		const desdeHash = grupos.find(({ id }) => `#${id}` === location.hash);
+		let activo = (desdeHash ?? grupos[0]).id;
+
+		/** Con búsqueda: todos los grupos filtrados. Sin ella: solo el grupo activo. */
+		function aplicar() {
+			const texto = consulta.value.trim();
+			const buscando = texto !== '';
+
+			let visibles = 0;
+			for (const platillo of platillos) {
+				const visible = !buscando || coincide(platillo.dataset.busqueda!, texto);
+				platillo.hidden = !visible;
+				if (visible) visibles++;
+			}
+			for (const seccion of secciones) {
+				seccion.hidden = !seccion.querySelector('[data-platillo]:not([hidden])');
+			}
+			for (const grupo of grupos) {
+				grupo.hidden = buscando
+					? !grupo.querySelector('[data-seccion]:not([hidden])')
+					: botones.length > 0 && grupo.id !== activo;
+			}
+
+			// Con pestañas, el nombre del grupo ya está en la pestaña y su <h3> queda para lectores de pantalla.
+			for (const titulo of titulosGrupo) titulo.classList.toggle('sr-only', !buscando);
+			if (pestanas) pestanas.hidden = buscando;
+			for (const boton of botones) {
+				boton.setAttribute('aria-pressed', String(boton.dataset.pestana === activo));
+			}
+
+			contador.textContent = buscando && visibles ? `${visibles} ${visibles === 1 ? 'platillo' : 'platillos'}` : '';
+			sinResultados.hidden = !buscando || visibles > 0;
+		}
+
+		for (const boton of botones) {
+			boton.addEventListener('click', () => {
+				activo = boton.dataset.pestana!;
+				aplicar();
+				history.replaceState(history.state, '', `${location.pathname}${location.search}#${activo}`);
+				// Si la fila ya está fija arriba, el nuevo grupo empezaría fuera de la vista.
+				if (pestanas && pestanas.getBoundingClientRect().top <= 0) {
+					menu.querySelector<HTMLElement>(`#${activo}`)!.scrollIntoView();
+				}
+			});
+		}
+
+		consulta.addEventListener('input', aplicar);
+
+		// La búsqueda es al escribir; enviar solo cierra el teclado del teléfono.
+		buscador.addEventListener('submit', (evento) => {
+			evento.preventDefault();
+			consulta.blur();
+		});
+
+		pestanas?.addEventListener('focusin', (evento) => {
+			(evento.target as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest' });
+		});
+
+		buscador.hidden = false;
+		if (pestanas) pestanas.hidden = false;
+		aplicar();
+		// El navegador ya saltó al grupo antes de ocultar los demás; se vuelve a llevar a la vista.
+		desdeHash?.scrollIntoView();
+	}
+</script>

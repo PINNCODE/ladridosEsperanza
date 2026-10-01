@@ -1,0 +1,48 @@
+---
+// Ubicación y contacto de un negocio (SPEC 05, RF-08): dirección, "Cómo llegar" y,
+// solo si el negocio tiene número, WhatsApp sin mensaje prefijado.
+import Icono from '../Icono.astro';
+import type { Negocio } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+interface Props {
+	negocio: Negocio;
+	/** Enlace "Cómo llegar" de `enlaceMapa`. */
+	mapa: string;
+}
+
+const { negocio, mapa } = Astro.props;
+const { data } = negocio;
+---
+
+<section aria-labelledby="contacto-titulo" class="rounded-2xl border border-lineas bg-superficie p-5">
+	<h2 id="contacto-titulo" class="text-xl font-bold">Ubicación y contacto</h2>
+	<p class="mt-2 flex items-start gap-2">
+		<Icono nombre="map-pin" size={20} class="mt-0.5 shrink-0" />
+		{data.direccion}
+	</p>
+	<div class="mt-4 flex flex-wrap gap-3">
+		<a
+			href={mapa}
+			target="_blank"
+			rel="noopener"
+			class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+		>
+			<Icono nombre="navigation" tono="heredado" size={20} />
+			Cómo llegar
+		</a>
+		{
+			data.whatsapp && (
+				<a
+					href={enlaceWhatsApp(data.whatsapp)}
+					target="_blank"
+					rel="noopener"
+					class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-acento px-5 font-bold text-acento"
+				>
+					<Icono nombre="message-circle" size={20} />
+					Escribir por WhatsApp
+				</a>
+			)
+		}
+	</div>
+</section>

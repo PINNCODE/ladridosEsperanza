@@ -1,0 +1,26 @@
+---
+// Aporte acordado del negocio (SPEC 05). Es el acuerdo, no dinero recibido (SPEC 03).
+import Icono from '../Icono.astro';
+import { obtenerRefugio } from '../../lib/datos';
+
+interface Props {
+	porcentaje: number;
+}
+
+const { porcentaje } = Astro.props;
+const refugio = await obtenerRefugio();
+---
+
+<section aria-labelledby="aporte-titulo" class="rounded-2xl border border-lineas bg-superficie p-5">
+	<h2 id="aporte-titulo" class="flex items-center gap-2 text-xl font-bold">
+		<Icono nombre="heart-handshake" size={22} />
+		Aporte al refugio
+	</h2>
+	<p class="mt-2 text-texto-secundario">
+		{
+			porcentaje > 0
+				? `Este negocio aporta el ${porcentaje}% al refugio ${refugio.nombre}.`
+				: 'Aporte al refugio por acordar.'
+		}
+	</p>
+</section>

@@ -1,0 +1,59 @@
+---
+// /colabora/{id} (SPEC 05, RF-04 a RF-10 y RF-13): página de cada negocio publicado con su menú,
+// horarios, ubicación, aporte, nota del refugio y "Más negocios". Un negocio en borrador
+// o pausado no tiene página.
+import AporteNegocio from '../../components/colabora/AporteNegocio.astro';
+import CabeceraNegocio from '../../components/colabora/CabeceraNegocio.astro';
+import ContactoNegocio from '../../components/colabora/ContactoNegocio.astro';
+import HorariosNegocio from '../../components/colabora/HorariosNegocio.astro';
+import MasNegocios from '../../components/colabora/MasNegocios.astro';
+import MenuNegocio from '../../components/colabora/MenuNegocio.astro';
+import NotaRefugio from '../../components/colabora/NotaRefugio.astro';
+import LayoutColabora from '../../layouts/LayoutColabora.astro';
+import { categoriasConNegocios, negociosPublicados, obtenerRefugio, type Negocio } from '../../lib/datos';
+import { enlaceMapa } from '../../lib/mapas';
+
+export async function getStaticPaths() {
+	const negocios = await negociosPublicados();
+	const categorias = await categoriasConNegocios(negocios);
+	const nombreCategoria = new Map(categorias.map(({ id, data }) => [id, data.nombre]));
+	return negocios.map((negocio) => ({
+		params: { slug: negocio.id },
+		props: {
+			negocio,
+			categoria: nombreCategoria.get(negocio.data.categoria.id) ?? '',
+			otros: negocios.filter(({ id }) => id !== negocio.id),
+		},
+	}));
+}
+
+interface Props {
+	negocio: Negocio;
+	categoria: string;
+	otros: Negocio[];
+}
+
+const { negocio, categoria, otros } = Astro.props;
+const { data } = negocio;
+const refugio = await obtenerRefugio();
+const mapa = enlaceMapa(negocio, refugio.ubicacion);
+---
+
+<LayoutColabora
+	titulo={`${data.nombre} · Come por los Peludos`}
+	descripcion={`${categoria}. ${data.descripcion_corta}. ${data.direccion}.`}
+>
+	<CabeceraNegocio negocio={negocio} categoria={categoria} mapa={mapa} />
+
+	<div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+		<MenuNegocio negocio={negocio} />
+		<div class="grid gap-4">
+			<HorariosNegocio horarios={data.horarios} />
+			<ContactoNegocio negocio={negocio} mapa={mapa} />
+			<AporteNegocio porcentaje={data.porcentaje_aporte} />
+			<NotaRefugio />
+		</div>
+	</div>
+
+	<MasNegocios negocios={otros} />
+</LayoutColabora>
