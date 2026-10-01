@@ -1,0 +1,40 @@
+---
+// "Más negocios" (SPEC 05, RF-10): chips a los demás negocios publicados, en orden alfabético.
+// Sin otros negocios, la sección no se pinta.
+import type { Negocio } from '../../lib/datos';
+
+interface Props {
+	/** Negocios publicados sin el actual, ya en orden alfabético. */
+	negocios: Negocio[];
+}
+
+const { negocios } = Astro.props;
+---
+
+{
+	negocios.length > 0 && (
+		<section aria-labelledby="mas-negocios-titulo" class="mt-12">
+			<h2 id="mas-negocios-titulo" class="text-2xl font-bold">
+				Más negocios
+			</h2>
+			<ul data-mas-negocios class="-mx-4 mt-3 flex scroll-px-4 gap-2 overflow-x-auto px-4 py-1 [scrollbar-width:none]">
+				{negocios.map(({ id, data }) => (
+					<li class="shrink-0">
+						<a
+							href={`/colabora/${id}`}
+							class="flex min-h-11 items-center rounded-full border border-lineas bg-superficie px-4 whitespace-nowrap"
+						>
+							{data.nombre}
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}
+
+<script>
+	document.querySelector('[data-mas-negocios]')?.addEventListener('focusin', (evento) => {
+		(evento.target as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest' });
+	});
+</script>

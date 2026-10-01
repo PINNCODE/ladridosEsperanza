@@ -1,0 +1,105 @@
+---
+// Cabecera de la página de un negocio (SPEC 05, RF-04, RF-07 a RF-09): vuelta al catálogo,
+// logo o inicial, nombre, estado "abierto ahora", promoción vigente y acciones rápidas.
+// El estado lo calcula el script con la hora de Ciudad de México; sin JavaScript no se muestra,
+// porque un estado sin calcular sería falso.
+import { Image } from 'astro:assets';
+import Icono from '../Icono.astro';
+import { promocionVigente, type Negocio } from '../../lib/datos';
+
+interface Props {
+	negocio: Negocio;
+	/** Nombre de la categoría del negocio, por ejemplo "Taquerías". */
+	categoria: string;
+	/** Enlace "Cómo llegar" de `enlaceMapa`. */
+	mapa: string;
+}
+
+const { negocio, categoria, mapa } = Astro.props;
+const { data } = negocio;
+const promocion = promocionVigente(negocio, new Date());
+---
+
+<header data-cabecera-negocio data-horarios={JSON.stringify(data.horarios)} class="pt-2">
+	<a
+		href="/colabora"
+		class="inline-flex min-h-11 items-center rounded-lg font-bold text-acento underline underline-offset-4"
+	>
+		← Volver a negocios
+	</a>
+
+	<div class="mt-4 flex items-start gap-4">
+		<div class="grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-suave md:size-24">
+			{
+				data.logo ? (
+					<Image src={data.logo} alt="" width={192} class="size-full object-contain" />
+				) : (
+					<span aria-hidden="true" class="font-titulos text-4xl font-extrabold text-sobre-suave">
+						{data.nombre.charAt(0)}
+					</span>
+				)
+			}
+		</div>
+		<div class="min-w-0">
+			<h1 class="text-3xl leading-tight font-extrabold md:text-4xl">{data.nombre}</h1>
+			<p class="mt-1 text-texto-secundario">{categoria}. {data.descripcion_corta}</p>
+			<p
+				data-estado
+				hidden
+				class="mt-1 text-sm text-texto-secundario data-[abierto=true]:font-bold data-[abierto=true]:text-acento"
+			>
+			</p>
+		</div>
+	</div>
+
+	{
+		promocion && (
+			<p class="mt-5 flex items-start gap-2 rounded-2xl bg-suave p-4 text-sobre-suave">
+				<Icono nombre="tag" size={20} class="mt-0.5 shrink-0" />
+				<span>
+					<strong>Promoción:</strong> {promocion.texto}
+				</span>
+			</p>
+		)
+	}
+
+	<div class="mt-5 flex flex-wrap gap-3">
+		<a
+			href={mapa}
+			target="_blank"
+			rel="noopener"
+			class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+		>
+			<Icono nombre="map-pin" tono="heredado" size={20} />
+			Cómo llegar
+		</a>
+		<a
+			href="#horarios"
+			class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-acento px-5 font-bold text-acento"
+		>
+			<Icono nombre="clock" size={20} />
+			Ver horarios
+		</a>
+	</div>
+</header>
+
+<script>
+	import { estadoHorario, momentoEnMexico, type Horarios } from '../../lib/horarios';
+
+	const cabecera = document.querySelector<HTMLElement>('[data-cabecera-negocio]');
+
+	if (cabecera) {
+		const estado = cabecera.querySelector<HTMLElement>('[data-estado]')!;
+		const horarios = JSON.parse(cabecera.dataset.horarios!) as Horarios;
+
+		function actualizar() {
+			const { abierto, texto } = estadoHorario(horarios, momentoEnMexico(new Date()));
+			estado.textContent = texto;
+			estado.dataset.abierto = String(abierto);
+			estado.hidden = false;
+		}
+
+		actualizar();
+		setInterval(actualizar, 60_000);
+	}
+</script>
