@@ -1,7 +1,0 @@
-[
-	{ "id": "cafeterias", "nombre": "Cafeterías", "orden": 1, "es_ejemplo": true },
-	{ "id": "taquerias", "nombre": "Taquerías", "orden": 2, "es_ejemplo": true },
-	{ "id": "comida-corrida", "nombre": "Comida corrida", "orden": 3, "es_ejemplo": true },
-	{ "id": "panaderias", "nombre": "Panaderías", "orden": 4, "es_ejemplo": true },
-	{ "id": "pizzas", "nombre": "Pizzas", "orden": 5, "es_ejemplo": true }
-]
