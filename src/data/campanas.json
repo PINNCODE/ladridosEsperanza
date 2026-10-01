@@ -1,0 +1,26 @@
+[
+	{
+		"id": "2026-09-26",
+		"fecha": "2026-09-26",
+		"costo": 380,
+		"lugar": "Refugio Ladridos de Esperanza",
+		"horario": "Desde las 9:30 am aprox.",
+		"forma_pago": "Se paga en el refugio de 11:30 am a 1:30 pm o por transferencia; las cuentas se piden por mensaje. Los lugares no son reembolsables en caso de inasistencia.",
+		"cupo": null,
+		"cartel": "../assets/campanas/cartel-2026-09-26.jpg",
+		"estado": "pasada",
+		"es_ejemplo": true
+	},
+	{
+		"id": "2026-10-24",
+		"fecha": "2026-10-24",
+		"costo": 380,
+		"lugar": "Refugio Ladridos de Esperanza",
+		"horario": "Desde las 9:30 am aprox.",
+		"forma_pago": "Se paga en el refugio de 11:30 am a 1:30 pm o por transferencia; las cuentas se piden por mensaje. Los lugares no son reembolsables en caso de inasistencia.",
+		"cupo": 20,
+		"cartel": null,
+		"estado": "proxima",
+		"es_ejemplo": true
+	}
+]

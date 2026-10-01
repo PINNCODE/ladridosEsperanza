@@ -1,0 +1,2304 @@
+{
+	"nombre": "Café del Jardín",
+	"categoria": "cafeterias",
+	"descripcion_corta": "Desayunos, antojitos, pasteles hechos en casa y café",
+	"logo": null,
+	"direccion": "Calle Hidalgo 12, Centro, Tenancingo (ejemplo)",
+	"latitud": null,
+	"longitud": null,
+	"whatsapp": null,
+	"estado": "publicado",
+	"porcentaje_aporte": 5,
+	"fecha_alta": "2026-10-01",
+	"horarios": {
+		"lun": [
+			{
+				"abre": "08:00",
+				"cierra": "21:00"
+			}
+		],
+		"mar": [
+			{
+				"abre": "08:00",
+				"cierra": "21:00"
+			}
+		],
+		"mie": [
+			{
+				"abre": "08:00",
+				"cierra": "21:00"
+			}
+		],
+		"jue": [
+			{
+				"abre": "08:00",
+				"cierra": "21:00"
+			}
+		],
+		"vie": [
+			{
+				"abre": "08:00",
+				"cierra": "21:00"
+			}
+		],
+		"sab": [
+			{
+				"abre": "08:00",
+				"cierra": "21:00"
+			}
+		],
+		"dom": [
+			{
+				"abre": "09:00",
+				"cierra": "15:00"
+			}
+		]
+	},
+	"promocion": {
+		"texto": "2x1 en café americano de 4 a 6 pm",
+		"fecha_inicio": "2026-10-01",
+		"fecha_fin": null
+	},
+	"menu": [
+		{
+			"nombre": "Desayunos",
+			"orden": 1,
+			"secciones": [
+				{
+					"nombre": "Desayunos",
+					"nota": "Disponibles de 8:00 am a 1:00 pm",
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Restaurador",
+							"descripcion": "Chilaquiles verdes o rojos con pollo o chorizo. Gratinados +$15, huevo estrellado +$12",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 90,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Enchiladas",
+							"descripcion": "Verdes o rojas con pollo o chorizo",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 90,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Enchiladas Suizas",
+							"descripcion": "Verdes con pollo",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 100,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "De la Granja",
+							"descripcion": "Huevos al gusto con frijoles refritos y totopos",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 90,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Mañanero",
+							"descripcion": "Cuernito calientito con huevo revuelto y queso gratinado. Jamón +$15, tocino o chorizo +$28",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 85,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Estudiante",
+							"descripcion": "Molletes. Jamón +$15, tocino, chorizo o pollo +$28",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Especial Latte",
+							"descripcion": "Dos huevos estrellados sobre tortilla doradita con frijoles, jamón y queso, con rajas poblanas y salsa ranchera",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 115,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Omelet Poblano",
+							"descripcion": "Relleno de rajas poblanas, bañado en salsa de queso",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 110,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Omelet Campesino",
+							"descripcion": "Relleno de champiñones, bañado en salsa de queso",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 110,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Bebidas y algo más",
+					"nota": null,
+					"orden": 2,
+					"platillos": [
+						{
+							"nombre": "Mimosa",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 49,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Jugo de naranja",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 38,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Jugo de arándano",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 38,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Jugo de guayaba",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 38,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Plato de papaya con yogurt y granola",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 45,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Copa de yoghurt con frutos rojos y granola",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 58,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Paquete desayuno",
+					"nota": "En la compra de un desayuno",
+					"orden": 3,
+					"platillos": [
+						{
+							"nombre": "Paquete desayuno",
+							"descripcion": "Café americano, tisana de manzanilla o limón, jugo o fruta y una pieza de pan con mantequilla y mermelada. Por $20 más cambia tu café americano por café de olla, latte clásico, cappuccino clásico o chocolate caliente",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 60,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": true,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Extras",
+					"nota": null,
+					"orden": 4,
+					"platillos": [
+						{
+							"nombre": "Huevo",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 12,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": true,
+							"disponible": true
+						},
+						{
+							"nombre": "Jamón",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 15,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": true,
+							"disponible": true
+						},
+						{
+							"nombre": "Pollo, chorizo o tocino",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 28,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": true,
+							"disponible": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"nombre": "De antojo",
+			"orden": 2,
+			"secciones": [
+				{
+					"nombre": "Antojitos",
+					"nota": null,
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Enchiladas",
+							"descripcion": "Verdes o rojas con pollo o chorizo",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 90,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Enchiladas Suizas",
+							"descripcion": "Verdes con pollo y gratinadas",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 100,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Enmoladas",
+							"descripcion": "Mole rojo de Teco rellenas de pollo",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 110,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chilaquiles",
+							"descripcion": "Verdes o rojos con pollo o chorizo",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 90,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Tacos dorados de pollo (3 pzas)",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 70,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Tostadas de pollo (2 pzas)",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 75,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Tostadas de cochinita pibil (2 pzas)",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 105,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Molletes",
+					"nota": null,
+					"orden": 2,
+					"platillos": [
+						{
+							"nombre": "Clásicos",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Con jamón",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 80,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Con tocino",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 93,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Con pollo",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 93,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Con chorizo",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 93,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Mollepizza",
+							"descripcion": "Bolillo con salsa italiana, pepperoni y queso gratinado",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 85,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Para picar",
+					"nota": null,
+					"orden": 3,
+					"platillos": [
+						{
+							"nombre": "Hamburguesa de pollo con papas",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 78,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Hamburguesa básica de res",
+							"descripcion": "Pan brioche, carne de res, queso, jitomate, lechuga, pepinillos y cebolla, con papas. Carne extra +$70, tocino +$28",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 175,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Nuggets de pollo con papas",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 69,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Papas a la francesa",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 55,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Palomitas de maíz",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 40,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Flats",
+					"nota": "Pan delgadito y crujiente",
+					"orden": 4,
+					"platillos": [
+						{
+							"nombre": "BBQ",
+							"descripcion": "Pierna deshebrada y queso gratinado",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 79,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Pepperoni",
+							"descripcion": "Salsa de tomate, pepperoni y queso gratinado",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 79,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Hawaiano",
+							"descripcion": "Salsa de tomate, jamón, piña y queso gratinado",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 79,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Ensaladas",
+					"nota": null,
+					"orden": 5,
+					"platillos": [
+						{
+							"nombre": "De la casa",
+							"descripcion": "Lechuga, zanahoria, col, pepino, jitomate y ajonjolí con vinagreta",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 80,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Mexicana",
+							"descripcion": "De la casa con queso gouda y jamón",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 100,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Japonesa",
+							"descripcion": "De la casa con atún",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 100,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Kentucky",
+							"descripcion": "De la casa con tiritas de pechuga asada",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 120,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"nombre": "Sándwiches",
+			"orden": 3,
+			"secciones": [
+				{
+					"nombre": "Favoritos",
+					"nota": "En baguette o cuernito, con mayonesa, lechuga, jitomate, aguacate, pepino y chile",
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Jamón de pierna y queso gouda",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 75,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Jamón de pavo y queso gouda",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 75,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Atún y queso Philadelphia",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 90,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Jamón serrano y queso Philadelphia",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 95,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Baguettes",
+					"nota": null,
+					"orden": 2,
+					"platillos": [
+						{
+							"nombre": "Calle Ocho",
+							"descripcion": "Pierna deshebrada, jamón, queso, mostaza y pepinillos",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 100,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Poblano",
+							"descripcion": "Queso gouda y rajas poblanas",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 80,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Supremo",
+							"descripcion": "Ensalada de pollo con manzana, apio y nuez",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 90,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "De pollo empanizado",
+							"descripcion": "Con lechuga, jitomate, pepino, aguacate y chiles",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 105,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "De cochinita pibil",
+							"descripcion": "Con frijoles refritos, cebolla morada y chile habanero",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 105,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Otros sándwiches",
+					"nota": null,
+					"orden": 3,
+					"platillos": [
+						{
+							"nombre": "Hammy Love",
+							"descripcion": "Pan blanco, jamón, tocino y queso amarillo gratinado",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 100,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Club Sandwich",
+							"descripcion": "Pan blanco, mayonesa, jamón, pollo, jitomate y tocino",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 110,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"nombre": "Lo dulce",
+			"orden": 4,
+			"secciones": [
+				{
+					"nombre": "Pasteles",
+					"nota": "Hechos en casa, uno a uno y de forma artesanal",
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Pastel de queso con zarzamora",
+							"descripcion": "Base de galleta de canela, crema dulce y mermelada de zarzamora",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Pastel de zanahoria",
+							"descripcion": "Con coco, nueces y betún de queso crema",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Pastel de chocolate",
+							"descripcion": "Chocolate semiamargo con betún cremoso",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Strudel de manzana",
+							"descripcion": "Se sirve calientito. Con helado de vainilla +$28",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Pastel de coco",
+							"descripcion": "Bizcocho de coco con betún y coco tostado",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cheesecake Tortuga",
+							"descripcion": "Base de galleta Oreo, dulce de leche y nuez",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 68,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Pastel de blueberry con limón",
+							"descripcion": "Bizcocho de limón con betún cremoso de limón",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 70,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Crepas",
+					"nota": "Con helado +$28",
+					"orden": 2,
+					"platillos": [
+						{
+							"nombre": "Nutella",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 75,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cajeta",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 75,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Queso con zarzamora",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 75,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Queso con guayaba",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 75,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Pan francés",
+					"nota": null,
+					"orden": 3,
+					"platillos": [
+						{
+							"nombre": "Clásico",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 53,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Nutella",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 58,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Helados",
+					"nota": null,
+					"orden": 4,
+					"platillos": [
+						{
+							"nombre": "Fresa",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 53,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chocolate",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 53,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Vainilla",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 53,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Galleta Oreo",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 53,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Más de lo dulce",
+					"nota": null,
+					"orden": 5,
+					"platillos": [
+						{
+							"nombre": "Galletas (10 piezas)",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 28,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cuernito doradito con Nutella, cajeta o guayaba",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 45,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cuernito doradito con queso y zarzamora",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Bolillo doradito con Nutella, cajeta o guayaba",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 41,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Bolillo doradito con queso y zarzamora",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 46,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"nombre": "Café",
+			"orden": 5,
+			"secciones": [
+				{
+					"nombre": "Espresso y café",
+					"nota": null,
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Espresso corto",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 35,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Doppio",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 46,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cortado",
+							"descripcion": "Con espuma de leche",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 40,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Con panna",
+							"descripcion": "Con crema batida",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 42,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Affogato",
+							"descripcion": "Con helado de vainilla",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 60,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Americano",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 35,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Americano cortado",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 40,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Americano con sabor",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 47,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "De la olla",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 40,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cold brew",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Latte",
+					"nota": "Precio caliente / frío o frappé. Con crema batida +$13",
+					"orden": 2,
+					"platillos": [
+						{
+							"nombre": "Clásico",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 49,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 59,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Sabor",
+							"descripcion": "Almendra, coco, tiramisú, caramelo, crema irlandesa, menta, rompope, vainilla, amaretto, cajeta o avellana",
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Cappuccino",
+					"nota": "Precio caliente / frío o frappé",
+					"orden": 3,
+					"platillos": [
+						{
+							"nombre": "Clásico",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 49,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 59,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Sabor",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Mocha",
+					"nota": "Precio caliente / frío o frappé",
+					"orden": 4,
+					"platillos": [
+						{
+							"nombre": "Clásico",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 56,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 66,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Blanco",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 60,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 68,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Tortuga",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 60,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 68,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"nombre": "Sin café",
+			"orden": 6,
+			"secciones": [
+				{
+					"nombre": "Frappé de frutas",
+					"nota": "Con poppings +$20",
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Fresa",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Mango",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Maracuyá",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Mora azul",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Frutas tropicales",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Fresa kiwi",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Manzana verde",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Fresas con crema",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 63,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Limonadas",
+					"nota": null,
+					"orden": 2,
+					"platillos": [
+						{
+							"nombre": "Pink",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 45,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Pasión",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 45,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Blue",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 45,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Coco",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Malteadas",
+					"nota": null,
+					"orden": 3,
+					"platillos": [
+						{
+							"nombre": "Fresa",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 49,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chocolate",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 49,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Vainilla",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 49,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Galleta Oreo",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 52,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Nutella",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 52,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cajeta",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 52,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chocomenta",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 52,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chocococo",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 52,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Chocolate caliente",
+					"nota": "Leche cremosita con sabor y crema batida",
+					"orden": 4,
+					"platillos": [
+						{
+							"nombre": "Clásico",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 55,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Doble chocolate",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 60,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chocolate menta",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 60,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chocolate coco",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 60,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Creams",
+					"nota": "Precio caliente / frío o frappé. Con tapioca +$30",
+					"orden": 5,
+					"platillos": [
+						{
+							"nombre": "Menta",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Coco",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cajeta",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Nutella",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Mazapán",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Taro",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 60,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 70,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Otros",
+					"nota": null,
+					"orden": 6,
+					"platillos": [
+						{
+							"nombre": "Naranjada",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 45,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Refresco en lata",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 35,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Agua embotellada",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 28,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Agua mineral",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 39,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Agua mineral preparada",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 45,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"nombre": "Té",
+			"orden": 7,
+			"secciones": [
+				{
+					"nombre": "Infusiones",
+					"nota": "$50, caliente o frío",
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Té verde",
+							"descripcion": "Sencha, jazmín, chai o menta",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Té negro",
+							"descripcion": "Frutos de la pasión, chai o Darjeeling",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Té rojo Pu Erh",
+							"descripcion": "Frutos rojos",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Tisanas herbales",
+							"descripcion": "Relax, Huracán o manzanilla lavanda",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Tisanas frutales",
+							"descripcion": "Mumbai, fresa kiwi, frutos rojos, Bora Bora, jengibre mandarina, Moscú o cereza grosella",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Tisana rooibos",
+							"descripcion": "Chai",
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 50,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Chai latte",
+					"nota": "Té negro, leche y especias. Precio caliente / frío o frappé. Con tapioca +$30",
+					"orden": 2,
+					"platillos": [
+						{
+							"nombre": "Chai clásico",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chai masala",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chai vainilla",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Chai manzana y canela",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Fraté",
+					"nota": "Tisana frappé. Con poppings +$20",
+					"orden": 3,
+					"platillos": [
+						{
+							"nombre": "Frutos rojos",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Blue Eyes",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Fresa kiwi",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Dragon Blend",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 65,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				},
+				{
+					"nombre": "Té latte",
+					"nota": "Precio caliente / frío o frappé. Con tapioca +$30",
+					"orden": 4,
+					"platillos": [
+						{
+							"nombre": "Té verde menta",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 54,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 64,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Té verde matcha",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": "Caliente",
+									"monto": 66,
+									"texto_alterno": null
+								},
+								{
+									"etiqueta": "Frío o frappé",
+									"monto": 76,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		}
+	],
+	"es_ejemplo": true
+}

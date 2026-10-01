@@ -1,0 +1,76 @@
+---
+// Encabezado común: logo, nombre, botón "Dona" siempre visible y navegación
+// en una fila que se desliza horizontalmente en teléfono.
+import { Image } from 'astro:assets';
+import Icono from './Icono.astro';
+import { obtenerRefugio } from '../lib/datos';
+
+const refugio = await obtenerRefugio();
+
+const enlaces = [
+	{ texto: 'Adopta', href: '/adopta' },
+	{ texto: 'Lo que enfrenta un refugio', href: '/#problematica' },
+	{ texto: 'Esterilización', href: '/esterilizacion' },
+	{ texto: 'Donar', href: '/donar' },
+	{ texto: 'Negocios que ayudan', href: '/colabora' },
+];
+
+const rutaActual = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header class="bg-superficie border-b border-lineas">
+	<div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 pt-3">
+		<a href="/" class="flex min-h-11 min-w-0 items-center gap-3 rounded-lg">
+			<Image
+				src={refugio.logo}
+				alt={`Logo de ${refugio.nombre}`}
+				width={48}
+				height={48}
+				loading="eager"
+				class="size-12 shrink-0 rounded-xl border border-lineas bg-white object-cover"
+			/>
+			<span class="min-w-0">
+				<span class="block font-titulos text-lg leading-tight font-bold">{refugio.nombre}</span>
+				<span class="block text-sm leading-tight text-texto-secundario">
+					Refugio en {refugio.ubicacion}
+				</span>
+			</span>
+		</a>
+		<a
+			href="/donar"
+			class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-acento px-4 font-bold text-sobre-acento"
+		>
+			<Icono nombre="heart" tono="heredado" size={18} />
+			Dona
+		</a>
+	</div>
+	<nav aria-label="Secciones" class="mx-auto max-w-5xl">
+		<ul
+			data-navegacion
+			class="flex scroll-px-2 gap-1 overflow-x-auto px-2 py-1 [scrollbar-width:none]"
+		>
+			{
+				enlaces.map(({ texto, href }) => (
+					<li class="shrink-0">
+						<a
+							href={href}
+							aria-current={rutaActual === href ? 'page' : undefined}
+							class="flex min-h-11 items-center rounded-lg px-3 text-[15px] whitespace-nowrap text-texto-secundario aria-[current=page]:font-bold aria-[current=page]:text-acento"
+						>
+							{texto}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+</header>
+
+<script>
+	// El navegador no desliza la fila si el enlace enfocado ya se ve en parte,
+	// y el último quedaba cortado junto con su contorno de foco. `scroll-px-2`
+	// deja margen para el contorno.
+	document.querySelector('[data-navegacion]')?.addEventListener('focusin', (evento) => {
+		(evento.target as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest' });
+	});
+</script>

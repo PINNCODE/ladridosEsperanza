@@ -1,0 +1,130 @@
+{
+	"nombre": "Pizzería Nonna Lupe",
+	"categoria": "pizzas",
+	"descripcion_corta": "Pizza delgada al horno de leña",
+	"logo": null,
+	"direccion": "Av. Las Torres 312 (ejemplo)",
+	"latitud": null,
+	"longitud": null,
+	"whatsapp": null,
+	"estado": "publicado",
+	"porcentaje_aporte": 5,
+	"fecha_alta": "2026-10-01",
+	"horarios": {
+		"lun": [
+			{
+				"abre": "14:00",
+				"cierra": "22:30"
+			}
+		],
+		"mar": [
+			{
+				"abre": "14:00",
+				"cierra": "22:30"
+			}
+		],
+		"mie": [
+			{
+				"abre": "14:00",
+				"cierra": "22:30"
+			}
+		],
+		"jue": [
+			{
+				"abre": "14:00",
+				"cierra": "22:30"
+			}
+		],
+		"vie": [
+			{
+				"abre": "14:00",
+				"cierra": "22:30"
+			}
+		],
+		"sab": [
+			{
+				"abre": "14:00",
+				"cierra": "23:30"
+			}
+		],
+		"dom": [
+			{
+				"abre": "14:00",
+				"cierra": "21:00"
+			}
+		]
+	},
+	"promocion": {
+		"texto": "Martes de pizza mediana por $120",
+		"fecha_inicio": "2026-10-01",
+		"fecha_fin": null
+	},
+	"menu": [
+		{
+			"nombre": "Menú",
+			"orden": 1,
+			"secciones": [
+				{
+					"nombre": "Pizzas (mediana)",
+					"nota": null,
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Margarita",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 140,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Pepperoni",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 165,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Hawaiana",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 160,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Limonada",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 35,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		}
+	],
+	"es_ejemplo": true
+}

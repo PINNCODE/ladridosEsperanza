@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* Tokens de la spec padre. Solo modo claro. */
+@theme {
+	--color-fondo: #f3f5f2;
+	--color-superficie: #ffffff;
+	--color-texto: #1f2622;
+	--color-texto-secundario: #596560;
+	--color-lineas: #dce3de;
+	--color-acento: #3f6b58;
+	--color-sobre-acento: #ffffff;
+	--color-suave: #e4eee8;
+	--color-sobre-suave: #284536;
+
+	/* Las variables --fuente-* las define <Font /> (API de fuentes de Astro). */
+	--font-titulos: var(--fuente-titulos);
+	--font-texto: var(--fuente-texto);
+}
+
+@layer base {
+	html {
+		color-scheme: light;
+	}
+
+	body {
+		background-color: var(--color-fondo);
+		color: var(--color-texto);
+		font-family: var(--font-texto);
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-titulos);
+	}
+
+	:focus-visible {
+		outline: 3px solid var(--color-acento);
+		outline-offset: 2px;
+	}
+}
+
+/* Con "reducir movimiento" no hay ninguna animación ni transición. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+		scroll-behavior: auto !important;
+	}
+}

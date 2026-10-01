@@ -1,0 +1,42 @@
+---
+// Único punto de entrada para íconos (RF-32): mismo trazo y color de acento en todo el sitio.
+// Sin `etiqueta`, el ícono es decorativo y se oculta a los lectores de pantalla.
+import { icons } from '@lucide/astro';
+
+interface Props {
+	/** Nombre de Lucide en kebab-case, por ejemplo "paw-print". */
+	nombre: string;
+	/** Texto para lectores de pantalla. Solo en íconos que comunican algo por sí solos. */
+	etiqueta?: string;
+	/**
+	 * "acento" (por defecto) pinta el ícono con el color de acento.
+	 * "heredado" usa el color del texto que lo rodea; solo para íconos dentro de botones de acento.
+	 */
+	tono?: 'acento' | 'heredado';
+	size?: number | string;
+	class?: string;
+}
+
+const { nombre, etiqueta, tono = 'acento', size = 24, class: clase } = Astro.props;
+
+const pascal = nombre
+	.split('-')
+	.map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+	.join('');
+const Componente = icons[pascal as keyof typeof icons];
+
+if (!Componente) {
+	throw new Error(`El ícono "${nombre}" no existe en Lucide.`);
+}
+
+const accesibilidad = etiqueta
+	? { role: 'img' as const, 'aria-label': etiqueta }
+	: { 'aria-hidden': 'true' as const };
+---
+
+<Componente
+	size={size}
+	stroke-width={2}
+	class:list={['shrink-0', tono === 'acento' && 'text-acento', clase]}
+	{...accesibilidad}
+/>

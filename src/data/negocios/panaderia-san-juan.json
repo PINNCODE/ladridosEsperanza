@@ -1,0 +1,130 @@
+{
+	"nombre": "Panadería San Juan",
+	"categoria": "panaderias",
+	"descripcion_corta": "Pan de horno de piedra desde 1978",
+	"logo": null,
+	"direccion": "Plaza Principal 8 (ejemplo)",
+	"latitud": null,
+	"longitud": null,
+	"whatsapp": null,
+	"estado": "publicado",
+	"porcentaje_aporte": 3,
+	"fecha_alta": "2026-10-01",
+	"horarios": {
+		"lun": [
+			{
+				"abre": "07:00",
+				"cierra": "20:00"
+			}
+		],
+		"mar": [
+			{
+				"abre": "07:00",
+				"cierra": "20:00"
+			}
+		],
+		"mie": [
+			{
+				"abre": "07:00",
+				"cierra": "20:00"
+			}
+		],
+		"jue": [
+			{
+				"abre": "07:00",
+				"cierra": "20:00"
+			}
+		],
+		"vie": [
+			{
+				"abre": "07:00",
+				"cierra": "20:00"
+			}
+		],
+		"sab": [
+			{
+				"abre": "07:00",
+				"cierra": "20:00"
+			}
+		],
+		"dom": [
+			{
+				"abre": "07:00",
+				"cierra": "14:00"
+			}
+		]
+	},
+	"promocion": {
+		"texto": "Lleva 10 piezas de pan y te regalamos 2",
+		"fecha_inicio": "2026-10-01",
+		"fecha_fin": null
+	},
+	"menu": [
+		{
+			"nombre": "Menú",
+			"orden": 1,
+			"secciones": [
+				{
+					"nombre": "Pan",
+					"nota": null,
+					"orden": 1,
+					"platillos": [
+						{
+							"nombre": "Concha",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 12,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Oreja",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 14,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Cuernito",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 13,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						},
+						{
+							"nombre": "Bolillo",
+							"descripcion": null,
+							"precios": [
+								{
+									"etiqueta": null,
+									"monto": 4,
+									"texto_alterno": null
+								}
+							],
+							"es_extra": false,
+							"disponible": true
+						}
+					]
+				}
+			]
+		}
+	],
+	"es_ejemplo": true
+}
