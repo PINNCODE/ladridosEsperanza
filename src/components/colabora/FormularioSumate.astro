@@ -1,0 +1,215 @@
+---
+// Formulario Súmate (SPEC 07, RF-15): un negocio pide sumarse a Come por los Peludos.
+// El script inserta en solicitudes_negocio con la llave publicable; RLS, los check y un disparador
+// validan en Postgres. Sin JavaScript el formulario no puede enviar, así que se ofrece WhatsApp.
+import { categoriasOrdenadas, obtenerRefugio } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+const refugio = await obtenerRefugio();
+const categorias = await categoriasOrdenadas();
+const whatsapp = enlaceWhatsApp(
+	refugio.whatsapp,
+	'Hola, tengo un negocio y quiero sumarme a Come por los Peludos.',
+);
+
+const etiqueta = 'block font-bold';
+const campo = 'mt-1 min-h-12 w-full rounded-xl border border-lineas bg-superficie px-4 py-2 text-base';
+const ayuda = 'mt-1 text-sm text-texto-secundario';
+const enlace = 'text-acento underline underline-offset-4';
+---
+
+<section aria-labelledby="formulario-titulo" class="mt-8 max-w-xl rounded-3xl border border-lineas bg-superficie p-5 md:p-8">
+	<h2 id="formulario-titulo" class="text-2xl font-bold">Cuéntanos de tu negocio</h2>
+
+	<noscript>
+		<p class="mt-3">
+			Para enviar el formulario necesitas JavaScript. También puedes
+			<a href={whatsapp} target="_blank" rel="noopener" class={enlace}>escribirnos por WhatsApp</a>.
+		</p>
+	</noscript>
+
+	<form data-sumate data-whatsapp={whatsapp} hidden class="mt-4 space-y-5">
+		<div>
+			<label for="sumate-nombre" class={etiqueta}>Nombre del negocio</label>
+			<input
+				id="sumate-nombre"
+				name="nombre_negocio"
+				required
+				minlength="2"
+				maxlength="120"
+				autocomplete="organization"
+				class={campo}
+			/>
+		</div>
+
+		<div>
+			<label for="sumate-tipo" class={etiqueta}>Tipo de negocio</label>
+			<select id="sumate-tipo" name="tipo" required data-tipo class={campo}>
+				<option value="" disabled selected>Elige una opción</option>
+				{categorias.map(({ data }) => <option value={data.nombre}>{data.nombre}</option>)}
+				<option value="otro">Otro</option>
+			</select>
+		</div>
+
+		<div data-otro hidden>
+			<label for="sumate-otro" class={etiqueta}>¿Qué tipo de negocio es?</label>
+			<input id="sumate-otro" name="tipo_otro" minlength="2" maxlength="60" class={campo} />
+		</div>
+
+		<div>
+			<label for="sumate-whatsapp" class={etiqueta}>WhatsApp</label>
+			<input
+				id="sumate-whatsapp"
+				name="whatsapp"
+				type="tel"
+				inputmode="numeric"
+				required
+				autocomplete="tel-national"
+				aria-describedby="sumate-whatsapp-ayuda"
+				data-whatsapp-campo
+				class={campo}
+			/>
+			<p id="sumate-whatsapp-ayuda" class={ayuda}>10 dígitos, por ejemplo 714 123 4567.</p>
+		</div>
+
+		<div>
+			<label for="sumate-contacto" class={etiqueta}>
+				Tu nombre <span class="font-normal text-texto-secundario">(opcional)</span>
+			</label>
+			<input id="sumate-contacto" name="nombre_contacto" maxlength="80" autocomplete="name" class={campo} />
+		</div>
+
+		<div>
+			<label for="sumate-mensaje" class={etiqueta}>
+				Mensaje <span class="font-normal text-texto-secundario">(opcional)</span>
+			</label>
+			<textarea id="sumate-mensaje" name="mensaje" maxlength="500" rows="4" class={campo}></textarea>
+		</div>
+
+		<!-- Campo trampa: las personas no lo ven; si trae texto, el envío es de un bot. -->
+		<div aria-hidden="true" class="absolute -left-[9999px] h-px w-px overflow-hidden">
+			<label for="sumate-sitio">Sitio web</label>
+			<input id="sumate-sitio" name="sitio_web" tabindex="-1" autocomplete="off" />
+		</div>
+
+		<div class="flex items-start gap-3">
+			<input
+				id="sumate-aviso"
+				name="acepto_aviso"
+				type="checkbox"
+				required
+				class="mt-1 size-5 shrink-0 accent-acento"
+			/>
+			<label for="sumate-aviso">
+				Acepto el <a href="/aviso-de-privacidad" target="_blank" class={enlace}>aviso de privacidad</a>.
+			</label>
+		</div>
+
+		<p data-error role="alert" class="text-base font-bold text-texto empty:hidden"></p>
+
+		<button
+			type="submit"
+			data-enviar
+			class="inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento disabled:opacity-60"
+		>
+			Enviar solicitud
+		</button>
+	</form>
+
+	<p data-gracias role="status" tabindex="-1" hidden class="mt-4 rounded-xl bg-suave p-4 font-bold text-sobre-suave">
+		¡Gracias! Te escribiremos por WhatsApp en los próximos días.
+	</p>
+</section>
+
+<script>
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	const formulario = document.querySelector<HTMLFormElement>('[data-sumate]');
+
+	if (formulario) {
+		const tipo = formulario.querySelector<HTMLSelectElement>('[data-tipo]')!;
+		const otro = formulario.querySelector<HTMLElement>('[data-otro]')!;
+		const campoOtro = otro.querySelector<HTMLInputElement>('input')!;
+		const campoWhatsApp = formulario.querySelector<HTMLInputElement>('[data-whatsapp-campo]')!;
+		const error = formulario.querySelector<HTMLElement>('[data-error]')!;
+		const enviar = formulario.querySelector<HTMLButtonElement>('[data-enviar]')!;
+		const gracias = document.querySelector<HTMLElement>('[data-gracias]')!;
+		const enlaceWhatsApp = formulario.dataset.whatsapp!;
+
+		formulario.hidden = false;
+
+		// Se aceptan espacios y guiones; se guardan solo los 10 dígitos.
+		const digitos = () => campoWhatsApp.value.replace(/[\s-]/g, '');
+
+		const validarWhatsApp = () => {
+			campoWhatsApp.setCustomValidity(
+				/^\d{10}$/.test(digitos()) ? '' : 'Escribe los 10 dígitos de tu WhatsApp.',
+			);
+		};
+		campoWhatsApp.addEventListener('input', validarWhatsApp);
+		validarWhatsApp();
+
+		tipo.addEventListener('change', () => {
+			const esOtro = tipo.value === 'otro';
+			otro.hidden = !esOtro;
+			campoOtro.required = esOtro;
+		});
+
+		const mostrarGracias = () => {
+			formulario.hidden = true;
+			gracias.hidden = false;
+			gracias.focus();
+		};
+
+		const mostrarError = (repetido: boolean) => {
+			error.replaceChildren();
+			if (repetido) {
+				error.textContent = 'Ya recibimos una solicitud con este WhatsApp hoy. Te escribiremos pronto.';
+				return;
+			}
+			const enlace = document.createElement('a');
+			enlace.href = enlaceWhatsApp;
+			enlace.target = '_blank';
+			enlace.rel = 'noopener';
+			enlace.className = 'text-acento underline underline-offset-4';
+			enlace.textContent = 'Escríbenos por WhatsApp';
+			error.append('No pudimos enviar tu solicitud. ', enlace, '.');
+		};
+
+		formulario.addEventListener('submit', async (evento) => {
+			evento.preventDefault();
+			const datos = new FormData(formulario);
+			const texto = (nombre: string) => String(datos.get(nombre) ?? '').trim();
+
+			// Un bot llenó el campo trampa: se ve el éxito y no se envía nada.
+			if (texto('sitio_web')) {
+				mostrarGracias();
+				return;
+			}
+
+			error.replaceChildren();
+			enviar.disabled = true;
+			enviar.textContent = 'Enviando…';
+
+			const { error: fallo } = await supabaseNavegador()
+				.from('solicitudes_negocio')
+				.insert({
+					nombre_negocio: texto('nombre_negocio'),
+					tipo: tipo.value === 'otro' ? texto('tipo_otro') : tipo.value,
+					whatsapp: digitos(),
+					nombre_contacto: texto('nombre_contacto') || null,
+					mensaje: texto('mensaje') || null,
+					acepto_aviso: datos.get('acepto_aviso') === 'on',
+				});
+
+			if (!fallo) {
+				mostrarGracias();
+				return;
+			}
+
+			enviar.disabled = false;
+			enviar.textContent = 'Enviar solicitud';
+			mostrarError(fallo.message === 'whatsapp_repetido');
+		});
+	}
+</script>

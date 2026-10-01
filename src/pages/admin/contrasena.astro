@@ -1,0 +1,152 @@
+---
+// /admin/contrasena (SPEC 07): destino de los correos de invitación y de recuperación.
+// Las plantillas de supabase/plantillas/ traen ?token_hash=…&type=invite|recovery; la página lo
+// verifica, pide la contraseña nueva y manda a /admin/entrar para el segundo paso.
+// Una cuenta que ya tiene TOTP escribe antes su código: Supabase exige aal2 para cambiar la contraseña.
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+
+const etiqueta = 'block font-bold';
+const campo = 'mt-1 min-h-12 w-full rounded-xl border border-lineas bg-superficie px-4 py-2 text-base';
+const boton =
+	'inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento disabled:opacity-60';
+---
+
+<LayoutPanel titulo="Elige tu contraseña" protegido={false}>
+	<p data-cargando class="mt-6 text-texto-secundario">Cargando…</p>
+
+	<div data-invalido hidden class="mt-6 space-y-4">
+		<p class="font-bold">Este enlace ya se usó o venció.</p>
+		<p>
+			Pide uno nuevo desde <a href="/admin/entrar" class="text-acento underline underline-offset-4"
+				>¿Olvidaste tu contraseña?</a
+			>, o pide al administrador otra invitación.
+		</p>
+	</div>
+
+	<form data-codigo hidden class="mt-6 space-y-5">
+		<p>Antes de cambiar tu contraseña, escribe el código de 6 dígitos de tu app de autenticación.</p>
+		<div>
+			<label for="contrasena-codigo" class={etiqueta}>Código de 6 dígitos</label>
+			<input
+				id="contrasena-codigo"
+				name="codigo"
+				required
+				inputmode="numeric"
+				pattern="\d{6}"
+				maxlength="6"
+				autocomplete="one-time-code"
+				class={campo}
+			/>
+		</div>
+		<p data-mensaje role="alert" class="font-bold empty:hidden"></p>
+		<button type="submit" class={boton}>Verificar</button>
+	</form>
+
+	<form data-nueva hidden class="mt-6 space-y-5">
+		<div>
+			<label for="nueva-contrasena" class={etiqueta}>Contraseña nueva</label>
+			<input
+				id="nueva-contrasena"
+				name="contrasena"
+				type="password"
+				required
+				minlength="8"
+				autocomplete="new-password"
+				aria-describedby="nueva-ayuda"
+				class={campo}
+			/>
+			<p id="nueva-ayuda" class="mt-1 text-sm text-texto-secundario">Al menos 8 caracteres.</p>
+		</div>
+		<div>
+			<label for="nueva-confirmacion" class={etiqueta}>Escríbela otra vez</label>
+			<input
+				id="nueva-confirmacion"
+				name="confirmacion"
+				type="password"
+				required
+				minlength="8"
+				autocomplete="new-password"
+				class={campo}
+			/>
+		</div>
+		<p data-mensaje role="alert" class="font-bold empty:hidden"></p>
+		<button type="submit" class={boton}>Guardar contraseña</button>
+	</form>
+</LayoutPanel>
+
+<script>
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	const supabase = supabaseNavegador();
+	const formulario = document.querySelector<HTMLFormElement>('[data-nueva]')!;
+	const mensaje = formulario.querySelector<HTMLElement>('[data-mensaje]')!;
+	const confirmacion = formulario.querySelector<HTMLInputElement>('[name="confirmacion"]')!;
+	const contrasena = formulario.querySelector<HTMLInputElement>('[name="contrasena"]')!;
+
+	const parametros = new URLSearchParams(location.search);
+	const tokenHash = parametros.get('token_hash');
+	const tipo = parametros.get('type');
+
+	let valido = false;
+	if (tokenHash && (tipo === 'invite' || tipo === 'recovery')) {
+		const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: tipo });
+		valido = !error;
+		// El token es de un solo uso; se quita de la barra de direcciones.
+		history.replaceState(null, '', location.pathname);
+	}
+
+	const formularioCodigo = document.querySelector<HTMLFormElement>('[data-codigo]')!;
+	let factorId = '';
+
+	function pedirContrasena() {
+		formularioCodigo.hidden = true;
+		formulario.hidden = false;
+		contrasena.focus();
+	}
+
+	if (valido) {
+		const { data: factores } = await supabase.auth.mfa.listFactors();
+		factorId = factores?.totp[0]?.id ?? '';
+	}
+
+	document.querySelector<HTMLElement>('[data-cargando]')!.hidden = true;
+	if (!valido) {
+		document.querySelector<HTMLElement>('[data-invalido]')!.hidden = false;
+	} else if (factorId) {
+		formularioCodigo.hidden = false;
+		formularioCodigo.querySelector('input')!.focus();
+	} else {
+		pedirContrasena();
+	}
+
+	formularioCodigo.addEventListener('submit', async (evento) => {
+		evento.preventDefault();
+		const codigo = String(new FormData(formularioCodigo).get('codigo') ?? '').trim();
+		const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code: codigo });
+		if (error) {
+			formularioCodigo.querySelector<HTMLElement>('[data-mensaje]')!.textContent =
+				'El código no es correcto o ya venció. Escribe el código que muestra ahora tu app.';
+			return;
+		}
+		pedirContrasena();
+	});
+
+	const revisarConfirmacion = () => {
+		confirmacion.setCustomValidity(
+			confirmacion.value === contrasena.value ? '' : 'Las dos contraseñas no son iguales.',
+		);
+	};
+	contrasena.addEventListener('input', revisarConfirmacion);
+	confirmacion.addEventListener('input', revisarConfirmacion);
+
+	formulario.addEventListener('submit', async (evento) => {
+		evento.preventDefault();
+		const { error } = await supabase.auth.updateUser({ password: contrasena.value });
+		if (error) {
+			mensaje.textContent = 'No pudimos guardar la contraseña. Pide un enlace nuevo e intenta otra vez.';
+			return;
+		}
+		// Con el código ya verificado entra directo; si no (invitación), /admin/entrar da de alta el TOTP.
+		location.replace(factorId ? '/admin' : '/admin/entrar');
+	});
+</script>

@@ -142,6 +142,11 @@ export async function categoriasConNegocios(negocios: Negocio[]): Promise<Catego
 		.sort((a, b) => a.data.orden - b.data.orden);
 }
 
+/** Todas las categorías por `orden`, para el tipo de negocio del formulario Súmate (SPEC 07). */
+export async function categoriasOrdenadas(): Promise<Categoria[]> {
+	return (await obtener('categorias')).sort((a, b) => a.data.orden - b.data.orden);
+}
+
 // Consultas de la página de cada negocio (SPEC 05).
 
 export type GrupoMenu = Negocio['data']['menu'][number];

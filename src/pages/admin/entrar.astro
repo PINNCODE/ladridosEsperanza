@@ -1,0 +1,224 @@
+---
+// /admin/entrar (SPEC 07): correo y contraseña, y luego el segundo paso con TOTP.
+// La primera vez la cuenta da de alta su app de autenticación; después solo pide el código.
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+
+const etiqueta = 'block font-bold';
+const campo = 'mt-1 min-h-12 w-full rounded-xl border border-lineas bg-superficie px-4 py-2 text-base';
+const boton =
+	'inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento disabled:opacity-60';
+const enlace = 'min-h-11 text-acento underline underline-offset-4';
+const mensaje = 'font-bold empty:hidden';
+---
+
+<LayoutPanel titulo="Entrar" protegido={false}>
+	<p data-cargando class="mt-6 text-texto-secundario">Cargando…</p>
+
+	<form data-paso="contrasena" hidden class="mt-6 space-y-5">
+		<div>
+			<label for="entrar-correo" class={etiqueta}>Correo</label>
+			<input id="entrar-correo" name="correo" type="email" required autocomplete="username" class={campo} />
+		</div>
+		<div>
+			<label for="entrar-contrasena" class={etiqueta}>Contraseña</label>
+			<input
+				id="entrar-contrasena"
+				name="contrasena"
+				type="password"
+				required
+				autocomplete="current-password"
+				class={campo}
+			/>
+		</div>
+		<p data-mensaje role="alert" class={mensaje}></p>
+		<div class="flex flex-wrap items-center gap-4">
+			<button type="submit" class={boton}>Entrar</button>
+			<button type="button" data-ir-recuperar class={enlace}>¿Olvidaste tu contraseña?</button>
+		</div>
+	</form>
+
+	<form data-paso="recuperar" hidden class="mt-6 space-y-5">
+		<p>Te enviamos un enlace para elegir una contraseña nueva.</p>
+		<div>
+			<label for="recuperar-correo" class={etiqueta}>Correo</label>
+			<input id="recuperar-correo" name="correo" type="email" required autocomplete="username" class={campo} />
+		</div>
+		<p data-mensaje role="status" class={mensaje}></p>
+		<div class="flex flex-wrap items-center gap-4">
+			<button type="submit" class={boton}>Enviar enlace</button>
+			<button type="button" data-ir-contrasena class={enlace}>Volver</button>
+		</div>
+	</form>
+
+	<form data-paso="alta" hidden class="mt-6 space-y-5">
+		<p>
+			Para proteger el panel, tu cuenta usa verificación en dos pasos. Escanea este código con una app de
+			autenticación (Google Authenticator, Microsoft Authenticator u otra) y escribe el código de 6 dígitos
+			que te muestra.
+		</p>
+		<img data-qr-alta alt="Código QR para dar de alta la app de autenticación" width="200" height="200" class="rounded-xl border border-lineas bg-superficie p-2" />
+		<p class="text-sm text-texto-secundario">
+			Si no puedes escanearlo, escribe esta clave en la app:
+			<code data-secreto class="block font-mono text-base break-all text-texto"></code>
+		</p>
+		<div>
+			<label for="alta-codigo" class={etiqueta}>Código de 6 dígitos</label>
+			<input
+				id="alta-codigo"
+				name="codigo"
+				required
+				inputmode="numeric"
+				pattern="\d{6}"
+				maxlength="6"
+				autocomplete="one-time-code"
+				class={campo}
+			/>
+		</div>
+		<p data-mensaje role="alert" class={mensaje}></p>
+		<button type="submit" class={boton}>Confirmar</button>
+	</form>
+
+	<form data-paso="codigo" hidden class="mt-6 space-y-5">
+		<p>Escribe el código de 6 dígitos de tu app de autenticación.</p>
+		<div>
+			<label for="entrar-codigo" class={etiqueta}>Código de 6 dígitos</label>
+			<input
+				id="entrar-codigo"
+				name="codigo"
+				required
+				inputmode="numeric"
+				pattern="\d{6}"
+				maxlength="6"
+				autocomplete="one-time-code"
+				class={campo}
+			/>
+		</div>
+		<p data-mensaje role="alert" class={mensaje}></p>
+		<div class="flex flex-wrap items-center gap-4">
+			<button type="submit" class={boton}>Verificar</button>
+			<button type="button" data-salir-entrar class={enlace}>Usar otra cuenta</button>
+		</div>
+	</form>
+</LayoutPanel>
+
+<script>
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Paso = 'contrasena' | 'recuperar' | 'alta' | 'codigo';
+
+	const supabase = supabaseNavegador();
+	const formulario = (paso: Paso) => document.querySelector<HTMLFormElement>(`[data-paso="${paso}"]`)!;
+	const mensaje = (paso: Paso) => formulario(paso).querySelector<HTMLElement>('[data-mensaje]')!;
+	let factorId = '';
+
+	function mostrar(paso: Paso) {
+		document.querySelector<HTMLElement>('[data-cargando]')!.hidden = true;
+		for (const elemento of document.querySelectorAll<HTMLFormElement>('[data-paso]')) {
+			elemento.hidden = elemento.dataset.paso !== paso;
+		}
+		mensaje(paso).textContent = '';
+		formulario(paso).querySelector<HTMLInputElement>('input')?.focus();
+	}
+
+	// Segundo paso: código si ya hay un factor TOTP verificado; si no, alta de uno nuevo.
+	async function segundoPaso() {
+		const { data: factores, error } = await supabase.auth.mfa.listFactors();
+		if (error) {
+			mostrar('contrasena');
+			mensaje('contrasena').textContent = 'No pudimos revisar tu cuenta. Intenta de nuevo.';
+			return;
+		}
+
+		const verificado = factores.totp[0];
+		if (verificado) {
+			factorId = verificado.id;
+			mostrar('codigo');
+			return;
+		}
+
+		// Un alta sin terminar se borra para empezar de nuevo con un QR válido.
+		for (const factor of factores.all) {
+			if (factor.factor_type === 'totp' && factor.status === 'unverified') {
+				await supabase.auth.mfa.unenroll({ factorId: factor.id });
+			}
+		}
+
+		const { data: alta, error: errorAlta } = await supabase.auth.mfa.enroll({
+			factorType: 'totp',
+			friendlyName: 'Ladridos de Esperanza',
+			issuer: 'Ladridos de Esperanza',
+		});
+		if (errorAlta) {
+			mostrar('contrasena');
+			mensaje('contrasena').textContent = 'No pudimos preparar la verificación en dos pasos. Intenta de nuevo.';
+			return;
+		}
+
+		factorId = alta.id;
+		document.querySelector<HTMLImageElement>('[data-qr-alta]')!.src = alta.totp.qr_code;
+		document.querySelector<HTMLElement>('[data-secreto]')!.textContent = alta.totp.secret;
+		mostrar('alta');
+	}
+
+	async function verificar(paso: 'alta' | 'codigo') {
+		const codigo = String(new FormData(formulario(paso)).get('codigo') ?? '').trim();
+		const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code: codigo });
+		if (error) {
+			mensaje(paso).textContent = 'El código no es correcto o ya venció. Escribe el código que muestra ahora tu app.';
+			return;
+		}
+		location.replace('/admin');
+	}
+
+	formulario('contrasena').addEventListener('submit', async (evento) => {
+		evento.preventDefault();
+		const datos = new FormData(formulario('contrasena'));
+		const { error } = await supabase.auth.signInWithPassword({
+			email: String(datos.get('correo')).trim(),
+			password: String(datos.get('contrasena')),
+		});
+		if (error) {
+			mensaje('contrasena').textContent = 'El correo o la contraseña no son correctos.';
+			return;
+		}
+		await segundoPaso();
+	});
+
+	formulario('recuperar').addEventListener('submit', async (evento) => {
+		evento.preventDefault();
+		const correo = String(new FormData(formulario('recuperar')).get('correo')).trim();
+		const { error } = await supabase.auth.resetPasswordForEmail(correo, {
+			redirectTo: `${location.origin}/admin/contrasena`,
+		});
+		mensaje('recuperar').textContent = error
+			? 'No pudimos enviar el enlace. Espera unos minutos e intenta de nuevo.'
+			: 'Si el correo tiene una cuenta del panel, te llegará un enlace en unos minutos.';
+	});
+
+	formulario('alta').addEventListener('submit', (evento) => {
+		evento.preventDefault();
+		verificar('alta');
+	});
+
+	formulario('codigo').addEventListener('submit', (evento) => {
+		evento.preventDefault();
+		verificar('codigo');
+	});
+
+	document.querySelector('[data-ir-recuperar]')!.addEventListener('click', () => mostrar('recuperar'));
+	document.querySelector('[data-ir-contrasena]')!.addEventListener('click', () => mostrar('contrasena'));
+	document.querySelector('[data-salir-entrar]')!.addEventListener('click', async () => {
+		await supabase.auth.signOut();
+		mostrar('contrasena');
+	});
+
+	// Al abrir: con aal2 ya está dentro; con solo contraseña (aal1) sigue en el segundo paso.
+	const { data: nivel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+	if (nivel?.currentLevel === 'aal2') {
+		location.replace('/admin');
+	} else if (nivel?.currentLevel === 'aal1') {
+		await segundoPaso();
+	} else {
+		mostrar('contrasena');
+	}
+</script>
