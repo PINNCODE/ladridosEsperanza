@@ -1,0 +1,230 @@
+---
+// Catálogo de /colabora (SPEC 04, RF-01 a RF-03): buscador, filtros, contador y tarjetas.
+// Sin JavaScript se ven todas las tarjetas; buscador, filtros y estado los muestra el script,
+// porque un estado sin calcular sería falso.
+import TarjetaNegocio from './TarjetaNegocio.astro';
+import Icono from '../Icono.astro';
+import { categoriasConNegocios, negociosPublicados } from '../../lib/datos';
+
+const negocios = await negociosPublicados();
+const categorias = await categoriasConNegocios(negocios);
+const nombreCategoria = new Map(categorias.map(({ id, data }) => [id, data.nombre]));
+
+const contador = (n: number) => `${n} ${n === 1 ? 'negocio' : 'negocios'}`;
+const chip =
+	'flex min-h-11 shrink-0 items-center rounded-full border border-lineas bg-superficie px-4 whitespace-nowrap aria-pressed:border-acento aria-pressed:bg-acento aria-pressed:font-bold aria-pressed:text-sobre-acento';
+---
+
+<section aria-labelledby="negocios-titulo" class="mt-6" data-catalogo>
+	<h2 id="negocios-titulo" class="sr-only">Negocios</h2>
+	{
+		negocios.length === 0 ? (
+			<p class="rounded-2xl bg-suave p-5 text-sobre-suave">
+				Pronto verás aquí a los negocios que ayudan al refugio.
+			</p>
+		) : (
+			<>
+				<form role="search" data-buscador hidden class="relative">
+					<label for="consulta" class="sr-only">
+						Buscar negocio o platillo
+					</label>
+					<Icono nombre="search" size={20} class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2" />
+					<input
+						id="consulta"
+						type="search"
+						data-consulta
+						autocomplete="off"
+						placeholder="Busca un platillo o negocio, por ejemplo: café"
+						class="min-h-12 w-full rounded-xl border border-lineas bg-superficie py-2 pr-4 pl-12 text-base"
+					/>
+				</form>
+
+				<div
+					role="group"
+					aria-label="Filtros"
+					data-filtros
+					hidden
+					class="-mx-4 mt-3 flex scroll-px-4 gap-2 overflow-x-auto px-4 py-1 [scrollbar-width:none]"
+				>
+					<button type="button" data-categoria="" aria-pressed="true" class={chip}>
+						Todas
+					</button>
+					{categorias.map(({ id, data }) => (
+						<button type="button" data-categoria={id} aria-pressed="false" class={chip}>
+							{data.nombre}
+						</button>
+					))}
+					<span aria-hidden="true" class="mx-1 w-px shrink-0 self-stretch bg-lineas" />
+					<button type="button" data-interruptor="abierto" aria-pressed="false" class={chip}>
+						Abierto ahora
+					</button>
+					<button type="button" data-interruptor="promocion" aria-pressed="false" class={chip}>
+						Con promoción
+					</button>
+				</div>
+
+				<p data-contador aria-live="polite" class="mt-4 text-sm text-texto-secundario">
+					{contador(negocios.length)}
+				</p>
+
+				<div data-sin-resultados hidden class="mt-2 rounded-2xl bg-suave p-5 text-sobre-suave">
+					<p>No encontramos negocios con esos filtros. Prueba quitar un filtro o buscar otra palabra.</p>
+					<button
+						type="button"
+						data-quitar
+						class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+					>
+						Quitar filtros
+					</button>
+				</div>
+
+				<ul class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					{negocios.map((negocio) => (
+						<TarjetaNegocio
+							negocio={negocio}
+							categoria={nombreCategoria.get(negocio.data.categoria.id) ?? ''}
+						/>
+					))}
+				</ul>
+			</>
+		)
+	}
+</section>
+
+<script>
+	import { coincide } from '../../lib/busqueda';
+	import { estadoHorario, momentoEnMexico, type Horarios } from '../../lib/horarios';
+
+	type Filtros = { q: string; categoria: string; abierto: boolean; promocion: boolean };
+
+	const catalogo = document.querySelector<HTMLElement>('[data-catalogo]');
+	const buscador = catalogo?.querySelector<HTMLFormElement>('[data-buscador]');
+
+	if (catalogo && buscador) {
+		const consulta = catalogo.querySelector<HTMLInputElement>('[data-consulta]')!;
+		const filtros = catalogo.querySelector<HTMLElement>('[data-filtros]')!;
+		const contador = catalogo.querySelector<HTMLElement>('[data-contador]')!;
+		const sinResultados = catalogo.querySelector<HTMLElement>('[data-sin-resultados]')!;
+		const chipsCategoria = [...filtros.querySelectorAll<HTMLButtonElement>('[data-categoria]')];
+		const interruptores = [...filtros.querySelectorAll<HTMLButtonElement>('[data-interruptor]')];
+		const tarjetas = [...catalogo.querySelectorAll<HTMLElement>('[data-negocio]')].map((tarjeta) => ({
+			tarjeta,
+			estado: tarjeta.querySelector<HTMLElement>('[data-estado]')!,
+			horarios: JSON.parse(tarjeta.dataset.horarios!) as Horarios,
+		}));
+		const categoriasValidas = new Set(chipsCategoria.map((chip) => chip.dataset.categoria));
+
+		// Estado inicial desde la URL; un valor vacío o desconocido se ignora.
+		const parametros = new URLSearchParams(location.search);
+		const categoria = parametros.get('categoria') ?? '';
+		const filtro: Filtros = {
+			q: parametros.get('q') ?? '',
+			categoria: categoriasValidas.has(categoria) ? categoria : '',
+			abierto: parametros.get('abierto') === '1',
+			promocion: parametros.get('promocion') === '1',
+		};
+
+		/** Estado "abierto ahora" de cada tarjeta con la hora de Ciudad de México. */
+		function actualizarEstados() {
+			const momento = momentoEnMexico(new Date());
+			for (const { tarjeta, estado, horarios } of tarjetas) {
+				const { abierto, texto } = estadoHorario(horarios, momento);
+				estado.textContent = texto;
+				estado.hidden = false;
+				tarjeta.dataset.abierto = String(abierto);
+			}
+		}
+
+		/** Muestra solo las tarjetas que cumplen búsqueda, categoría e interruptores a la vez. */
+		function aplicar() {
+			let visibles = 0;
+			for (const { tarjeta } of tarjetas) {
+				const visible =
+					coincide(tarjeta.dataset.busqueda!, filtro.q) &&
+					(!filtro.categoria || tarjeta.dataset.categoria === filtro.categoria) &&
+					(!filtro.abierto || tarjeta.dataset.abierto === 'true') &&
+					(!filtro.promocion || tarjeta.dataset.promocion === 'true');
+				tarjeta.hidden = !visible;
+				if (visible) visibles++;
+			}
+			contador.textContent = visibles
+				? `${visibles} ${visibles === 1 ? 'negocio' : 'negocios'}`
+				: '';
+			sinResultados.hidden = visibles > 0;
+			for (const chip of chipsCategoria) {
+				chip.setAttribute('aria-pressed', String(chip.dataset.categoria === filtro.categoria));
+			}
+			for (const interruptor of interruptores) {
+				const clave = interruptor.dataset.interruptor as 'abierto' | 'promocion';
+				interruptor.setAttribute('aria-pressed', String(filtro[clave]));
+			}
+		}
+
+		/** Guarda búsqueda y filtros en la URL sin agregar entradas al historial. */
+		function escribirUrl() {
+			const nuevos = new URLSearchParams();
+			if (filtro.q.trim()) nuevos.set('q', filtro.q);
+			if (filtro.categoria) nuevos.set('categoria', filtro.categoria);
+			if (filtro.abierto) nuevos.set('abierto', '1');
+			if (filtro.promocion) nuevos.set('promocion', '1');
+			const busqueda = nuevos.toString();
+			history.replaceState(history.state, '', `${location.pathname}${busqueda ? `?${busqueda}` : ''}${location.hash}`);
+		}
+
+		function cambiar() {
+			aplicar();
+			escribirUrl();
+		}
+
+		consulta.value = filtro.q;
+		consulta.addEventListener('input', () => {
+			filtro.q = consulta.value;
+			cambiar();
+		});
+
+		// La búsqueda es al escribir; enviar solo cierra el teclado del teléfono.
+		buscador.addEventListener('submit', (evento) => {
+			evento.preventDefault();
+			consulta.blur();
+		});
+
+		for (const chip of chipsCategoria) {
+			chip.addEventListener('click', () => {
+				filtro.categoria = chip.dataset.categoria!;
+				cambiar();
+			});
+		}
+
+		for (const interruptor of interruptores) {
+			interruptor.addEventListener('click', () => {
+				const clave = interruptor.dataset.interruptor as 'abierto' | 'promocion';
+				filtro[clave] = !filtro[clave];
+				cambiar();
+			});
+		}
+
+		catalogo.querySelector('[data-quitar]')!.addEventListener('click', () => {
+			Object.assign(filtro, { q: '', categoria: '', abierto: false, promocion: false });
+			consulta.value = '';
+			cambiar();
+			consulta.focus();
+		});
+
+		// Igual que la navegación del encabezado: desliza la fila hasta el chip enfocado.
+		filtros.addEventListener('focusin', (evento) => {
+			(evento.target as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest' });
+		});
+
+		buscador.hidden = false;
+		filtros.hidden = false;
+		actualizarEstados();
+		aplicar();
+		escribirUrl();
+
+		// El estado cambia con la hora; "Abierto ahora" se vuelve a aplicar con él.
+		setInterval(() => {
+			actualizarEstados();
+			aplicar();
+		}, 60_000);
+	}
+</script>
