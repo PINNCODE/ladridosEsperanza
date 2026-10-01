@@ -1,0 +1,34 @@
+[
+	{
+		"id": "facebook",
+		"red": "facebook",
+		"etiqueta": "Facebook",
+		"url": "https://www.facebook.com/ladridos.esperanza.5/",
+		"orden": 1,
+		"es_ejemplo": false
+	},
+	{
+		"id": "instagram",
+		"red": "instagram",
+		"etiqueta": "Instagram",
+		"url": "https://www.instagram.com/ladridosdeesperanzatenancingo/",
+		"orden": 2,
+		"es_ejemplo": false
+	},
+	{
+		"id": "facebook-sos",
+		"red": "facebook_sos",
+		"etiqueta": "Facebook de SOS Ladridos de Esperanza Tenancingo",
+		"url": "https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/",
+		"orden": 3,
+		"es_ejemplo": false
+	},
+	{
+		"id": "tiktok",
+		"red": "tiktok",
+		"etiqueta": "TikTok",
+		"url": "https://www.tiktok.com/@sos_ladridostenancingo",
+		"orden": 4,
+		"es_ejemplo": false
+	}
+]

@@ -1,0 +1,12 @@
+[
+	{
+		"id": "refugio",
+		"nombre": "Ladridos de Esperanza",
+		"frase": "Un refugio que sale adelante gracias a personas como tú. Ayúdanos a esterilizar, dar en adopción y cuidar a los peludos que más lo necesitan.",
+		"ubicacion": "Tenancingo, Estado de México",
+		"whatsapp": "5215500000000",
+		"logo": "../assets/refugio/logo.jpg",
+		"foto_principal": "../assets/refugio/patio.jpg",
+		"es_ejemplo": true
+	}
+]

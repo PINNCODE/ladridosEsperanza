@@ -1,0 +1,12 @@
+[
+	{
+		"id": "quienes-somos",
+		"seccion": "quienes_somos",
+		"titulo": "Quiénes somos",
+		"texto": "Somos el refugio Ladridos de Esperanza, en Tenancingo. Rescatamos perros y gatos, los cuidamos, los esterilizamos y les buscamos una familia. Aquí irá la historia real del refugio.",
+		"imagenes": [],
+		"orden": 1,
+		"publicado": true,
+		"es_ejemplo": true
+	}
+]
