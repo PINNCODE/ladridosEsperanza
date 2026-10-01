@@ -1,0 +1,31 @@
+---
+// Caminito de huellas entre secciones de la portada (RF-31).
+// Las huellas aparecen una tras otra según --k; `invertido` cambia la dirección del paso.
+import Icono from './Icono.astro';
+
+interface Props {
+	invertido?: boolean;
+}
+
+const { invertido = false } = Astro.props;
+---
+
+<div
+	aria-hidden="true"
+	class:list={[
+		'mx-1.5 flex h-12 items-center justify-between overflow-hidden',
+		invertido && 'flex-row-reverse',
+	]}
+>
+	{
+		Array.from({ length: 9 }, (_, k) => (
+			<span style={`--k: ${k}`} class:list={[k % 2 === 0 ? '-mt-3.5' : 'mt-3.5']}>
+				<Icono
+					nombre="paw-print"
+					size={22}
+					class:list={['huella block', invertido ? '-rotate-90' : 'rotate-90']}
+				/>
+			</span>
+		))
+	}
+</div>

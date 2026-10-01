@@ -1,0 +1,47 @@
+---
+// Resumen de transparencia en la portada: totales del último informe publicado.
+// La página completa (/transparencia) llega en la SPEC 03. Sin informe, la sección no se muestra.
+import { ultimoInforme } from '../../lib/datos';
+import { formatearMes, formatearPesos } from '../../lib/formato';
+
+const informe = await ultimoInforme();
+const suma = (montos: { monto: number }[]) => montos.reduce((total, { monto }) => total + monto, 0);
+
+const recibido = informe ? suma(informe.data.ingresos) : 0;
+const gastado = informe ? suma(informe.data.gastos) : 0;
+const filas = [
+	{ etiqueta: 'Recibido', valor: formatearPesos(recibido) },
+	{ etiqueta: 'Gastado', valor: formatearPesos(gastado) },
+	{ etiqueta: 'Disponible para el mes siguiente', valor: formatearPesos(recibido - gastado) },
+];
+---
+
+{
+	informe && (
+		<section id="transparencia" aria-labelledby="transparencia-titulo" class="aparecer">
+			<h2 id="transparencia-titulo" class="text-2xl font-bold md:text-3xl">
+				Transparencia
+			</h2>
+			<p class="mt-2 max-w-prose text-texto-secundario">
+				Cada mes publicamos cuánto se recibió y en qué se gastó, con comprobantes.
+			</p>
+			<div class="mt-5 max-w-md rounded-2xl border border-lineas bg-superficie p-5">
+				<h3 class="text-lg font-bold">Informe de {formatearMes(informe.data.mes)}</h3>
+				<dl class="mt-2 divide-y divide-lineas">
+					{filas.map(({ etiqueta, valor }) => (
+						<div class="flex justify-between gap-4 py-2">
+							<dt class="text-texto-secundario">{etiqueta}</dt>
+							<dd class="font-bold">{valor}</dd>
+						</div>
+					))}
+				</dl>
+				<a
+					href="/transparencia"
+					class="mt-3 inline-flex min-h-11 items-center text-acento underline underline-offset-4"
+				>
+					Ver informe
+				</a>
+			</div>
+		</section>
+	)
+}

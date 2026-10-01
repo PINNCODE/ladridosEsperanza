@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./animaciones.css";
 
 /* Tokens de la spec padre. Solo modo claro. */
 @theme {

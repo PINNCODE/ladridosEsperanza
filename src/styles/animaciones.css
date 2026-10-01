@@ -1,0 +1,109 @@
+/*
+ * Animaciones decorativas (RF-31). Solo CSS y solo transform y opacity.
+ * El estado sin animación de cada clase es visible: con "reducir movimiento"
+ * el bloque de global.css anula todas y nada queda oculto.
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+	/* Corazón de "Dona": un latido cada 3 s. */
+	.latido {
+		transform-box: fill-box;
+		transform-origin: center;
+		animation: latido 3s ease-in-out infinite;
+	}
+
+	/* Figuras detrás de la presentación. --r inclina cada figura y --retraso las desfasa. */
+	.flotar {
+		animation: flotar 7s ease-in-out infinite;
+		animation-delay: var(--retraso, 0s);
+	}
+
+	/* Figuras que se asoman sobre el borde de una banda. */
+	.asomarse {
+		animation: asomarse 3.6s ease-in-out infinite;
+	}
+
+	/* Pasos del caminito de huellas, uno tras otro según --k. */
+	.huella {
+		animation: huella 5.6s ease-in-out infinite;
+		animation-delay: calc(var(--k, 0) * 0.45s);
+	}
+
+	/*
+	 * Entrada al desplazar. Sin soporte de animation-timeline, el contenido se ve sin animación.
+	 * Van propiedades sueltas y no el atajo `animation`: al minificar, el atajo absorbía
+	 * `view()` y Chrome descartaba la declaración completa en producción.
+	 */
+	@supports (animation-timeline: view()) {
+		.aparecer {
+			animation-name: aparecer;
+			animation-timing-function: linear;
+			animation-fill-mode: both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 60%;
+		}
+	}
+}
+
+.flotar {
+	transform: rotate(var(--r, 0deg));
+}
+
+.huella {
+	opacity: 0.5;
+}
+
+@keyframes latido {
+	0%,
+	20%,
+	100% {
+		transform: scale(1);
+	}
+	10% {
+		transform: scale(1.22);
+	}
+}
+
+@keyframes flotar {
+	0%,
+	100% {
+		transform: translateY(0) rotate(var(--r, 0deg));
+	}
+	50% {
+		transform: translateY(-10px) rotate(var(--r, 0deg));
+	}
+}
+
+@keyframes asomarse {
+	0%,
+	100% {
+		transform: translateY(5px);
+	}
+	50% {
+		transform: translateY(-3px);
+	}
+}
+
+@keyframes huella {
+	0%,
+	100% {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+	15%,
+	55% {
+		opacity: 0.6;
+		transform: scale(1);
+	}
+}
+
+@keyframes aparecer {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}

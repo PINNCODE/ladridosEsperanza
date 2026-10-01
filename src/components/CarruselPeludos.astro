@@ -1,0 +1,149 @@
+---
+// Carrusel de peludos en adopción (RF-30). Se desliza con el dedo gracias a
+// scroll-snap; flechas, puntos, teclado, avance automático y favoritos los
+// agrega el script.
+import Icono from './Icono.astro';
+import TarjetaPeludo from './TarjetaPeludo.astro';
+import type { Peludo } from '../lib/datos';
+
+interface Props {
+	peludos: Peludo[];
+}
+
+const { peludos } = Astro.props;
+---
+
+<div data-carrusel role="region" aria-roledescription="carrusel" aria-label="Peludos en adopción">
+	<ul
+		data-pista
+		tabindex="0"
+		aria-label="Lista de peludos"
+		class="flex snap-x snap-mandatory gap-4 overflow-x-auto rounded-2xl pb-1 [scrollbar-width:none]"
+	>
+		{
+			peludos.map((peludo) => (
+				<li class="w-[80%] max-w-80 shrink-0 snap-start">
+					<TarjetaPeludo peludo={peludo} />
+				</li>
+			))
+		}
+	</ul>
+	<div class="mt-4 flex items-center justify-center gap-2">
+		<button
+			type="button"
+			data-anterior
+			aria-label="Anterior"
+			class="grid size-11 shrink-0 place-items-center rounded-full border border-lineas bg-superficie"
+		>
+			<Icono nombre="chevron-left" size={22} />
+		</button>
+		{/* Puntos de 44 px de alto y 28 de ancho: seis caben junto a las flechas dentro de la banda a 360 px. */}
+		<div class="flex flex-wrap justify-center">
+			{
+				peludos.map(({ data }, indice) => (
+					<button
+						type="button"
+						data-punto={indice}
+						aria-label={`Ver a ${data.nombre}`}
+						aria-current={indice === 0 ? 'true' : undefined}
+						class="group grid h-11 w-7 place-items-center rounded-full"
+					>
+						<span class="block h-2.5 w-2.5 rounded-full bg-lineas group-aria-[current=true]:w-6 group-aria-[current=true]:bg-acento" />
+					</button>
+				))
+			}
+		</div>
+		<button
+			type="button"
+			data-siguiente
+			aria-label="Siguiente"
+			class="grid size-11 shrink-0 place-items-center rounded-full border border-lineas bg-superficie"
+		>
+			<Icono nombre="chevron-right" size={22} />
+		</button>
+	</div>
+</div>
+
+<script>
+	// Flechas, puntos y teclado del carrusel. El deslizamiento con el dedo lo da scroll-snap.
+	const reducirMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	document.querySelectorAll<HTMLElement>('[data-carrusel]').forEach((carrusel) => {
+		const pista = carrusel.querySelector<HTMLElement>('[data-pista]')!;
+		const tarjetas = [...pista.children] as HTMLElement[];
+		const puntos = [...carrusel.querySelectorAll<HTMLButtonElement>('[data-punto]')];
+		const ultimo = tarjetas.length - 1;
+
+		const posicion = (indice: number) => tarjetas[indice].offsetLeft - tarjetas[0].offsetLeft;
+
+		// Tarjeta actual. Al llegar al final se marca la última, aunque quepan dos a la vez.
+		const actual = () => {
+			if (pista.scrollLeft >= pista.scrollWidth - pista.clientWidth - 4) return ultimo;
+			const paso = tarjetas.length > 1 ? posicion(1) : pista.clientWidth;
+			return Math.min(ultimo, Math.round(pista.scrollLeft / paso));
+		};
+
+		const ir = (indice: number) => {
+			const destino = Math.max(0, Math.min(ultimo, indice));
+			pista.scrollTo({ left: posicion(destino), behavior: reducirMovimiento ? 'auto' : 'smooth' });
+		};
+
+		const marcar = () => {
+			const indice = actual();
+			puntos.forEach((punto, i) => {
+				if (i === indice) punto.setAttribute('aria-current', 'true');
+				else punto.removeAttribute('aria-current');
+			});
+		};
+
+		let cuadro = 0;
+		pista.addEventListener(
+			'scroll',
+			() => {
+				cancelAnimationFrame(cuadro);
+				cuadro = requestAnimationFrame(marcar);
+			},
+			{ passive: true },
+		);
+
+		carrusel.querySelector('[data-anterior]')!.addEventListener('click', () => ir(actual() - 1));
+		carrusel.querySelector('[data-siguiente]')!.addEventListener('click', () => ir(actual() + 1));
+		puntos.forEach((punto, i) => punto.addEventListener('click', () => ir(i)));
+
+		pista.addEventListener('keydown', (evento) => {
+			if (evento.key === 'ArrowRight') {
+				evento.preventDefault();
+				ir(actual() + 1);
+			}
+			if (evento.key === 'ArrowLeft') {
+				evento.preventDefault();
+				ir(actual() - 1);
+			}
+		});
+
+		// Avance automático cada 5 s. No arranca con "reducir movimiento", no avanza con la
+		// pestaña oculta ni con el carrusel fuera de pantalla, y se apaga para siempre en
+		// esta visita al primer toque, rueda, tecla o foco dentro del carrusel.
+		if (reducirMovimiento || tarjetas.length < 2) return;
+
+		let enPantalla = false;
+		new IntersectionObserver(([entrada]) => {
+			enPantalla = entrada.isIntersecting;
+		}).observe(carrusel);
+
+		const intervalo = setInterval(() => {
+			if (document.hidden || !enPantalla) return;
+			ir(actual() === ultimo ? 0 : actual() + 1);
+		}, 5000);
+
+		const apagar = () => {
+			clearInterval(intervalo);
+			for (const tipo of ['pointerdown', 'wheel', 'keydown', 'focusin']) {
+				carrusel.removeEventListener(tipo, apagar);
+			}
+		};
+		for (const tipo of ['pointerdown', 'wheel', 'keydown', 'focusin']) {
+			carrusel.addEventListener(tipo, apagar, { passive: true });
+		}
+	});
+</script>

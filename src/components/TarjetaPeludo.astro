@@ -1,0 +1,108 @@
+---
+// Tarjeta de un peludo en adopción (RF-30): foto o ícono, datos, rasgos,
+// favorito (lo activa el script del carrusel) y contacto por WhatsApp.
+import { Image } from 'astro:assets';
+import Icono from './Icono.astro';
+import { obtenerRefugio, type Peludo } from '../lib/datos';
+import { enlaceWhatsApp } from '../lib/whatsapp';
+
+interface Props {
+	peludo: Peludo;
+}
+
+const { id, data } = Astro.props.peludo;
+const refugio = await obtenerRefugio();
+const [foto] = data.fotos;
+const whatsapp = enlaceWhatsApp(
+	refugio.whatsapp,
+	`Hola, quiero conocer a ${data.nombre}. La vi en la página de ${refugio.nombre}.`,
+);
+---
+
+<article class="flex h-full flex-col overflow-hidden rounded-2xl border border-lineas bg-superficie">
+	<div class="relative">
+		{
+			foto ? (
+				<Image
+					src={foto}
+					alt={`Foto de ${data.nombre}`}
+					width={480}
+					class="aspect-[4/3] w-full object-cover"
+				/>
+			) : (
+				<div class="grid aspect-[4/3] w-full place-items-center bg-suave">
+					<Icono nombre={data.especie === 'gato' ? 'cat' : 'dog'} size={72} />
+				</div>
+			)
+		}
+		<button
+			type="button"
+			data-favorito={id}
+			aria-pressed="false"
+			aria-label={`Guardar a ${data.nombre} como favorito`}
+			class="group absolute top-2 right-2 grid size-11 place-items-center rounded-full bg-superficie"
+		>
+			<Icono nombre="heart" size={22} class="group-aria-pressed:fill-current" />
+		</button>
+	</div>
+	<div class="flex flex-1 flex-col gap-3 p-4">
+		<div>
+			<h3 class="text-xl font-bold">{data.nombre}</h3>
+			<p class="text-texto-secundario">
+				{data.descripcion_especie}, {data.edad}, tamaño {data.tamano}
+			</p>
+		</div>
+		<ul class="flex flex-wrap gap-2" aria-label="Rasgos">
+			{
+				data.rasgos.map((rasgo) => (
+					<li class="rounded-full bg-suave px-3 py-1 text-sm text-sobre-suave">{rasgo}</li>
+				))
+			}
+		</ul>
+		<a
+			href={whatsapp}
+			target="_blank"
+			rel="noopener"
+			class="mt-auto inline-flex min-h-11 items-center justify-center rounded-xl bg-acento px-4 text-center font-bold text-sobre-acento"
+		>
+			Quiero conocer a {data.nombre}
+		</a>
+	</div>
+</article>
+
+<script>
+	// Favoritos solo en este dispositivo (RF-30). Si localStorage no está disponible,
+	// el corazón sigue alternando, solo que no se guarda.
+	const CLAVE = 'favoritos:v1';
+
+	function leer(): string[] {
+		try {
+			const guardado = JSON.parse(localStorage.getItem(CLAVE) ?? '[]');
+			return Array.isArray(guardado) ? guardado.filter((id) => typeof id === 'string') : [];
+		} catch {
+			return [];
+		}
+	}
+
+	function guardar(ids: string[]) {
+		try {
+			localStorage.setItem(CLAVE, JSON.stringify(ids));
+		} catch {
+			// Sin almacenamiento: el favorito dura solo esta visita.
+		}
+	}
+
+	const favoritos = new Set(leer());
+
+	document.querySelectorAll<HTMLButtonElement>('[data-favorito]').forEach((boton) => {
+		const id = boton.dataset.favorito!;
+		boton.setAttribute('aria-pressed', String(favoritos.has(id)));
+
+		boton.addEventListener('click', () => {
+			if (favoritos.has(id)) favoritos.delete(id);
+			else favoritos.add(id);
+			boton.setAttribute('aria-pressed', String(favoritos.has(id)));
+			guardar([...favoritos]);
+		});
+	});
+</script>

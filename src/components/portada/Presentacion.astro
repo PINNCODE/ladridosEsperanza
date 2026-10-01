@@ -1,0 +1,40 @@
+---
+// Presentación de la portada (RF-21): foto real, nombre, frase y los dos llamados.
+import { Image } from 'astro:assets';
+import FigurasFlotantes from '../FigurasFlotantes.astro';
+import Icono from '../Icono.astro';
+import { obtenerRefugio } from '../../lib/datos';
+
+const refugio = await obtenerRefugio();
+---
+
+<section aria-label="Presentación" class="aparecer relative grid items-center gap-6 md:grid-cols-2">
+	<FigurasFlotantes />
+	<div class="relative z-10">
+		<h1 class="text-4xl leading-tight font-extrabold md:text-5xl">{refugio.nombre}</h1>
+		<p class="mt-4 text-lg text-texto-secundario">{refugio.frase}</p>
+		<div class="mt-6 flex flex-wrap gap-3">
+			<a
+				href="#adopta"
+				class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+			>
+				<Icono nombre="house-heart" tono="heredado" size={20} />
+				Quiero adoptar
+			</a>
+			<a
+				href="/donar"
+				class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-acento bg-superficie px-5 font-bold text-acento"
+			>
+				<Icono nombre="heart" size={20} class="latido" />
+				Dona
+			</a>
+		</div>
+	</div>
+	<Image
+		src={refugio.foto_principal}
+		alt={`Perros en el refugio ${refugio.nombre} caminando por el patio`}
+		class="relative z-10 w-full rounded-2xl border border-lineas object-cover"
+		loading="eager"
+		fetchpriority="high"
+	/>
+</section>

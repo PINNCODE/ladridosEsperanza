@@ -19,7 +19,7 @@ export default defineConfig({
       name: 'DM Sans',
       cssVariable: '--fuente-texto',
       weights: ['400 700'],
-      styles: ['normal', 'italic'],
+      styles: ['normal'],
       subsets: ['latin'],
       fallbacks: ['system-ui', 'sans-serif'],
     },

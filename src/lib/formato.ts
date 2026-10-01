@@ -1,0 +1,38 @@
+// Formato de montos y fechas en español de México.
+// Las fechas de los datos ("2026-10-24") se crean a medianoche UTC con z.coerce.date(),
+// por eso todo se formatea en UTC: en hora de México saldría el día anterior.
+
+const pesos = new Intl.NumberFormat('es-MX', {
+	style: 'currency',
+	currency: 'MXN',
+	maximumFractionDigits: 0,
+});
+
+const fecha = new Intl.DateTimeFormat('es-MX', {
+	weekday: 'long',
+	day: 'numeric',
+	month: 'long',
+	timeZone: 'UTC',
+});
+
+const mes = new Intl.DateTimeFormat('es-MX', {
+	month: 'long',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
+
+/** 15000 → "$15,000" */
+export function formatearPesos(monto: number): string {
+	return pesos.format(monto);
+}
+
+/** 2026-10-24 → "sábado 24 de octubre" */
+export function formatearFecha(dia: Date): string {
+	return fecha.format(dia).replace(',', '');
+}
+
+/** "2026-09" o una fecha → "septiembre de 2026" */
+export function formatearMes(valor: string | Date): string {
+	const dia = typeof valor === 'string' ? new Date(`${valor}-01`) : valor;
+	return mes.format(dia);
+}
