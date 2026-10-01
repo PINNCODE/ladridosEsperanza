@@ -1,0 +1,58 @@
+---
+// Quiénes somos (RF-22): historia, ubicación y fotos del bloque de contenido, y redes del refugio.
+// Sin bloque publicado, la sección no se muestra.
+import { Image } from 'astro:assets';
+import Icono from '../Icono.astro';
+import { bloqueQuienesSomos, obtener, obtenerRefugio } from '../../lib/datos';
+
+const bloque = await bloqueQuienesSomos();
+const refugio = await obtenerRefugio();
+const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden);
+const parrafos = bloque?.data.texto.split(/\n\s*\n/).filter((parrafo) => parrafo.trim()) ?? [];
+---
+
+{
+	bloque && (
+		<section id="quienes" aria-labelledby="quienes-titulo" class="aparecer">
+			<span class="grid size-11 place-items-center rounded-xl bg-suave">
+				<Icono nombre="paw-print" />
+			</span>
+			<h2 id="quienes-titulo" class="mt-3 text-2xl font-bold md:text-3xl">
+				{bloque.data.titulo}
+			</h2>
+			<div class="mt-2 max-w-prose space-y-3 text-texto-secundario">
+				{parrafos.map((parrafo) => <p>{parrafo}</p>)}
+			</div>
+			<p class="mt-3 flex items-center gap-2">
+				<Icono nombre="map-pin" size={20} />
+				{refugio.ubicacion}
+			</p>
+			{bloque.data.imagenes.length > 0 && (
+				<div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
+					{bloque.data.imagenes.map((imagen) => (
+						<Image
+							src={imagen}
+							alt={`Foto del refugio ${refugio.nombre}`}
+							width={480}
+							class="aspect-[4/3] w-full rounded-2xl border border-lineas object-cover"
+						/>
+					))}
+				</div>
+			)}
+			<ul class="mt-5 flex flex-wrap gap-2" aria-label="Conoce al refugio en redes">
+				{redes.map(({ data }) => (
+					<li>
+						<a
+							href={data.url}
+							target="_blank"
+							rel="noopener"
+							class="inline-flex min-h-11 items-center rounded-xl border border-acento bg-superficie px-4 font-bold text-acento"
+						>
+							{data.etiqueta}
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

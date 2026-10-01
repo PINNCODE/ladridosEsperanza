@@ -1,0 +1,50 @@
+---
+// Adopciones (RF-30): carrusel de peludos disponibles justo después de la presentación.
+// Sin peludos disponibles, la sección se queda con un aviso y el WhatsApp del refugio.
+import CarruselPeludos from '../CarruselPeludos.astro';
+import Icono from '../Icono.astro';
+import { obtenerRefugio, peludosDisponibles } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+const refugio = await obtenerRefugio();
+const peludos = await peludosDisponibles();
+const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
+---
+
+<section id="adopta" aria-labelledby="adopta-titulo" class="aparecer pt-11">
+	<div class="relative rounded-3xl bg-suave p-5 md:p-8">
+		<span aria-hidden="true" class="absolute -top-11 right-7">
+			<Icono nombre="cat" size={54} class="asomarse block" />
+		</span>
+		<div class="flex items-start gap-3">
+			<span class="grid size-11 shrink-0 place-items-center rounded-xl bg-superficie">
+				<Icono nombre="house-heart" />
+			</span>
+			<div>
+				<h2 id="adopta-titulo" class="text-2xl font-bold md:text-3xl">Ellos buscan una familia</h2>
+				<p class="mt-1 text-texto-secundario">
+					Desliza para conocerlos. Escríbenos para saber su historia y cómo es el proceso de adopción.
+				</p>
+			</div>
+		</div>
+		<div class="mt-5">
+			{
+				peludos.length > 0 ? (
+					<CarruselPeludos peludos={peludos} />
+				) : (
+					<div class="rounded-2xl bg-superficie p-5">
+						<p>Por ahora no hay peludos en adopción. Escríbenos para saber cuándo llegan nuevos.</p>
+						<a
+							href={whatsapp}
+							target="_blank"
+							rel="noopener"
+							class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+						>
+							Escríbenos por WhatsApp
+						</a>
+					</div>
+				)
+			}
+		</div>
+	</div>
+</section>

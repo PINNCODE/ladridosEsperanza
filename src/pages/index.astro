@@ -1,6 +1,16 @@
 ---
-// Portada provisional: las secciones reales llegan en la SPEC 02.
-import { Image } from 'astro:assets';
+// Portada del refugio (SPEC 02): las 9 secciones en el orden de la spec padre,
+// con un caminito de huellas entre cada par que alterna su dirección (RF-31).
+import CaminoHuellas from '../components/CaminoHuellas.astro';
+import Adopciones from '../components/portada/Adopciones.astro';
+import Colaboracion from '../components/portada/Colaboracion.astro';
+import Donativos from '../components/portada/Donativos.astro';
+import Esterilizacion from '../components/portada/Esterilizacion.astro';
+import Presentacion from '../components/portada/Presentacion.astro';
+import Problematicas from '../components/portada/Problematicas.astro';
+import QuienesSomos from '../components/portada/QuienesSomos.astro';
+import RedesContacto from '../components/portada/RedesContacto.astro';
+import Transparencia from '../components/portada/Transparencia.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtenerRefugio } from '../lib/datos';
 
@@ -8,16 +18,21 @@ const refugio = await obtenerRefugio();
 ---
 
 <Layout titulo={refugio.nombre} descripcion={refugio.frase}>
-	<section class="grid items-center gap-6 md:grid-cols-2">
-		<div>
-			<h1 class="text-4xl leading-tight font-extrabold md:text-5xl">{refugio.nombre}</h1>
-			<p class="mt-4 text-lg text-texto-secundario">{refugio.frase}</p>
-		</div>
-		<Image
-			src={refugio.foto_principal}
-			alt={`Perros en el refugio ${refugio.nombre} caminando por el patio`}
-			class="w-full rounded-2xl border border-lineas object-cover"
-			loading="eager"
-		/>
-	</section>
+	<Presentacion />
+	<CaminoHuellas />
+	<Adopciones />
+	<CaminoHuellas invertido />
+	<QuienesSomos />
+	<CaminoHuellas />
+	<Problematicas />
+	<CaminoHuellas invertido />
+	<Esterilizacion />
+	<CaminoHuellas />
+	<Donativos />
+	<CaminoHuellas invertido />
+	<Transparencia />
+	<CaminoHuellas />
+	<Colaboracion />
+	<CaminoHuellas invertido />
+	<RedesContacto />
 </Layout>
