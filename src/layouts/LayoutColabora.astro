@@ -1,0 +1,20 @@
+---
+// Layout de las páginas de /colabora (SPEC 04 y 05): el del sitio más la barra fija
+// con enlaces al refugio (RF-13).
+import BarraRefugio from '../components/colabora/BarraRefugio.astro';
+import Layout from './Layout.astro';
+
+interface Props {
+	/** Título completo de la pestaña. */
+	titulo: string;
+	/** Resumen de la página para buscadores y para compartir. */
+	descripcion: string;
+}
+
+const { titulo, descripcion } = Astro.props;
+---
+
+<Layout titulo={titulo} descripcion={descripcion}>
+	<slot />
+	<BarraRefugio slot="barra" />
+</Layout>

@@ -1,0 +1,19 @@
+---
+// /colabora (SPEC 04, RF-01 a RF-03 y RF-13): "Come por los Peludos", catálogo de negocios
+// que aportan al refugio, con búsqueda, filtros y la barra fija de enlaces al refugio.
+import EncabezadoPagina from '../../components/EncabezadoPagina.astro';
+import CatalogoNegocios from '../../components/colabora/CatalogoNegocios.astro';
+import SumaTuNegocio from '../../components/colabora/SumaTuNegocio.astro';
+import LayoutColabora from '../../layouts/LayoutColabora.astro';
+import { obtenerRefugio } from '../../lib/datos';
+
+const refugio = await obtenerRefugio();
+const titulo = 'Come por los Peludos';
+const frase = `Negocios locales que publican su menú con nosotros y aportan al refugio ${refugio.nombre}.`;
+---
+
+<LayoutColabora titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
+	<EncabezadoPagina titulo={titulo} frase={frase} icono="store" />
+	<CatalogoNegocios />
+	<SumaTuNegocio />
+</LayoutColabora>

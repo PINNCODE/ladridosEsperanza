@@ -14,13 +14,21 @@ interface Props {
 }
 
 const { titulo, descripcion } = Astro.props;
+
+// Solo las páginas de /colabora traen barra fija inferior (SPEC 04, RF-13). Con ella,
+// viewport-fit=cover hace que env(safe-area-inset-bottom) mida la barra de inicio del
+// teléfono, y el relleno inferior evita que la barra tape el pie.
+const conBarra = Astro.slots.has('barra');
 ---
 
 <!doctype html>
 <html lang="es-MX">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="viewport"
+			content={`width=device-width, initial-scale=1${conBarra ? ', viewport-fit=cover' : ''}`}
+		/>
 		<meta name="description" content={descripcion} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
@@ -29,12 +37,18 @@ const { titulo, descripcion } = Astro.props;
 		<Font cssVariable="--fuente-texto" preload />
 		<title>{titulo}</title>
 	</head>
-	<body class="flex min-h-dvh flex-col">
+	<body
+		class:list={[
+			'flex min-h-dvh flex-col',
+			conBarra && 'pb-[calc(3rem+env(safe-area-inset-bottom))]',
+		]}
+	>
 		{mostrarEjemplos && <CintaEjemplo />}
 		<Encabezado />
 		<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
 			<slot />
 		</main>
 		<Pie />
+		<slot name="barra" />
 	</body>
 </html>

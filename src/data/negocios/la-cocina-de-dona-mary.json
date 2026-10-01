@@ -49,7 +49,11 @@
 		],
 		"dom": "cerrado"
 	},
-	"promocion": null,
+	"promocion": {
+		"texto": "Comida corrida con agua del día por $85",
+		"fecha_inicio": "2026-09-01",
+		"fecha_fin": "2026-09-30"
+	},
 	"menu": [
 		{
 			"nombre": "Menú",

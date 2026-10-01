@@ -1,0 +1,35 @@
+---
+// "¿Tienes un negocio? Súmate" (SPEC 04): WhatsApp del refugio mientras llega
+// el formulario de /colabora/sumate (SPEC 07).
+import Icono from '../Icono.astro';
+import { obtenerRefugio } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+const refugio = await obtenerRefugio();
+const whatsapp = enlaceWhatsApp(
+	refugio.whatsapp,
+	'Hola, tengo un negocio y quiero sumarme a Come por los Peludos.',
+);
+---
+
+<section
+	aria-labelledby="sumate-titulo"
+	class="mt-12 rounded-3xl border border-lineas bg-superficie p-5 md:p-8"
+>
+	<span class="grid size-11 place-items-center rounded-xl bg-suave">
+		<Icono nombre="handshake" />
+	</span>
+	<h2 id="sumate-titulo" class="mt-3 text-2xl font-bold md:text-3xl">¿Tienes un negocio? Súmate</h2>
+	<p class="mt-2 max-w-prose text-texto-secundario">
+		Publicamos tu menú, horarios y promociones, y tu negocio aporta al refugio. Escríbenos y te
+		contamos cómo.
+	</p>
+	<a
+		href={whatsapp}
+		target="_blank"
+		rel="noopener"
+		class="mt-5 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+	>
+		Quiero sumar mi negocio
+	</a>
+</section>

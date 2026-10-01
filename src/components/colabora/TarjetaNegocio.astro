@@ -1,0 +1,77 @@
+---
+// Tarjeta de un negocio en /colabora (SPEC 04, RF-01): enlaza a su página (SPEC 05).
+// Los atributos data-* los usa el script de CatalogoNegocios para el estado, la búsqueda y los filtros.
+import { Image } from 'astro:assets';
+import Icono from '../Icono.astro';
+import { textoBusqueda } from '../../lib/busqueda';
+import { promocionVigente, type Negocio } from '../../lib/datos';
+
+interface Props {
+	negocio: Negocio;
+	/** Nombre de la categoría del negocio, por ejemplo "Taquerías". */
+	categoria: string;
+}
+
+const { negocio, categoria } = Astro.props;
+const { id, data } = negocio;
+const promocion = promocionVigente(negocio, new Date());
+---
+
+<li
+	data-negocio
+	data-categoria={data.categoria.id}
+	data-promocion={String(promocion !== null)}
+	data-busqueda={textoBusqueda(negocio, categoria)}
+	data-horarios={JSON.stringify(data.horarios)}
+	class="group"
+>
+	<a
+		href={`/colabora/${id}`}
+		class="flex h-full flex-col overflow-hidden rounded-2xl border border-lineas bg-superficie"
+	>
+		<div class="relative grid h-32 place-items-center bg-suave">
+			{
+				data.logo ? (
+					<Image src={data.logo} alt="" width={240} class="max-h-24 w-auto object-contain" />
+				) : (
+					<span aria-hidden="true" class="font-titulos text-5xl font-extrabold text-sobre-suave">
+						{data.nombre.charAt(0)}
+					</span>
+				)
+			}
+			{
+				promocion && (
+					<span class="absolute top-3 left-3 rounded-full bg-acento px-3 py-1 text-sm font-bold text-sobre-acento">
+						Promoción
+					</span>
+				)
+			}
+		</div>
+		<div class="flex flex-1 flex-col gap-2 p-4">
+			<h3 class="text-xl font-bold">{data.nombre}</h3>
+			<p class="text-texto-secundario">{categoria}. {data.descripcion_corta}</p>
+			<p
+				data-estado
+				hidden
+				class="text-sm text-texto-secundario group-data-[abierto=true]:font-bold group-data-[abierto=true]:text-acento"
+			>
+			</p>
+			{
+				promocion && (
+					<p class="flex items-start gap-2 text-sm">
+						<Icono nombre="tag" size={18} class="mt-0.5" />
+						{promocion.texto}
+					</p>
+				)
+			}
+			<p class="mt-auto flex items-center gap-2 pt-2 text-sm font-bold text-sobre-suave">
+				<Icono nombre="heart-handshake" size={18} />
+				{
+					data.porcentaje_aporte > 0
+						? `Aporta ${data.porcentaje_aporte}% al refugio`
+						: 'Aporte al refugio por acordar'
+				}
+			</p>
+		</div>
+	</a>
+</li>
