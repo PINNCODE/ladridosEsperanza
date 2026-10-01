@@ -32,7 +32,6 @@ export type Bloque = CollectionEntry<'bloques_contenido'>;
 export type Problematica = CollectionEntry<'problematicas'>;
 export type Campana = CollectionEntry<'campanas'>;
 export type Necesidad = CollectionEntry<'necesidades'>;
-export type Informe = CollectionEntry<'informes_transparencia'>;
 
 /**
  * Día de calendario de `hoy` a medianoche UTC, igual que las fechas de los datos,
@@ -90,11 +89,4 @@ export async function necesidadesVigentes(hoy: Date): Promise<Necesidad[]> {
 				a.data.fecha_vigencia.getTime() - b.data.fecha_vigencia.getTime() ||
 				a.data.descripcion.localeCompare(b.data.descripcion, 'es-MX'),
 		);
-}
-
-export async function ultimoInforme(): Promise<Informe | null> {
-	const informes = (await obtener('informes_transparencia'))
-		.filter(({ data }) => data.publicado)
-		.sort((a, b) => b.data.mes.localeCompare(a.data.mes));
-	return informes[0] ?? null;
 }
