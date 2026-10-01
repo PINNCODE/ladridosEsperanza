@@ -30,7 +30,15 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la p�
 		<div class="mt-5">
 			{
 				peludos.length > 0 ? (
-					<CarruselPeludos peludos={peludos} />
+					<>
+						<CarruselPeludos peludos={peludos} />
+						<a
+							href="/adopta"
+							class="mt-4 inline-flex min-h-11 items-center px-1 text-acento underline underline-offset-4"
+						>
+							Ver a todos
+						</a>
+					</>
 				) : (
 					<div class="rounded-2xl bg-superficie p-5">
 						<p>Por ahora no hay peludos en adopción. Escríbenos para saber cuándo llegan nuevos.</p>
