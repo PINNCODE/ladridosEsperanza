@@ -1,0 +1,37 @@
+---
+// Todos los peludos disponibles en cuadrícula (RF-11). Los favoritos llegan con TarjetaPeludo.
+// Sin peludos disponibles, el mismo aviso y WhatsApp que la portada (SPEC 02).
+import TarjetaPeludo from '../TarjetaPeludo.astro';
+import { obtenerRefugio, peludosDisponibles } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+const refugio = await obtenerRefugio();
+const peludos = await peludosDisponibles();
+const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
+---
+
+<section aria-label="Peludos en adopción" class="mt-6">
+	{
+		peludos.length > 0 ? (
+			<ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+				{peludos.map((peludo) => (
+					<li>
+						<TarjetaPeludo peludo={peludo} />
+					</li>
+				))}
+			</ul>
+		) : (
+			<div class="rounded-2xl bg-suave p-5">
+				<p>Por ahora no hay peludos en adopción. Escríbenos para saber cuándo llegan nuevos.</p>
+				<a
+					href={whatsapp}
+					target="_blank"
+					rel="noopener"
+					class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+				>
+					Escríbenos por WhatsApp
+				</a>
+			</div>
+		)
+	}
+</section>

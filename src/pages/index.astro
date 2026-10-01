@@ -1,5 +1,5 @@
 ---
-// Portada del refugio (SPEC 02): las 9 secciones en el orden de la spec padre,
+// Portada del refugio (SPEC 02): las 8 secciones en el orden de la spec padre (la SPEC 03 retiró Transparencia),
 // con un caminito de huellas entre cada par que alterna su dirección (RF-31).
 import CaminoHuellas from '../components/CaminoHuellas.astro';
 import Adopciones from '../components/portada/Adopciones.astro';
@@ -10,7 +10,6 @@ import Presentacion from '../components/portada/Presentacion.astro';
 import Problematicas from '../components/portada/Problematicas.astro';
 import QuienesSomos from '../components/portada/QuienesSomos.astro';
 import RedesContacto from '../components/portada/RedesContacto.astro';
-import Transparencia from '../components/portada/Transparencia.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtenerRefugio } from '../lib/datos';
 
@@ -30,9 +29,7 @@ const refugio = await obtenerRefugio();
 	<CaminoHuellas />
 	<Donativos />
 	<CaminoHuellas invertido />
-	<Transparencia />
-	<CaminoHuellas />
 	<Colaboracion />
-	<CaminoHuellas invertido />
+	<CaminoHuellas />
 	<RedesContacto />
 </Layout>

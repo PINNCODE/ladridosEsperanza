@@ -1,0 +1,31 @@
+---
+// "Cómo es el proceso de adopción": un paso numerado por párrafo del bloque `proceso_adopcion`.
+// Sin bloque publicado, no se muestra.
+import { bloquesDeSeccion } from '../../lib/datos';
+import { parrafos } from '../../lib/formato';
+
+const [bloque] = await bloquesDeSeccion('proceso_adopcion');
+---
+
+{
+	bloque && (
+		<section aria-labelledby="proceso-titulo" class="mt-10 rounded-3xl bg-suave p-5 md:p-8">
+			<h2 id="proceso-titulo" class="text-2xl font-bold md:text-3xl">
+				{bloque.data.titulo}
+			</h2>
+			<ol class="mt-4 space-y-3">
+				{parrafos(bloque.data.texto).map((paso, indice) => (
+					<li class="flex gap-3">
+						<span
+							aria-hidden="true"
+							class="grid size-8 shrink-0 place-items-center rounded-full bg-acento font-bold text-sobre-acento"
+						>
+							{indice + 1}
+						</span>
+						<p class="pt-1 text-sobre-suave">{paso}</p>
+					</li>
+				))}
+			</ol>
+		</section>
+	)
+}

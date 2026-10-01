@@ -1,0 +1,29 @@
+---
+// "En qué se usa un donativo": equivalencias que define el refugio, no dinero recibido.
+// Sin destinos, no se muestra.
+import { destinosDonativo } from '../../lib/datos';
+import { formatearPesos } from '../../lib/formato';
+
+const destinos = await destinosDonativo();
+---
+
+{
+	destinos.length > 0 && (
+		<section aria-labelledby="usos-titulo" class="mt-10 mb-4">
+			<h2 id="usos-titulo" class="text-2xl font-bold md:text-3xl">
+				En qué se usa un donativo
+			</h2>
+			<ul class="mt-4 divide-y divide-lineas rounded-2xl border border-lineas bg-superficie px-5">
+				{destinos.map(({ data }) => (
+					<li class="grid gap-1 py-3 md:grid-cols-[1fr_1fr_auto] md:items-center md:gap-4">
+						<span class="font-bold">{data.destino}</span>
+						<span class="text-texto-secundario">{data.cubre}</span>
+						<span class="text-acento">
+							{formatearPesos(data.monto)} = {data.equivalencia}
+						</span>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

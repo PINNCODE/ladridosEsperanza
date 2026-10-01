@@ -1,0 +1,27 @@
+---
+// Por qué esterilizar: un punto por párrafo del bloque `esterilizacion_por_que`,
+// que revisa el veterinario del refugio. Sin bloque publicado, no se muestra.
+import Icono from '../Icono.astro';
+import { bloquesDeSeccion } from '../../lib/datos';
+import { parrafos } from '../../lib/formato';
+
+const [bloque] = await bloquesDeSeccion('esterilizacion_por_que');
+---
+
+{
+	bloque && (
+		<section aria-labelledby="por-que-titulo" class="mt-6">
+			<h2 id="por-que-titulo" class="text-2xl font-bold md:text-3xl">
+				{bloque.data.titulo}
+			</h2>
+			<ul class="mt-4 space-y-3">
+				{parrafos(bloque.data.texto).map((punto) => (
+					<li class="flex gap-3">
+						<Icono nombre="paw-print" size={20} class="mt-0.5" />
+						<span>{punto}</span>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

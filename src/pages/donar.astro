@@ -1,0 +1,19 @@
+---
+// /donar (SPEC 03, RF-25 y RF-26): formas de ayudar, necesidades del mes y en qué se usa un donativo.
+import EncabezadoPagina from '../components/EncabezadoPagina.astro';
+import EnQueSeUsa from '../components/donar/EnQueSeUsa.astro';
+import FormasDeAyudar from '../components/donar/FormasDeAyudar.astro';
+import Layout from '../layouts/Layout.astro';
+import { obtenerRefugio } from '../lib/datos';
+
+const refugio = await obtenerRefugio();
+const titulo = 'Dona al refugio';
+const frase =
+	'Cuidar animales cuesta todos los días. Cada aporte, grande o pequeño, se convierte en comida, atención veterinaria, esterilizaciones y rescates.';
+---
+
+<Layout titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
+	<EncabezadoPagina titulo={titulo} frase={frase} icono="heart" />
+	<FormasDeAyudar />
+	<EnQueSeUsa />
+</Layout>

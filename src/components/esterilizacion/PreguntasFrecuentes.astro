@@ -1,0 +1,34 @@
+---
+// Preguntas frecuentes: un <details> por bloque de `esterilizacion_preguntas`
+// (titulo = pregunta, texto = respuesta). Funciona sin script y con teclado.
+import Icono from '../Icono.astro';
+import { bloquesDeSeccion } from '../../lib/datos';
+import { parrafos } from '../../lib/formato';
+
+const preguntas = await bloquesDeSeccion('esterilizacion_preguntas');
+---
+
+{
+	preguntas.length > 0 && (
+		<section aria-labelledby="preguntas-titulo" class="mt-10 mb-4">
+			<h2 id="preguntas-titulo" class="text-2xl font-bold md:text-3xl">
+				Preguntas frecuentes
+			</h2>
+			<div class="mt-4 divide-y divide-lineas rounded-2xl border border-lineas bg-superficie">
+				{preguntas.map(({ data }) => (
+					<details class="group px-5">
+						<summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-3 font-bold [&::-webkit-details-marker]:hidden">
+							{data.titulo}
+							<Icono nombre="chevron-down" size={20} class="transition-transform group-open:rotate-180" />
+						</summary>
+						<div class="space-y-2 pb-4 text-texto-secundario">
+							{parrafos(data.texto).map((parrafo) => (
+								<p>{parrafo}</p>
+							))}
+						</div>
+					</details>
+				))}
+			</div>
+		</section>
+	)
+}

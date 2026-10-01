@@ -140,20 +140,6 @@ const destinos_donativo = defineCollection({
 
 const montoPorConcepto = z.object({ concepto: z.string(), monto: z.number() });
 
-const informes_transparencia = defineCollection({
-	loader: file('src/data/informes-transparencia.json'),
-	schema: z.object({
-		// Mes del informe como "AAAA-MM".
-		mes: z.string().regex(/^\d{4}-\d{2}$/),
-		ingresos: z.array(z.object({ fuente: z.string(), monto: z.number() })),
-		gastos: z.array(montoPorConcepto),
-		monto_entregado_refugio: z.number(),
-		comprobantes: z.array(z.url()),
-		publicado: z.boolean(),
-		es_ejemplo,
-	}),
-});
-
 const registros_cifras = defineCollection({
 	loader: file('src/data/registros-cifras.json'),
 	schema: z.object({
@@ -272,7 +258,6 @@ export const collections = {
 	campanas,
 	necesidades,
 	destinos_donativo,
-	informes_transparencia,
 	registros_cifras,
 	anuncios,
 	negocios,

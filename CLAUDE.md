@@ -22,15 +22,16 @@ Preview production build: `astro preview`
 This is an Astro 7 site (`ladridosdeesperanzaweb`) for the Ladridos de Esperanza animal shelter. Specs live in `specs/` (roadmap in `specs/README.md`); the parent spec and HTML prototype are in `referencias/`.
 
 - `src/layouts/Layout.astro` — HTML shell (`lang="es-MX"`); props `titulo` and `descripcion`; renders the sample-data ribbon, `Encabezado`, `<main>` and `Pie`
-- `src/pages/` — file-based routes (`index.astro` home with the 9 sections, `404.astro`)
-- `src/components/` — `Encabezado`, `Pie`, `CintaEjemplo`, `Icono` (only way to render Lucide icons; `nombre` in kebab-case), and reusable pieces `CarruselPeludos`, `TarjetaPeludo`, `CaminoHuellas`, `FigurasFlotantes`
-- `src/components/portada/` — one component per home section (`Presentacion`, `Adopciones`, `QuienesSomos`, `Problematicas`, `Esterilizacion`, `Donativos`, `Transparencia`, `Colaboracion`, `RedesContacto`)
+- `src/pages/` — file-based routes (`index.astro` home with 8 sections, `adopta.astro`, `esterilizacion.astro`, `donar.astro`, `404.astro`); there is no `/transparencia` and the site never shows money the shelter received
+- `src/components/` — `Encabezado`, `Pie`, `CintaEjemplo`, `Icono` (only way to render Lucide icons; `nombre` in kebab-case), and reusable pieces `CarruselPeludos`, `TarjetaPeludo`, `CaminoHuellas`, `FigurasFlotantes`, `EncabezadoPagina` (the `<h1>` of each shelter page), `VisorCartel` (enlargeable poster in a native `<dialog>`), `ListaNecesidades`
+- `src/components/portada/` — one component per home section (`Presentacion`, `Adopciones`, `QuienesSomos`, `Problematicas`, `Esterilizacion`, `Donativos`, `Colaboracion`, `RedesContacto`)
+- `src/components/adopta/`, `src/components/esterilizacion/`, `src/components/donar/` — sections of each shelter page; the pages only assemble them
 - `src/styles/global.css` — Tailwind v4 import and design tokens in `@theme` (`bg-fondo`, `text-acento`, `font-titulos`, …); light mode only
 - `src/styles/animaciones.css` — CSS-only animation classes (`latido`, `flotar`, `asomarse`, `huella`, `aparecer`); only `transform` and `opacity`, all off with "reduce motion"
 - `src/content.config.ts` — all content collections with Zod schemas (Spanish `snake_case` fields)
-- `src/data/` — collection data as JSON; one file per business in `src/data/negocios/`
-- `src/lib/datos.ts` — the only place that reads collections (`obtener`, `obtenerRefugio`, plus home queries such as `peludosDisponibles`, `proximaCampana(hoy)`, `necesidadesVigentes(hoy)`); pages never call `getCollection` directly
-- `src/lib/formato.ts` — `formatearPesos`, `formatearFecha`, `formatearMes`; dates are formatted in UTC because collection dates are UTC midnight
+- `src/data/` — collection data as JSON; one file per business in `src/data/negocios/`; editable shelter texts live in `bloques-contenido.json` by `seccion` (`quienes_somos`, `proceso_adopcion`, `esterilizacion_por_que`, `esterilizacion_cuidados`, `esterilizacion_preguntas`, `voluntariado`), and a part with no published block is not shown
+- `src/lib/datos.ts` — the only place that reads collections (`obtener`, `obtenerRefugio`, plus queries such as `peludosDisponibles`, `proximaCampana(hoy)`, `campanaAnterior`, `necesidadesVigentes(hoy)`, `bloquesDeSeccion(seccion)`, `destinosDonativo`); pages never call `getCollection` directly
+- `src/lib/formato.ts` — `formatearPesos`, `formatearFecha`, `formatearMes`, `parrafos` (splits block text on blank lines); dates are formatted in UTC because collection dates are UTC midnight
 - `src/lib/whatsapp.ts` — `enlaceWhatsApp(numero, mensaje)`
 - `src/assets/` — images referenced from the data files
 

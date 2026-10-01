@@ -1,0 +1,60 @@
+---
+// Cartel de campaña ampliable (RF-12): miniatura, botón "Ver cartel" y <dialog> nativo con la imagen grande.
+// La imagen grande va con loading="lazy": dentro del diálogo cerrado no se descarga hasta abrirlo.
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import Icono from './Icono.astro';
+
+interface Props {
+	cartel: ImageMetadata;
+	alt: string;
+	/** Aviso bajo la miniatura, por ejemplo "Cartel de la campaña anterior". */
+	leyenda?: string;
+}
+
+const { cartel, alt, leyenda } = Astro.props;
+---
+
+<figure data-visor-cartel class="max-w-xs">
+	<Image src={cartel} alt={alt} width={480} class="w-full rounded-2xl border border-lineas" />
+	{leyenda && <figcaption class="mt-2 text-sm text-texto-secundario">{leyenda}</figcaption>}
+	<button
+		type="button"
+		data-abrir
+		class="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-acento px-5 font-bold text-acento"
+	>
+		<Icono nombre="zoom-in" size={20} />
+		Ver cartel
+	</button>
+	<dialog
+		aria-label={alt}
+		class="m-auto max-h-[92dvh] max-w-[min(92vw,48rem)] overflow-auto rounded-2xl bg-superficie p-3 backdrop:bg-texto/70"
+	>
+		<div class="flex justify-end">
+			<button
+				type="button"
+				data-cerrar
+				aria-label="Cerrar"
+				class="grid size-11 place-items-center rounded-xl hover:bg-suave"
+			>
+				<Icono nombre="x" />
+			</button>
+		</div>
+		<Image src={cartel} alt={alt} width={1200} loading="lazy" class="mt-2 h-auto w-full rounded-xl" />
+	</dialog>
+</figure>
+
+<script>
+	// Esc, foco atrapado y regreso del foco a "Ver cartel" los da el <dialog> nativo con showModal().
+	document.querySelectorAll<HTMLElement>('[data-visor-cartel]').forEach((visor) => {
+		const dialogo = visor.querySelector('dialog')!;
+
+		visor.querySelector('[data-abrir]')!.addEventListener('click', () => dialogo.showModal());
+		visor.querySelector('[data-cerrar]')!.addEventListener('click', () => dialogo.close());
+
+		// Un clic en el fondo llega con el propio <dialog> como destino; en la imagen o el botón, no.
+		dialogo.addEventListener('click', (evento) => {
+			if (evento.target === dialogo) dialogo.close();
+		});
+	});
+</script>
