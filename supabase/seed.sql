@@ -569,3 +569,9 @@ select setval(pg_get_serial_sequence('grupos_menu', 'id'), coalesce((select max(
 select setval(pg_get_serial_sequence('secciones_menu', 'id'), coalesce((select max(id) from secciones_menu), 1));
 select setval(pg_get_serial_sequence('platillos', 'id'), coalesce((select max(id) from platillos), 1));
 select setval(pg_get_serial_sequence('precios', 'id'), coalesce((select max(id) from precios), 1));
+
+-- Solicitudes de ejemplo del formulario Súmate (SPEC 07); la bandeja del panel las marca como "Ejemplo".
+insert into solicitudes_negocio (nombre_negocio, tipo, whatsapp, nombre_contacto, mensaje, acepto_aviso, estado, creada_en, actualizada_en, es_ejemplo) values
+	('Nevería La Esquina', 'Nevería', '7141000001', 'Rosa', 'Vendemos nieves de garrafa en el centro. ¿Cómo nos sumamos?', true, 'nueva', now() - interval '2 hours', null, true),
+	('Fonda Doña Mary', 'Comida corrida', '7141000002', null, null, true, 'contactada', now() - interval '3 days', now() - interval '2 days', true),
+	('Tienda de regalos Sol', 'Regalos y detalles', '7141000003', 'Julio', 'Queremos apoyar al refugio.', true, 'descartada', now() - interval '10 days', now() - interval '9 days', true);
