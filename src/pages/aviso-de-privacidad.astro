@@ -1,0 +1,60 @@
+---
+// /aviso-de-privacidad (SPEC 07): aviso provisional del formulario Súmate (RF-15).
+// La SPEC 10 lo reemplaza por el texto definitivo, revisado por un profesional.
+import EncabezadoPagina from '../components/EncabezadoPagina.astro';
+import Layout from '../layouts/Layout.astro';
+import { obtenerRefugio } from '../lib/datos';
+import { enlaceWhatsApp } from '../lib/whatsapp';
+
+const refugio = await obtenerRefugio();
+const titulo = 'Aviso de privacidad';
+const frase = 'Qué datos guardamos cuando un negocio pide sumarse a Come por los Peludos y para qué los usamos.';
+const whatsapp = enlaceWhatsApp(refugio.whatsapp, 'Hola, quiero que borren los datos de mi solicitud de Súmate.');
+---
+
+<Layout titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
+	<EncabezadoPagina titulo={titulo} frase={frase} icono="shield-check" />
+
+	<p class="mt-4 max-w-prose rounded-xl bg-suave px-4 py-3 font-bold text-sobre-suave">
+		Texto provisional, pendiente de revisión legal.
+	</p>
+
+	<div class="mt-8 max-w-prose space-y-8">
+		<section aria-labelledby="aviso-datos">
+			<h2 id="aviso-datos" class="text-xl font-bold">Qué datos guardamos</h2>
+			<p class="mt-2">
+				Cuando llenas el formulario "Súmate" guardamos el nombre y el tipo de tu negocio, tu número de
+				WhatsApp y, si los escribes, tu nombre y tu mensaje, junto con la fecha del envío. No guardamos
+				ningún otro dato tuyo.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-uso">
+			<h2 id="aviso-uso" class="text-xl font-bold">Para qué los usamos</h2>
+			<p class="mt-2">
+				Solo para escribirte por WhatsApp y platicar cómo sumar tu negocio a Come por los Peludos. No los
+				vendemos, no los compartimos y no los usamos para publicidad.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-acceso">
+			<h2 id="aviso-acceso" class="text-xl font-bold">Quién los ve</h2>
+			<p class="mt-2">
+				Solo las personas que administran el sitio de {refugio.nombre}, desde un panel con contraseña y
+				verificación en dos pasos.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-borrar">
+			<h2 id="aviso-borrar" class="text-xl font-bold">Cómo pedir que los borremos</h2>
+			<p class="mt-2">
+				Escríbenos por <a
+					href={whatsapp}
+					target="_blank"
+					rel="noopener"
+					class="text-acento underline underline-offset-4">WhatsApp</a
+				> desde el mismo número y borraremos tu solicitud.
+			</p>
+		</section>
+	</div>
+</Layout>
