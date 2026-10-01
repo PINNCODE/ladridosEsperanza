@@ -223,7 +223,7 @@ Validado el 2026-10-01 en local, con Supabase en Docker (Colima) y la compilaci�
 - **Recompilación en local.** Con un secreto `deploy_hook_vercel` que apuntaba a un receptor HTTP local, `update necesidades set descripcion = descripcion` (3 filas) hizo una sola llamada y `select recompilar_sitio()` hizo otra; las dos respondieron 200. Sin el secreto, un `update` no encola ninguna llamada. Falta repetirlo contra Vercel en la nube.
 - **API pública.** Con la llave publicable, `negocios`, `peludos`, `refugio`, `platillos` e `imagenes` devuelven `[]`. La foto de Luna en el bucket local responde 200 sin sesión.
 - **Supabase detenido.** `astro build` sale con código 1, con el mensaje "No se pudo leer la tabla "refugio" de Supabase: TypeError: fetch failed (Supabase en http://127.0.0.1:54321; ¿corriste `npx supabase start`?)", y no genera ningún HTML.
-- **Llave secreta.** La llave local de `.env.example` es la llave de desarrollo que la CLI de Supabase usa en todos los equipos; no da acceso a la nube.
+- **Llave secreta en `.env.example`.** La spec pedía los valores locales de `npx supabase status`, pero la protección de GitHub rechazó el push por la llave `sb_secret_…`, aunque sea la de desarrollo local. `.env.example` deja `SUPABASE_SECRET_KEY` vacía e indica copiarla de `npx supabase status`.
 - **`supabase migration new`.** Lee el contenido de la migración por stdin cuando la entrada no es una terminal; para escribir la migración desde un script hay que redirigir `</dev/null` o escribir el archivo después.
 
 ## Decisiones
