@@ -16,6 +16,13 @@ const enlaces = [
 ];
 
 const rutaActual = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+/** "page" en la página del enlace; "true" dentro de su sección (las páginas de cada negocio en /colabora). */
+function actual(href: string): 'page' | 'true' | undefined {
+	if (rutaActual === href) return 'page';
+	if (href !== '/' && !href.includes('#') && rutaActual.startsWith(`${href}/`)) return 'true';
+	return undefined;
+}
 ---
 
 <header class="bg-superficie border-b border-lineas">
@@ -54,8 +61,8 @@ const rutaActual = Astro.url.pathname.replace(/\/$/, '') || '/';
 					<li class="shrink-0">
 						<a
 							href={href}
-							aria-current={rutaActual === href ? 'page' : undefined}
-							class="flex min-h-11 items-center rounded-lg px-3 text-[15px] whitespace-nowrap text-texto-secundario aria-[current=page]:font-bold aria-[current=page]:text-acento"
+							aria-current={actual(href)}
+							class="flex min-h-11 items-center rounded-lg px-3 text-[15px] whitespace-nowrap text-texto-secundario aria-[current]:font-bold aria-[current]:text-acento"
 						>
 							{texto}
 						</a>
