@@ -1,0 +1,33 @@
+---
+// Barra fija inferior de las páginas de /colabora (SPEC 04, RF-13): tres enlaces discretos
+// al refugio. Mide 48 px más el área segura del teléfono; Layout deja ese espacio bajo el pie.
+import Icono from '../Icono.astro';
+
+const enlaces = [
+	{ href: '/adopta', icono: 'house-heart', corto: 'Adopta', largo: 'Adopta a un peludo' },
+	{ href: '/esterilizacion', icono: 'syringe', corto: 'Esteriliza', largo: 'Campañas de esterilización' },
+	{ href: '/donar', icono: 'heart', corto: 'Dona', largo: 'Dona al refugio' },
+];
+---
+
+<nav
+	aria-label="Enlaces del refugio"
+	class="fixed inset-x-0 bottom-0 z-10 bg-superficie shadow-[0_-1px_0_var(--color-lineas)] pb-[env(safe-area-inset-bottom)]"
+>
+	<ul class="mx-auto grid h-12 max-w-5xl grid-cols-3">
+		{
+			enlaces.map(({ href, icono, corto, largo }) => (
+				<li>
+					<a
+						href={href}
+						class="flex h-12 items-center justify-center gap-2 px-1 text-sm font-bold text-sobre-suave"
+					>
+						<Icono nombre={icono} size={18} />
+						<span class="sm:hidden">{corto}</span>
+						<span class="hidden sm:inline">{largo}</span>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</nav>
