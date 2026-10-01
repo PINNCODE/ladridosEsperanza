@@ -108,3 +108,36 @@ export async function necesidadesVigentes(hoy: Date): Promise<Necesidad[]> {
 export async function destinosDonativo(): Promise<Destino[]> {
 	return (await obtener('destinos_donativo')).sort((a, b) => a.data.orden - b.data.orden);
 }
+
+// Consultas del catálogo /colabora (SPEC 04).
+
+export type Negocio = CollectionEntry<'negocios'>;
+export type Categoria = CollectionEntry<'categorias'>;
+export type Promocion = NonNullable<Negocio['data']['promocion']>;
+
+export async function negociosPublicados(): Promise<Negocio[]> {
+	return (await obtener('negocios'))
+		.filter(({ data }) => data.estado === 'publicado')
+		.sort((a, b) => a.data.nombre.localeCompare(b.data.nombre, 'es-MX'));
+}
+
+/**
+ * La promoción solo se muestra entre su inicio y su fin (RF-09).
+ * Se filtra al compilar, como las necesidades; la recompilación diaria la retira (SPEC 06).
+ */
+export function promocionVigente({ data }: Negocio, hoy: Date): Promocion | null {
+	const promocion = data.promocion;
+	if (!promocion) return null;
+	const dia = soloFecha(hoy);
+	if (promocion.fecha_inicio.getTime() > dia) return null;
+	if (promocion.fecha_fin && promocion.fecha_fin.getTime() < dia) return null;
+	return promocion;
+}
+
+/** Categorías con al menos uno de `negocios`, por `orden`; una chip sin negocios no sirve. */
+export async function categoriasConNegocios(negocios: Negocio[]): Promise<Categoria[]> {
+	const usadas = new Set(negocios.map(({ data }) => data.categoria.id));
+	return (await obtener('categorias'))
+		.filter(({ id }) => usadas.has(id))
+		.sort((a, b) => a.data.orden - b.data.orden);
+}
