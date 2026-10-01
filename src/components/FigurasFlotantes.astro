@@ -1,0 +1,24 @@
+---
+// Figuras que flotan detrás de la presentación (RF-31). El contenedor padre
+// debe ser `relative`, y su contenido ir encima con `relative z-10`.
+import Icono from './Icono.astro';
+
+// Posición, tamaño, inclinación (--r) y desfase (--retraso) tomados del prototipo.
+const figuras = [
+	{ nombre: 'paw-print', size: 46, posicion: 'left: 2%; top: 4%', r: -14, retraso: 0 },
+	{ nombre: 'bone', size: 30, posicion: 'left: 46%; top: 2%', r: 12, retraso: -2 },
+	{ nombre: 'paw-print', size: 38, posicion: 'left: 34%; bottom: 6%', r: -8, retraso: -4 },
+	{ nombre: 'cat', size: 34, posicion: 'right: 6%; top: 42%', r: 10, retraso: -1 },
+	{ nombre: 'dog', size: 36, posicion: 'left: 8%; bottom: 2%', r: -10, retraso: -3 },
+];
+---
+
+<div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+	{
+		figuras.map(({ nombre, size, posicion, r, retraso }) => (
+			<span class="absolute" style={`${posicion}; --r: ${r}deg; --retraso: ${retraso}s`}>
+				<Icono nombre={nombre} size={size} class="flotar block opacity-12" />
+			</span>
+		))
+	}
+</div>
