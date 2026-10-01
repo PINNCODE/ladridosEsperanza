@@ -1,4 +1,4 @@
-// Formato de montos y fechas en español de México.
+// Formato de montos, fechas y textos en español de México.
 // Las fechas de los datos ("2026-10-24") se crean a medianoche UTC con z.coerce.date(),
 // por eso todo se formatea en UTC: en hora de México saldría el día anterior.
 
@@ -35,4 +35,12 @@ export function formatearFecha(dia: Date): string {
 export function formatearMes(valor: string | Date): string {
 	const dia = typeof valor === 'string' ? new Date(`${valor}-01`) : valor;
 	return mes.format(dia);
+}
+
+/** "Uno.\n\nDos." → ["Uno.", "Dos."]: un párrafo por cada línea en blanco, sin vacíos. */
+export function parrafos(texto: string): string[] {
+	return texto
+		.split(/\n\s*\n/)
+		.map((parrafo) => parrafo.trim())
+		.filter(Boolean);
 }

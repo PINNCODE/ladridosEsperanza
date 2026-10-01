@@ -8,5 +8,85 @@
 		"orden": 1,
 		"publicado": true,
 		"es_ejemplo": true
+	},
+	{
+		"id": "proceso-adopcion",
+		"seccion": "proceso_adopcion",
+		"titulo": "Cómo es el proceso de adopción",
+		"texto": "Escríbenos por WhatsApp con el nombre del peludo que te interesa.\n\nTe contamos su historia y agendamos una visita al refugio.\n\nSi es buena pareja para tu familia, firmamos juntos una carta de adopción responsable.",
+		"imagenes": [],
+		"orden": 1,
+		"publicado": true,
+		"es_ejemplo": true
+	},
+	{
+		"id": "por-que-esterilizar",
+		"seccion": "esterilizacion_por_que",
+		"titulo": "Por qué esterilizar",
+		"texto": "Menos animales nacen sin un hogar que los espere.\n\nSe cuida la salud de tu mascota.\n\nAyudas a toda la comunidad.",
+		"imagenes": [],
+		"orden": 1,
+		"publicado": true,
+		"es_ejemplo": true
+	},
+	{
+		"id": "antes-de-la-cirugia",
+		"seccion": "esterilizacion_cuidados",
+		"titulo": "Antes de la cirugía",
+		"texto": "Texto de ejemplo. El veterinario del refugio indicará cuántas horas de ayuno necesita tu mascota y qué llevar el día de la campaña.",
+		"imagenes": [],
+		"orden": 1,
+		"publicado": true,
+		"es_ejemplo": true
+	},
+	{
+		"id": "despues-de-la-cirugia",
+		"seccion": "esterilizacion_cuidados",
+		"titulo": "Después de la cirugía",
+		"texto": "Texto de ejemplo. El veterinario del refugio indicará los cuidados de la herida y cuándo puede volver a comer y jugar.",
+		"imagenes": [],
+		"orden": 2,
+		"publicado": true,
+		"es_ejemplo": true
+	},
+	{
+		"id": "pregunta-edad",
+		"seccion": "esterilizacion_preguntas",
+		"titulo": "¿Desde qué edad se puede esterilizar?",
+		"texto": "Respuesta de ejemplo. La confirma el veterinario del refugio.",
+		"imagenes": [],
+		"orden": 1,
+		"publicado": true,
+		"es_ejemplo": true
+	},
+	{
+		"id": "pregunta-recuperacion",
+		"seccion": "esterilizacion_preguntas",
+		"titulo": "¿Cuánto tarda en recuperarse?",
+		"texto": "Respuesta de ejemplo. La confirma el veterinario del refugio.",
+		"imagenes": [],
+		"orden": 2,
+		"publicado": true,
+		"es_ejemplo": true
+	},
+	{
+		"id": "pregunta-reservar",
+		"seccion": "esterilizacion_preguntas",
+		"titulo": "¿Necesito reservar mi lugar?",
+		"texto": "Sí. Los lugares son limitados y se apartan con el pago. Escríbenos por WhatsApp para reservar.",
+		"imagenes": [],
+		"orden": 3,
+		"publicado": true,
+		"es_ejemplo": true
+	},
+	{
+		"id": "voluntariado",
+		"seccion": "voluntariado",
+		"titulo": "Voluntariado y hogar temporal",
+		"texto": "Mayores de 18 años, un sábado al mes.",
+		"imagenes": [],
+		"orden": 1,
+		"publicado": true,
+		"es_ejemplo": true
 	}
 ]
