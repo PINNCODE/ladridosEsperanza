@@ -31,7 +31,9 @@ const refugio = await obtenerRefugio();
 		</div>
 	</div>
 	<Image
-		src={refugio.foto_principal}
+		src={refugio.foto_principal.url}
+		width={refugio.foto_principal.ancho}
+		height={refugio.foto_principal.alto}
 		alt={`Perros en el refugio ${refugio.nombre} caminando por el patio`}
 		class="relative z-10 w-full rounded-2xl border border-lineas object-cover"
 		loading="eager"

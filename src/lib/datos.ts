@@ -18,7 +18,7 @@ export async function obtenerRefugio(): Promise<Refugio> {
 	const [refugio] = await obtener('refugio');
 	if (!refugio) {
 		throw new Error(
-			'Falta el registro real de refugio en src/data/refugio.json. ' +
+			'Falta el registro real en la tabla refugio de Supabase. ' +
 				'El único registro es de ejemplo y PUBLIC_MOSTRAR_EJEMPLOS no es "true".',
 		);
 	}

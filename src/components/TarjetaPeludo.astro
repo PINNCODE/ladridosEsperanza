@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import Icono from './Icono.astro';
 import { obtenerRefugio, type Peludo } from '../lib/datos';
 import { enlaceWhatsApp } from '../lib/whatsapp';
+import { medidas } from '../lib/imagenes';
 
 interface Props {
 	peludo: Peludo;
@@ -24,9 +25,9 @@ const whatsapp = enlaceWhatsApp(
 		{
 			foto ? (
 				<Image
-					src={foto}
+					src={foto.url}
+					{...medidas(foto, 480)}
 					alt={`Foto de ${data.nombre}`}
-					width={480}
 					class="aspect-[4/3] w-full object-cover"
 				/>
 			) : (
