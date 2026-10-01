@@ -11,7 +11,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 01 | [Fundación del sitio y datos de ejemplo](01-fundacion-y-datos-de-ejemplo.md) | Implementado | Base de RF-14, RF-27 y RF-32; modelo de datos completo |
 | 02 | [Portada del refugio](02-portada-del-refugio.md) | Implementado | RF-21, RF-22, RF-23, RF-28, RF-30, RF-31 |
 | 03 | [Páginas del refugio: adopta, esterilización y donar](03-paginas-adopta-esterilizacion-donar.md) | Implementado | RF-11, RF-12, RF-24, RF-25, RF-26; retira Transparencia (RF-19 sale del MVP) |
-| 04 | Catálogo `/colabora` con búsqueda, filtros y barra fija | Por escribir | RF-01, RF-02, RF-03, RF-13 |
+| 04 | [Catálogo `/colabora` con búsqueda, filtros y barra fija](04-catalogo-colabora.md) | Implementado | RF-01, RF-02, RF-03, RF-13 |
 | 05 | Página de negocio `/colabora/[slug]` | Por escribir | RF-04 a RF-10 |
 | 06 | Datos en Supabase sin cambiar las páginas | Por escribir | Base para 07 y 08 |
 | 07 | Formulario Súmate y panel `/admin` | Por escribir | RF-15, RF-16, RF-17, RF-29 |
