@@ -1,0 +1,16 @@
+---
+// /colabora/sumate (SPEC 07, RF-15): formulario para que un negocio pida sumarse.
+import EncabezadoPagina from '../../components/EncabezadoPagina.astro';
+import FormularioSumate from '../../components/colabora/FormularioSumate.astro';
+import LayoutColabora from '../../layouts/LayoutColabora.astro';
+import { obtenerRefugio } from '../../lib/datos';
+
+const refugio = await obtenerRefugio();
+const titulo = 'Suma tu negocio';
+const frase = `Publicamos tu menú, horarios y promociones, y tu negocio aporta al refugio ${refugio.nombre}. Déjanos tus datos y te escribimos por WhatsApp.`;
+---
+
+<LayoutColabora titulo={`${titulo} · Come por los Peludos`} descripcion={frase}>
+	<EncabezadoPagina titulo={titulo} frase={frase} icono="handshake" />
+	<FormularioSumate />
+</LayoutColabora>
