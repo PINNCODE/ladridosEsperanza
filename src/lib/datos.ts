@@ -24,3 +24,77 @@ export async function obtenerRefugio(): Promise<Refugio> {
 	}
 	return refugio.data;
 }
+
+// Consultas de la portada (SPEC 02). Las páginas de la SPEC 03 las reutilizan.
+
+export type Peludo = CollectionEntry<'peludos'>;
+export type Bloque = CollectionEntry<'bloques_contenido'>;
+export type Problematica = CollectionEntry<'problematicas'>;
+export type Campana = CollectionEntry<'campanas'>;
+export type Necesidad = CollectionEntry<'necesidades'>;
+export type Informe = CollectionEntry<'informes_transparencia'>;
+
+/**
+ * Día de calendario de `hoy` a medianoche UTC, igual que las fechas de los datos,
+ * para comparar solo la fecha sin la hora.
+ */
+function soloFecha(hoy: Date): number {
+	return Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+}
+
+export async function peludosDisponibles(): Promise<Peludo[]> {
+	return (await obtener('peludos'))
+		.filter(({ data }) => data.estado === 'disponible')
+		.sort((a, b) => a.data.orden - b.data.orden);
+}
+
+export async function bloqueQuienesSomos(): Promise<Bloque | null> {
+	const bloques = (await obtener('bloques_contenido'))
+		.filter(({ data }) => data.seccion === 'quienes_somos' && data.publicado)
+		.sort((a, b) => a.data.orden - b.data.orden);
+	return bloques[0] ?? null;
+}
+
+export async function problematicasPublicadas(): Promise<Problematica[]> {
+	return (await obtener('problematicas'))
+		.filter(({ data }) => data.publicada)
+		.sort((a, b) => a.data.orden - b.data.orden);
+}
+
+/** Una cifra solo se publica con su fecha y su fuente (RF-23, RF-29). */
+export function cifraVisible({ data }: Problematica): boolean {
+	return data.cifra !== null && data.fecha_cifra !== null && data.fuente !== null;
+}
+
+export async function proximaCampana(hoy: Date): Promise<Campana | null> {
+	const dia = soloFecha(hoy);
+	const proximas = (await obtener('campanas'))
+		.filter(({ data }) => data.estado === 'proxima' && data.fecha.getTime() >= dia)
+		.sort((a, b) => a.data.fecha.getTime() - b.data.fecha.getTime());
+	return proximas[0] ?? null;
+}
+
+/**
+ * Necesidades que no han vencido; una vencida deja de mostrarse (RF-26).
+ * Urgentes primero, luego la que vence antes y, con la misma vigencia, por descripción.
+ * La colección no tiene `orden` y getCollection no respeta el orden del archivo.
+ */
+export async function necesidadesVigentes(hoy: Date): Promise<Necesidad[]> {
+	const dia = soloFecha(hoy);
+	const prioridad = { urgente: 0, necesaria: 1 };
+	return (await obtener('necesidades'))
+		.filter(({ data }) => data.fecha_vigencia.getTime() >= dia)
+		.sort(
+			(a, b) =>
+				prioridad[a.data.urgencia] - prioridad[b.data.urgencia] ||
+				a.data.fecha_vigencia.getTime() - b.data.fecha_vigencia.getTime() ||
+				a.data.descripcion.localeCompare(b.data.descripcion, 'es-MX'),
+		);
+}
+
+export async function ultimoInforme(): Promise<Informe | null> {
+	const informes = (await obtener('informes_transparencia'))
+		.filter(({ data }) => data.publicado)
+		.sort((a, b) => b.data.mes.localeCompare(a.data.mes));
+	return informes[0] ?? null;
+}
