@@ -1,11 +1,23 @@
 ---
-import Welcome from '../components/Welcome.astro';
+// Portada provisional: las secciones reales llegan en la SPEC 02.
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import { obtenerRefugio } from '../lib/datos';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const refugio = await obtenerRefugio();
 ---
 
-<Layout>
-	<Welcome />
+<Layout titulo={refugio.nombre} descripcion={refugio.frase}>
+	<section class="grid items-center gap-6 md:grid-cols-2">
+		<div>
+			<h1 class="text-4xl leading-tight font-extrabold md:text-5xl">{refugio.nombre}</h1>
+			<p class="mt-4 text-lg text-texto-secundario">{refugio.frase}</p>
+		</div>
+		<Image
+			src={refugio.foto_principal}
+			alt={`Perros en el refugio ${refugio.nombre} caminando por el patio`}
+			class="w-full rounded-2xl border border-lineas object-cover"
+			loading="eager"
+		/>
+	</section>
 </Layout>

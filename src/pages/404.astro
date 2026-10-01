@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icono from '../components/Icono.astro';
+---
+
+<Layout titulo="Página no encontrada · Ladridos de Esperanza" descripcion="La página que buscas no existe.">
+	<section class="flex flex-col items-center py-12 text-center">
+		<Icono nombre="paw-print" size={48} />
+		<h1 class="mt-4 text-3xl font-extrabold">No encontramos esta página</h1>
+		<p class="mt-3 text-texto-secundario">Puede que la dirección esté mal escrita o que la página aún no exista.</p>
+		<a
+			href="/"
+			class="mt-6 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+		>
+			Volver al inicio
+		</a>
+	</section>
+</Layout>
