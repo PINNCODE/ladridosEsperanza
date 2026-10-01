@@ -6,11 +6,21 @@ import { loadEnv } from 'vite';
 
 // Las imágenes viven en Supabase Storage (SPEC 06); Astro solo descarga y optimiza las de ese host.
 // Con prefijo vacío, loadEnv lee .env y también las variables del entorno (Vercel).
-const { SUPABASE_URL } = loadEnv('production', '.', '');
+const env = loadEnv('production', '.', '');
+const { SUPABASE_URL } = env;
 const supabase = SUPABASE_URL ? new URL(SUPABASE_URL) : null;
+
+// El formulario Súmate y el panel /admin (SPEC 07) usan estas variables en el navegador,
+// y la URL del sitio es el destino de los QR. Sin alguna, la compilación se detiene.
+for (const nombre of ['PUBLIC_SUPABASE_URL', 'PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'PUBLIC_URL_SITIO']) {
+  if (!env[nombre]) {
+    throw new Error(`Falta la variable de entorno ${nombre}. En desarrollo, copia sus valores de .env.example a .env.`);
+  }
+}
 
 // https://astro.build/config
 export default defineConfig({
+  site: env.PUBLIC_URL_SITIO,
   image: {
     remotePatterns: supabase
       ? [
