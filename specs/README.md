@@ -13,13 +13,13 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 03 | [Páginas del refugio: adopta, esterilización y donar](03-paginas-adopta-esterilizacion-donar.md) | Implementado | RF-11, RF-12, RF-24, RF-25, RF-26; retira Transparencia (RF-19 sale del MVP) |
 | 04 | [Catálogo `/colabora` con búsqueda, filtros y barra fija](04-catalogo-colabora.md) | Implementado | RF-01, RF-02, RF-03, RF-13 |
 | 05 | [Página de negocio `/colabora/[slug]`](05-pagina-de-negocio.md) | Implementado | RF-04 a RF-10; el QR (RF-17) pasa a la 07 |
-| 06 | Datos en Supabase sin cambiar las páginas | Por escribir | Base para 07 y 08 |
+| 06 | [Datos en Supabase y publicación en Vercel](06-datos-en-supabase.md) | Aprobado (implementado en local; falta publicar) | Base para 07 y 08; parte de RF-16 (cambio visible en menos de 1 minuto) |
 | 07 | Formulario Súmate y panel `/admin` | Por escribir | RF-15, RF-16, RF-17 (QR por negocio), RF-29 |
 | 08 | Anuncios, analítica, SEO y aviso de privacidad | Por escribir | RF-18, RF-20 y requisitos no funcionales |
 
 ## Decisiones que aplican a todas las specs
 
-- Los datos se leen de content collections (`src/content.config.ts`, archivos en `src/data/`) hasta la SPEC 06.
+- Los datos se leen de Supabase al compilar con loaders propios de content collections (`src/lib/cargadores.ts`, esquemas en `src/content.config.ts`); los datos de ejemplo viven en `supabase/seed.sql` (SPEC 06).
 - Ninguna página llama a `getCollection` directamente: siempre pasa por `src/lib/datos.ts`.
 - La interactividad del sitio público se hace con `<script>` nativos de Astro, sin Svelte ni React.
 - Campos de datos en español y `snake_case`.
@@ -29,8 +29,8 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 ## Pendiente de decidir antes de escribir cada spec
 
-- **06:** que el sitio también se recompile a diario, para que las necesidades vencidas y las campañas pasadas dejen de mostrarse (la SPEC 02 las filtra con la fecha de compilación).
-- **06:** adaptador de hospedaje (Vercel o Cloudflare Pages) y cómo se recompila el sitio cuando cambia un dato (RF-16 pide menos de 1 minuto). Incluye configurar `PUBLIC_MOSTRAR_EJEMPLOS` en el hospedaje para la vista previa con ejemplos.
+- **06:** crear el proyecto de Supabase en la nube y el de Vercel (pasos 14 y 15 de la spec) y verificar los criterios que dependen de la nube, incluido el tiempo de RF-16.
+- **07:** políticas RLS para el panel; hoy las tablas tienen RLS sin políticas y solo el build las lee con la llave secreta.
 - **07:** framework del panel (la spec padre propone React) y verificación en dos pasos con Supabase.
 - **07:** el QR por negocio (RF-17) se genera y descarga en el panel en PNG y SVG; la SPEC 05 lo dejó fuera.
 - **08:** reemplazar los favicons de Astro (`public/favicon.svg` y `favicon.ico`) por los del refugio, junto con los metadatos para compartir.
