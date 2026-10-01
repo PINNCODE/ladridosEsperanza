@@ -1,12 +1,12 @@
 ---
 // Cartel de campaña ampliable (RF-12): miniatura, botón "Ver cartel" y <dialog> nativo con la imagen grande.
 // La imagen grande va con loading="lazy": dentro del diálogo cerrado no se descarga hasta abrirlo.
-import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 import Icono from './Icono.astro';
+import { medidas, type Imagen } from '../lib/imagenes';
 
 interface Props {
-	cartel: ImageMetadata;
+	cartel: Imagen;
 	alt: string;
 	/** Aviso bajo la miniatura, por ejemplo "Cartel de la campaña anterior". */
 	leyenda?: string;
@@ -16,7 +16,7 @@ const { cartel, alt, leyenda } = Astro.props;
 ---
 
 <figure data-visor-cartel class="max-w-xs">
-	<Image src={cartel} alt={alt} width={480} class="w-full rounded-2xl border border-lineas" />
+	<Image src={cartel.url} {...medidas(cartel, 480)} alt={alt} class="w-full rounded-2xl border border-lineas" />
 	{leyenda && <figcaption class="mt-2 text-sm text-texto-secundario">{leyenda}</figcaption>}
 	<button
 		type="button"
@@ -40,7 +40,7 @@ const { cartel, alt, leyenda } = Astro.props;
 				<Icono nombre="x" />
 			</button>
 		</div>
-		<Image src={cartel} alt={alt} width={1200} loading="lazy" class="mt-2 h-auto w-full rounded-xl" />
+		<Image src={cartel.url} {...medidas(cartel, 1200)} alt={alt} loading="lazy" class="mt-2 h-auto w-full rounded-xl" />
 	</dialog>
 </figure>
 

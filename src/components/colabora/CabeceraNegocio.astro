@@ -6,6 +6,7 @@
 import { Image } from 'astro:assets';
 import Icono from '../Icono.astro';
 import { promocionVigente, type Negocio } from '../../lib/datos';
+import { medidas } from '../../lib/imagenes';
 
 interface Props {
 	negocio: Negocio;
@@ -32,7 +33,7 @@ const promocion = promocionVigente(negocio, new Date());
 		<div class="grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-suave md:size-24">
 			{
 				data.logo ? (
-					<Image src={data.logo} alt="" width={192} class="size-full object-contain" />
+					<Image src={data.logo.url} {...medidas(data.logo, 192)} alt="" class="size-full object-contain" />
 				) : (
 					<span aria-hidden="true" class="font-titulos text-4xl font-extrabold text-sobre-suave">
 						{data.nombre.charAt(0)}

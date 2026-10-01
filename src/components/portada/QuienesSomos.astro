@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import Icono from '../Icono.astro';
 import { bloqueQuienesSomos, obtener, obtenerRefugio } from '../../lib/datos';
 import { parrafos } from '../../lib/formato';
+import { medidas } from '../../lib/imagenes';
 
 const bloque = await bloqueQuienesSomos();
 const refugio = await obtenerRefugio();
@@ -31,9 +32,9 @@ const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orde
 				<div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
 					{bloque.data.imagenes.map((imagen) => (
 						<Image
-							src={imagen}
+							src={imagen.url}
+							{...medidas(imagen, 480)}
 							alt={`Foto del refugio ${refugio.nombre}`}
-							width={480}
 							class="aspect-[4/3] w-full rounded-2xl border border-lineas object-cover"
 						/>
 					))}
