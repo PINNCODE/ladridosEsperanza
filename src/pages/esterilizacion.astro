@@ -1,0 +1,24 @@
+---
+// /esterilizacion (SPEC 03, RF-12 y RF-24): por qué esterilizar, próxima campaña con cartel,
+// cuidados de la cirugía y preguntas frecuentes.
+import EncabezadoPagina from '../components/EncabezadoPagina.astro';
+import CuidadosCirugia from '../components/esterilizacion/CuidadosCirugia.astro';
+import FichaCampana from '../components/esterilizacion/FichaCampana.astro';
+import PorQueEsterilizar from '../components/esterilizacion/PorQueEsterilizar.astro';
+import PreguntasFrecuentes from '../components/esterilizacion/PreguntasFrecuentes.astro';
+import Layout from '../layouts/Layout.astro';
+import { obtenerRefugio } from '../lib/datos';
+
+const refugio = await obtenerRefugio();
+const titulo = 'Campañas de esterilización';
+const frase =
+	'La esterilización es una de las formas más efectivas de reducir el abandono a largo plazo: evita camadas que después no encuentran hogar. El refugio organiza campañas para perros y gatos.';
+---
+
+<Layout titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
+	<EncabezadoPagina titulo={titulo} frase={frase} icono="syringe" />
+	<PorQueEsterilizar />
+	<FichaCampana />
+	<CuidadosCirugia />
+	<PreguntasFrecuentes />
+</Layout>

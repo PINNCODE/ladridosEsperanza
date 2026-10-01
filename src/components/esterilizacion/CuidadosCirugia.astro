@@ -1,0 +1,30 @@
+---
+// Antes y después de la cirugía: una tarjeta por bloque de `esterilizacion_cuidados`,
+// tal como los indique el veterinario del refugio. Sin bloques, no se muestra.
+import { bloquesDeSeccion } from '../../lib/datos';
+import { parrafos } from '../../lib/formato';
+
+const bloques = await bloquesDeSeccion('esterilizacion_cuidados');
+---
+
+{
+	bloques.length > 0 && (
+		<section aria-labelledby="cuidados-titulo" class="mt-10">
+			<h2 id="cuidados-titulo" class="text-2xl font-bold md:text-3xl">
+				Antes y después de la cirugía
+			</h2>
+			<div class="mt-4 grid gap-4 md:grid-cols-2">
+				{bloques.map(({ data }) => (
+					<article class="rounded-2xl border border-lineas bg-superficie p-5">
+						<h3 class="text-lg font-bold">{data.titulo}</h3>
+						<div class="mt-2 space-y-2 text-texto-secundario">
+							{parrafos(data.texto).map((parrafo) => (
+								<p>{parrafo}</p>
+							))}
+						</div>
+					</article>
+				))}
+			</div>
+		</section>
+	)
+}
