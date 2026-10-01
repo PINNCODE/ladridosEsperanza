@@ -1,0 +1,110 @@
+---
+// /admin/qr (SPEC 07, RF-17): el QR de cada negocio publicado, solo para el administrador.
+// Se genera en el navegador con `qrcode` y no se guarda; apunta a {PUBLIC_URL_SITIO}/colabora/{id}.
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+
+const boton = 'inline-flex min-h-11 items-center rounded-xl border border-lineas px-4 font-bold hover:border-acento';
+---
+
+<LayoutPanel titulo="QR de negocios">
+	<p class="mt-3 max-w-prose text-texto-secundario">
+		Cada QR abre la página del negocio. Descárgalo en PNG para imprimir o en SVG para un diseño.
+	</p>
+	<p data-aviso-dominio hidden class="mt-4 max-w-prose rounded-xl bg-suave px-4 py-3 font-bold text-sobre-suave">
+		Si la URL termina en .vercel.app, el QR dejará de servir cuando el sitio pase a su dominio propio.
+	</p>
+
+	<p data-error hidden class="mt-6 font-bold">No pudimos cargar los negocios. Recarga la página.</p>
+	<p data-vacio hidden class="mt-6">Todavía no hay negocios publicados.</p>
+	<ul data-lista class="mt-6 grid gap-4 md:grid-cols-2"></ul>
+
+	<template data-plantilla>
+		<li class="flex gap-4 rounded-2xl border border-lineas bg-superficie p-4">
+			<div data-vista aria-hidden="true" class="size-28 shrink-0 [&>svg]:size-full"></div>
+			<div class="min-w-0">
+				<div class="flex flex-wrap items-baseline gap-x-3">
+					<h2 data-nombre class="text-lg font-bold"></h2>
+					<span data-ejemplo hidden class="rounded-full bg-suave px-3 py-0.5 text-sm font-bold text-sobre-suave"
+						>Ejemplo</span
+					>
+				</div>
+				<a data-url class="text-sm break-all text-acento underline underline-offset-4" target="_blank" rel="noopener"
+				></a>
+				<div class="mt-3 flex gap-2">
+					<button type="button" data-descargar="png" class={boton}>PNG</button>
+					<button type="button" data-descargar="svg" class={boton}>SVG</button>
+				</div>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import QRCode from 'qrcode';
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Negocio = { id: string; nombre: string; es_ejemplo: boolean };
+
+	const sitio = import.meta.env.PUBLIC_URL_SITIO.replace(/\/$/, '');
+	const opciones = { margin: 4, errorCorrectionLevel: 'M' } as const;
+
+	function descargar(href: string, nombre: string) {
+		const enlace = document.createElement('a');
+		enlace.href = href;
+		enlace.download = nombre;
+		enlace.click();
+	}
+
+	const cuenta = await prepararPanel('administrador');
+
+	if (cuenta) {
+		document.querySelector<HTMLElement>('[data-aviso-dominio]')!.hidden = !sitio.includes('vercel.app');
+
+		const { data, error } = await supabaseNavegador()
+			.from('negocios')
+			.select('id, nombre, es_ejemplo')
+			.eq('estado', 'publicado')
+			.order('nombre')
+			.overrideTypes<Negocio[], { merge: false }>();
+
+		if (error) document.querySelector<HTMLElement>('[data-error]')!.hidden = false;
+		const negocios = data ?? [];
+		if (!error && negocios.length === 0) document.querySelector<HTMLElement>('[data-vacio]')!.hidden = false;
+
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+		const filas = await Promise.all(
+			negocios.map(async (negocio) => {
+				const url = `${sitio}/colabora/${negocio.id}`;
+				const svg = await QRCode.toString(url, { ...opciones, type: 'svg' });
+				const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+
+				// El SVG lo genera `qrcode` a partir de la URL; no trae texto de los datos.
+				fila.querySelector<HTMLElement>('[data-vista]')!.innerHTML = svg;
+				fila.querySelector<HTMLElement>('[data-nombre]')!.textContent = negocio.nombre;
+				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !negocio.es_ejemplo;
+				const enlace = fila.querySelector<HTMLAnchorElement>('[data-url]')!;
+				enlace.href = url;
+				enlace.textContent = url;
+
+				const png = fila.querySelector<HTMLButtonElement>('[data-descargar="png"]')!;
+				const vector = fila.querySelector<HTMLButtonElement>('[data-descargar="svg"]')!;
+				png.setAttribute('aria-label', `Descargar QR de ${negocio.nombre} en PNG`);
+				vector.setAttribute('aria-label', `Descargar QR de ${negocio.nombre} en SVG`);
+
+				png.addEventListener('click', async () => {
+					const imagen = await QRCode.toDataURL(url, { ...opciones, width: 1024 });
+					descargar(imagen, `qr-${negocio.id}.png`);
+				});
+				vector.addEventListener('click', () => {
+					const archivo = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+					descargar(archivo, `qr-${negocio.id}.svg`);
+					setTimeout(() => URL.revokeObjectURL(archivo), 1000);
+				});
+
+				return fila;
+			}),
+		);
+		document.querySelector<HTMLUListElement>('[data-lista]')!.replaceChildren(...filas);
+	}
+</script>
