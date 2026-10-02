@@ -12,6 +12,8 @@
 	--color-sobre-acento: #ffffff;
 	--color-suave: #e4eee8;
 	--color-sobre-suave: #284536;
+	/* Corazón del "me gusta" (SPEC 13); 5:1 sobre superficie. */
+	--color-corazon: #c8374f;
 
 	/* Las variables --fuente-* las define <Font /> (API de fuentes de Astro). */
 	--font-titulos: var(--fuente-titulos);
