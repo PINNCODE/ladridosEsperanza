@@ -1,6 +1,6 @@
 ---
 // Carrusel de peludos en adopción (RF-30). Se desliza con el dedo gracias a
-// scroll-snap; flechas, puntos, teclado y avance automático los agrega el script.
+// scroll-snap; flechas, puntos, teclado y avance automático los agrega `iniciarCarrusel` (SPEC 14).
 // Cada tarjeta trae su corazón de "me gusta" (SPEC 13).
 import Icono from './Icono.astro';
 import TarjetaPeludo from './TarjetaPeludo.astro';
@@ -13,7 +13,7 @@ interface Props {
 const { peludos } = Astro.props;
 ---
 
-<div data-carrusel role="region" aria-roledescription="carrusel" aria-label="Peludos en adopción">
+<div data-carrusel="peludos" role="region" aria-roledescription="carrusel" aria-label="Peludos en adopción">
 	<ul
 		data-pista
 		tabindex="0"
@@ -65,85 +65,7 @@ const { peludos } = Astro.props;
 </div>
 
 <script>
-	// Flechas, puntos y teclado del carrusel. El deslizamiento con el dedo lo da scroll-snap.
-	const reducirMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+	import { iniciarCarrusel } from '../lib/carrusel';
 
-	document.querySelectorAll<HTMLElement>('[data-carrusel]').forEach((carrusel) => {
-		const pista = carrusel.querySelector<HTMLElement>('[data-pista]')!;
-		const tarjetas = [...pista.children] as HTMLElement[];
-		const puntos = [...carrusel.querySelectorAll<HTMLButtonElement>('[data-punto]')];
-		const ultimo = tarjetas.length - 1;
-
-		const posicion = (indice: number) => tarjetas[indice].offsetLeft - tarjetas[0].offsetLeft;
-
-		// Tarjeta actual. Al llegar al final se marca la última, aunque quepan dos a la vez.
-		const actual = () => {
-			if (pista.scrollLeft >= pista.scrollWidth - pista.clientWidth - 4) return ultimo;
-			const paso = tarjetas.length > 1 ? posicion(1) : pista.clientWidth;
-			return Math.min(ultimo, Math.round(pista.scrollLeft / paso));
-		};
-
-		const ir = (indice: number) => {
-			const destino = Math.max(0, Math.min(ultimo, indice));
-			pista.scrollTo({ left: posicion(destino), behavior: reducirMovimiento ? 'auto' : 'smooth' });
-		};
-
-		const marcar = () => {
-			const indice = actual();
-			puntos.forEach((punto, i) => {
-				if (i === indice) punto.setAttribute('aria-current', 'true');
-				else punto.removeAttribute('aria-current');
-			});
-		};
-
-		let cuadro = 0;
-		pista.addEventListener(
-			'scroll',
-			() => {
-				cancelAnimationFrame(cuadro);
-				cuadro = requestAnimationFrame(marcar);
-			},
-			{ passive: true },
-		);
-
-		carrusel.querySelector('[data-anterior]')!.addEventListener('click', () => ir(actual() - 1));
-		carrusel.querySelector('[data-siguiente]')!.addEventListener('click', () => ir(actual() + 1));
-		puntos.forEach((punto, i) => punto.addEventListener('click', () => ir(i)));
-
-		pista.addEventListener('keydown', (evento) => {
-			if (evento.key === 'ArrowRight') {
-				evento.preventDefault();
-				ir(actual() + 1);
-			}
-			if (evento.key === 'ArrowLeft') {
-				evento.preventDefault();
-				ir(actual() - 1);
-			}
-		});
-
-		// Avance automático cada 5 s. No arranca con "reducir movimiento", no avanza con la
-		// pestaña oculta ni con el carrusel fuera de pantalla, y se apaga para siempre en
-		// esta visita al primer toque, rueda, tecla o foco dentro del carrusel.
-		if (reducirMovimiento || tarjetas.length < 2) return;
-
-		let enPantalla = false;
-		new IntersectionObserver(([entrada]) => {
-			enPantalla = entrada.isIntersecting;
-		}).observe(carrusel);
-
-		const intervalo = setInterval(() => {
-			if (document.hidden || !enPantalla) return;
-			ir(actual() === ultimo ? 0 : actual() + 1);
-		}, 5000);
-
-		const apagar = () => {
-			clearInterval(intervalo);
-			for (const tipo of ['pointerdown', 'wheel', 'keydown', 'focusin']) {
-				carrusel.removeEventListener(tipo, apagar);
-			}
-		};
-		for (const tipo of ['pointerdown', 'wheel', 'keydown', 'focusin']) {
-			carrusel.addEventListener(tipo, apagar, { passive: true });
-		}
-	});
+	document.querySelectorAll<HTMLElement>('[data-carrusel="peludos"]').forEach(iniciarCarrusel);
 </script>
