@@ -177,7 +177,7 @@ const enlaces = [
 6. Reordenar el menú de `Encabezado` y agregar la dirección y "Cómo llegar" al `Pie`.
 7. Agregar los clics a "Cómo llegar" al aviso de privacidad.
 8. Actualizar `specs/README.md` (la 12 con este título, anuncios a la 13 y la nota de que esta spec reemplaza el orden de RF-30), `CLAUDE.md` y `AGENTS.md` (orden de la portada, columnas de `refugio`, `enlaceMapaRefugio`, eventos de Umami y que el menú ya no tiene "Lo que enfrenta un refugio").
-9. Paso manual en la nube después del merge: `npx supabase db push`; cuando el refugio confirme su dirección y su punto, capturarlos en Studio.
+9. Paso manual en la nube **antes del merge**: `npx supabase db push`. El esquema espera las 3 columnas, así que sin ellas fallan el preview y producción; aplicarlas antes es seguro porque el esquema de `main` ignora columnas que no conoce. Cuando el refugio confirme su dirección y su punto, capturarlos en Studio.
 
 ## Criterios de aceptación
 
