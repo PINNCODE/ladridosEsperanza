@@ -3,7 +3,9 @@ import { Font } from 'astro:assets';
 import CintaEjemplo from '../components/CintaEjemplo.astro';
 import Encabezado from '../components/Encabezado.astro';
 import Pie from '../components/Pie.astro';
-import { mostrarEjemplos } from '../lib/datos';
+import { mostrarEjemplos, obtenerRefugio } from '../lib/datos';
+import type { Imagen } from '../lib/imagenes';
+import { jsonLd } from '../lib/seo';
 import '../styles/global.css';
 
 interface Props {
@@ -11,9 +13,25 @@ interface Props {
 	titulo: string;
 	/** Resumen de la página para buscadores y para compartir. */
 	descripcion: string;
+	/** Imagen para compartir; sin ella, la foto principal del refugio. */
+	imagen?: Imagen;
+	/** Texto alternativo de `imagen` ("Logo de {negocio}"). */
+	textoImagen?: string;
+	/** false agrega <meta name="robots" content="noindex">. Por omisión, true. */
+	indexar?: boolean;
+	/** Objeto schema.org que se escribe como JSON-LD en <head>. */
+	estructurados?: Record<string, unknown>;
 }
 
-const { titulo, descripcion } = Astro.props;
+const { titulo, descripcion, imagen, textoImagen, indexar = true, estructurados } = Astro.props;
+const refugio = await obtenerRefugio();
+
+// Etiquetas para compartir (SPEC 11): el logo de un negocio va en tarjeta chica (summary)
+// y la foto del refugio en tarjeta grande. Las URL de Supabase ya son absolutas.
+const canonica = new URL(Astro.url.pathname, Astro.site).href;
+const compartir = imagen
+	? { ...imagen, alt: textoImagen ?? titulo, tarjeta: 'summary' }
+	: { ...refugio.foto_principal, alt: `Foto de ${refugio.nombre}`, tarjeta: 'summary_large_image' };
 
 // Solo las páginas de /colabora traen barra fija inferior (SPEC 04, RF-13). Con ella,
 // viewport-fit=cover hace que env(safe-area-inset-bottom) mida la barra de inicio del
@@ -30,8 +48,23 @@ const conBarra = Astro.slots.has('barra');
 			content={`width=device-width, initial-scale=1${conBarra ? ', viewport-fit=cover' : ''}`}
 		/>
 		<meta name="description" content={descripcion} />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		{!indexar && <meta name="robots" content="noindex" />}
+		<link rel="canonical" href={canonica} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={refugio.nombre} />
+		<meta property="og:locale" content="es_MX" />
+		<meta property="og:title" content={titulo} />
+		<meta property="og:description" content={descripcion} />
+		<meta property="og:url" content={canonica} />
+		<meta property="og:image" content={compartir.url} />
+		<meta property="og:image:width" content={String(compartir.ancho)} />
+		<meta property="og:image:height" content={String(compartir.alto)} />
+		<meta property="og:image:alt" content={compartir.alt} />
+		<meta name="twitter:card" content={compartir.tarjeta} />
+		{estructurados && <script is:inline type="application/ld+json" set:html={jsonLd(estructurados)} />}
+		<link rel="icon" href="/favicon.ico" sizes="32x32" />
+		<link rel="icon" type="image/png" href="/icono.png" sizes="192x192" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<Font cssVariable="--fuente-titulos" preload />
 		<Font cssVariable="--fuente-texto" preload />

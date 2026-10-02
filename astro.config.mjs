@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { loadEnv } from 'vite';
 
@@ -51,6 +52,15 @@ export default defineConfig({
       subsets: ['latin'],
       fallbacks: ['system-ui', 'sans-serif'],
     },
+  ],
+  // Mapa del sitio (SPEC 11): todas las páginas públicas, sin el panel ni la 404.
+  integrations: [
+    sitemap({
+      filter: (pagina) => {
+        const { pathname } = new URL(pagina);
+        return !pathname.startsWith('/admin') && !pathname.startsWith('/404');
+      },
+    }),
   ],
   vite: {
     plugins: [tailwindcss()]

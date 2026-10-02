@@ -2,6 +2,7 @@
 // Layout de las páginas de /colabora (SPEC 04 y 05): el del sitio más la barra fija
 // con enlaces al refugio (RF-13).
 import BarraRefugio from '../components/colabora/BarraRefugio.astro';
+import type { Imagen } from '../lib/imagenes';
 import Layout from './Layout.astro';
 
 interface Props {
@@ -9,12 +10,20 @@ interface Props {
 	titulo: string;
 	/** Resumen de la página para buscadores y para compartir. */
 	descripcion: string;
+	/** Imagen para compartir; sin ella, la foto principal del refugio. */
+	imagen?: Imagen;
+	/** Texto alternativo de `imagen`. */
+	textoImagen?: string;
+	/** false agrega <meta name="robots" content="noindex">. */
+	indexar?: boolean;
+	/** Objeto schema.org que se escribe como JSON-LD en <head>. */
+	estructurados?: Record<string, unknown>;
 }
 
-const { titulo, descripcion } = Astro.props;
+const props = Astro.props;
 ---
 
-<Layout titulo={titulo} descripcion={descripcion}>
+<Layout {...props}>
 	<slot />
 	<BarraRefugio slot="barra" />
 </Layout>
