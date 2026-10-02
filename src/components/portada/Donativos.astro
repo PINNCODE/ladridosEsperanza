@@ -1,9 +1,12 @@
 ---
 // Donativos en la portada (SPEC 12): dos caminos, dinero y especie, con las necesidades vigentes (RF-26).
 // La página completa es /donar (SPEC 03); el mensaje para pedir los datos es el mismo que allá.
+// La foto de "Dona en especie" es de la SPEC 14.
+import { Image } from 'astro:assets';
 import Icono from '../Icono.astro';
 import ListaNecesidades from '../ListaNecesidades.astro';
 import { necesidadesVigentes, obtenerRefugio } from '../../lib/datos';
+import { fotosRefugio } from '../../lib/fotosRefugio';
 import { enlaceWhatsApp } from '../../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
@@ -52,6 +55,15 @@ const boton =
 		</article>
 
 		<article class={tarjeta}>
+			<Image
+				src={fotosRefugio.gatosComiendo.src}
+				width={960}
+				widths={[320, 480, 640, 960]}
+				sizes="(min-width: 768px) 50vw, 100vw"
+				alt={fotosRefugio.gatosComiendo.alt}
+				style={{ objectPosition: fotosRefugio.gatosComiendo.enfoque }}
+				class="mb-4 aspect-[4/3] w-full rounded-xl object-cover"
+			/>
 			<Icono nombre="package" />
 			<h3 class="mt-3 text-lg font-bold">Dona en especie</h3>
 			{

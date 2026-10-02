@@ -1,8 +1,10 @@
 ---
 // Resumen de esterilización en la portada: por qué esterilizar y la próxima campaña.
-// La página completa es /esterilizacion (SPEC 03).
+// La página completa es /esterilizacion (SPEC 03). La foto de la camada es de la SPEC 14.
+import { Image } from 'astro:assets';
 import Icono from '../Icono.astro';
 import { obtenerRefugio, proximaCampana } from '../../lib/datos';
+import { fotosRefugio } from '../../lib/fotosRefugio';
 import { formatearFecha, formatearPesos } from '../../lib/formato';
 import { enlaceWhatsApp } from '../../lib/whatsapp';
 
@@ -42,6 +44,15 @@ const reservar =
 				evita camadas que después no encuentran hogar. El refugio organiza campañas para perros y
 				gatos.
 			</p>
+			<Image
+				src={fotosRefugio.gataConSuCamada.src}
+				width={960}
+				widths={[320, 480, 640, 960]}
+				sizes="(min-width: 768px) 384px, 100vw"
+				alt={fotosRefugio.gataConSuCamada.alt}
+				style={{ objectPosition: fotosRefugio.gataConSuCamada.enfoque }}
+				class="mt-4 aspect-square md:max-w-sm w-full rounded-2xl object-cover"
+			/>
 		</div>
 		<div class="rounded-2xl bg-superficie p-5">
 			{
