@@ -1,0 +1,38 @@
+---
+// Corazón de "me gusta" de un peludo (SPEC 13), con su contador. Lo conecta iniciarCorazones()
+// de src/lib/meGusta.ts; sin JS se ve vacío y sin número. `origen` va al evento me_gusta de Umami.
+import Icono from './Icono.astro';
+
+interface Props {
+	id: string;
+	nombre: string;
+	origen: 'galeria' | 'portada' | 'ficha';
+	class?: string;
+}
+
+const { id, nombre, origen, class: clase } = Astro.props;
+---
+
+<button
+	type="button"
+	data-me-gusta={id}
+	data-nombre={nombre}
+	data-origen={origen}
+	aria-pressed="false"
+	class:list={[
+		'group relative inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-superficie px-3 font-bold text-corazon shadow-sm',
+		clase,
+	]}
+>
+	<span data-corazon class="inline-grid">
+		<Icono nombre="heart" tono="heredado" size={22} class="group-aria-pressed:fill-current" />
+	</span>
+	<span class="sr-only">Me gusta {nombre}</span>
+	<span data-total class="text-sm tabular-nums empty:hidden"></span>
+</button>
+
+<script>
+	import { iniciarCorazones } from '../lib/meGusta';
+
+	iniciarCorazones();
+</script>

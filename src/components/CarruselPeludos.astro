@@ -1,7 +1,7 @@
 ---
 // Carrusel de peludos en adopción (RF-30). Se desliza con el dedo gracias a
-// scroll-snap; flechas, puntos, teclado, avance automático y favoritos los
-// agrega el script.
+// scroll-snap; flechas, puntos, teclado y avance automático los agrega el script.
+// Cada tarjeta trae su corazón de "me gusta" (SPEC 13).
 import Icono from './Icono.astro';
 import TarjetaPeludo from './TarjetaPeludo.astro';
 import type { Peludo } from '../lib/datos';
@@ -23,7 +23,7 @@ const { peludos } = Astro.props;
 		{
 			peludos.map((peludo) => (
 				<li class="w-[80%] max-w-80 shrink-0 snap-start">
-					<TarjetaPeludo peludo={peludo} />
+					<TarjetaPeludo peludo={peludo} origen="portada" />
 				</li>
 			))
 		}
