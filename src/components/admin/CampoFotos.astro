@@ -1,6 +1,7 @@
 ---
-// Campo de fotos de los formularios del panel (SPEC 08): vista previa, "Subir", "Bajar", "Quitar"
-// y "Agregar foto". La primera es la principal. Con `maximo={1}` sirve para el cartel de una campaña.
+// Campo de fotos de los formularios del panel (SPEC 08 y 09): vista previa, "Subir", "Bajar", "Quitar"
+// y "Agregar foto". La primera es la principal. Con `maximo={1}` sirve para el cartel de una campaña
+// y, con `formato="png"`, para el logo de un negocio.
 // campoFotos() de src/lib/imagenesPanel.ts lo conecta, reduce las fotos y las sube al guardar.
 import Icono from '../Icono.astro';
 import { ayuda, boton } from './estilos';
@@ -11,14 +12,20 @@ interface Props {
 	/** Texto del <legend>, por ejemplo "Fotos". */
 	etiqueta: string;
 	/** Carpeta del bucket donde se suben. */
-	carpeta: 'peludos' | 'campanas' | 'bloques';
-	/** Lado mayor máximo en px: 1600 para fotos, 2400 para el cartel. */
+	carpeta: 'peludos' | 'campanas' | 'bloques' | 'negocios';
+	/** Lado mayor máximo en px: 1600 para fotos, 2400 para el cartel, 512 para un logo. */
 	ladoMaximo: number;
 	maximo?: number;
+	/** "png" conserva la transparencia (logos); "jpeg" (por defecto) para fotos y carteles. */
+	formato?: 'jpeg' | 'png';
 }
 
-const { id, etiqueta, carpeta, ladoMaximo, maximo = 4 } = Astro.props;
+const { id, etiqueta, carpeta, ladoMaximo, maximo = 4, formato = 'jpeg' } = Astro.props;
 const texto = maximo > 1 ? `Hasta ${maximo} fotos. La primera es la principal.` : 'Una imagen, opcional.';
+const reduccion =
+	formato === 'png'
+		? `Se reduce a ${ladoMaximo} px y conserva el fondo transparente.`
+		: `Se reducen a ${ladoMaximo} px antes de subirlas.`;
 ---
 
 <fieldset
@@ -26,10 +33,11 @@ const texto = maximo > 1 ? `Hasta ${maximo} fotos. La primera es la principal.` 
 	data-carpeta={carpeta}
 	data-maximo={maximo}
 	data-lado-maximo={ladoMaximo}
+	data-formato={formato}
 	aria-describedby={`${id}-ayuda`}
 >
 	<legend class="font-bold">{etiqueta}</legend>
-	<p id={`${id}-ayuda`} class={ayuda}>{texto} Se reducen a {ladoMaximo} px antes de subirlas.</p>
+	<p id={`${id}-ayuda`} class={ayuda}>{texto} {reduccion}</p>
 	<ul data-fotos class="mt-3 grid gap-3 sm:grid-cols-2"></ul>
 	<input
 		id={`${id}-archivo`}
