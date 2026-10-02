@@ -1,0 +1,112 @@
+---
+// /admin/textos/editar (SPEC 08, RF-22): crea (sin ?id=) o edita un texto de bloques_contenido
+// con hasta 4 imágenes. La sección se elige al crear y no cambia. Guarda con la RPC guardar_bloque.
+import CampoFotos from '../../../components/admin/CampoFotos.astro';
+import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
+import { ayuda, campo, etiqueta } from '../../../components/admin/estilos';
+import { secciones } from '../../../components/admin/secciones';
+import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Texto">
+	<FormularioPanel lista="/admin/textos">
+		<div>
+			<label for="texto-seccion" class={etiqueta}>Sección</label>
+			<select id="texto-seccion" name="seccion" required aria-describedby="texto-seccion-ayuda" class={campo}>
+				<option value="" disabled selected>Elige una sección</option>
+				{
+					secciones.map(({ valor, nombre, pagina }) => (
+						<option value={valor}>
+							{nombre} ({pagina})
+						</option>
+					))
+				}
+			</select>
+			<p id="texto-seccion-ayuda" class={ayuda}>
+				La sección no se cambia después; para otra sección, agrega un texto nuevo.
+			</p>
+		</div>
+		<div>
+			<label for="texto-titulo" class={etiqueta}>Título</label>
+			<input id="texto-titulo" name="titulo" required maxlength="120" class={campo} />
+		</div>
+		<div>
+			<label for="texto-texto" class={etiqueta}>Texto</label>
+			<textarea
+				id="texto-texto"
+				name="texto"
+				required
+				rows="8"
+				maxlength="5000"
+				aria-describedby="texto-texto-ayuda"
+				class={campo}></textarea>
+			<p id="texto-texto-ayuda" class={ayuda}>Deja una línea en blanco para empezar otro párrafo.</p>
+		</div>
+		<div class="flex min-h-11 items-center gap-3">
+			<input id="texto-publicado" name="publicado" type="checkbox" class="size-6 accent-acento" />
+			<label for="texto-publicado" class="font-bold">Publicado</label>
+		</div>
+		<CampoFotos id="texto-imagenes" etiqueta="Imágenes" carpeta="bloques" ladoMaximo={1600} />
+		<p class={ayuda}>Por ahora el sitio solo muestra las imágenes de Quiénes somos.</p>
+	</FormularioPanel>
+</LayoutPanel>
+
+<script>
+	import { avisoSitio, iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import { campoFotos, guardarConFotos, type FotoGuardada } from '../../../lib/imagenesPanel';
+	import { prepararPanel } from '../../../lib/panel';
+	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
+
+	type Bloque = {
+		seccion: string;
+		titulo: string;
+		texto: string;
+		publicado: boolean;
+		imagenes_bloque: { orden: number; imagen: FotoGuardada }[];
+	};
+
+	let marcar = () => {};
+	const imagenes = campoFotos(document.querySelector('[data-campo-fotos]')!, () => marcar());
+
+	if (await prepararPanel()) {
+		const supabase = supabaseNavegador();
+		const listo = await iniciarFormulario<Bloque>({
+			lista: '/admin/textos',
+			titulos: { nuevo: 'Nuevo texto', editar: 'Editar texto' },
+			cargar: (id) =>
+				supabase
+					.from('bloques_contenido')
+					.select('seccion, titulo, texto, publicado, imagenes_bloque(orden, imagen:imagenes(id, ruta))')
+					.eq('id', id)
+					.maybeSingle<Bloque>(),
+			llenar: (bloque, formulario) => {
+				const campo = (nombre: string) => formulario.elements.namedItem(nombre) as HTMLInputElement;
+				campo('seccion').value = bloque.seccion;
+				campo('seccion').disabled = true;
+				campo('titulo').value = bloque.titulo;
+				campo('texto').value = bloque.texto;
+				campo('publicado').checked = bloque.publicado;
+				imagenes.cargar(
+					bloque.imagenes_bloque.toSorted((a, b) => a.orden - b.orden).map(({ imagen }) => imagen),
+				);
+			},
+			guardar: async (formulario, id) => {
+				const datos = new FormData(formulario);
+				await guardarConFotos([imagenes], ([lista]) =>
+					supabase.rpc('guardar_bloque', {
+						datos: {
+							id,
+							seccion: id ? undefined : texto(datos, 'seccion'),
+							titulo: texto(datos, 'titulo'),
+							texto: texto(datos, 'texto'),
+							publicado: datos.has('publicado'),
+							fotos: lista,
+						},
+					}),
+				);
+				return avisoSitio;
+			},
+		});
+		if (listo) marcar = listo.cambios.marcar;
+	}
+</script>

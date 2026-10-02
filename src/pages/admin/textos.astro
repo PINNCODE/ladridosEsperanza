@@ -1,0 +1,135 @@
+---
+// /admin/textos (SPEC 08, RF-22): bloques_contenido agrupados por sección, en su orden, con
+// "Subir" y "Bajar" dentro de la sección. Una sección sin bloques publicados no se muestra en el sitio.
+import CabeceraLista from '../../components/admin/CabeceraLista.astro';
+import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import { secciones } from '../../components/admin/secciones';
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Textos">
+	<CabeceraLista agregar="/admin/textos/editar" texto="Agregar texto" />
+	<div data-secciones hidden class="mt-6 space-y-8">
+		{
+			secciones.map(({ valor, nombre, pagina, soloPrimero }) => (
+				<section aria-labelledby={`seccion-${valor}`}>
+					<h2 id={`seccion-${valor}`} class="text-xl font-bold">
+						{nombre}
+					</h2>
+					<p class="text-sm text-texto-secundario">
+						Se ve en {pagina}.{soloPrimero && ' El sitio muestra solo el primer texto publicado.'}
+					</p>
+					<p data-vacia={valor} hidden class="mt-3">
+						Sin textos en esta sección.
+					</p>
+					<ol data-lista={valor} class="mt-3 space-y-3" />
+				</section>
+			))
+		}
+	</div>
+
+	<template data-plantilla>
+		<li class:list={[tarjeta, 'flex flex-wrap items-center gap-4']}>
+			<div class="min-w-0 flex-1">
+				<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+					<h3 data-titulo-bloque class="text-lg font-bold break-words"></h3>
+					<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
+				</div>
+				<p data-estado class="text-texto-secundario"></p>
+			</div>
+			<div class="flex flex-wrap gap-2">
+				<a data-editar class={boton}>Editar</a>
+				<button type="button" data-mover="-1" class={boton}>Subir</button>
+				<button type="button" data-mover="1" class={boton}>Bajar</button>
+				<button type="button" data-borrar class={boton}>Borrar</button>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import { confirmarBorrado, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import { borrarRutas } from '../../lib/imagenesPanel';
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Bloque = { id: string; seccion: string; titulo: string; publicado: boolean; es_ejemplo: boolean };
+
+	async function iniciar() {
+		if (!(await prepararPanel())) return;
+		const supabase = supabaseNavegador();
+		mostrarAviso(document.querySelector<HTMLElement>('[data-aviso]')!);
+
+		const { data, error } = await supabase
+			.from('bloques_contenido')
+			.select('id, seccion, titulo, publicado, es_ejemplo')
+			.order('orden')
+			.order('id')
+			.overrideTypes<Bloque[], { merge: false }>();
+		if (error) {
+			document.querySelector<HTMLElement>('[data-error-lista]')!.hidden = false;
+			return;
+		}
+
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+		const errorAccion = document.querySelector<HTMLElement>('[data-error-accion]')!;
+
+		function fila(bloque: Bloque, indice: number, total: number): HTMLLIElement {
+			const elemento = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+			elemento.querySelector('[data-titulo-bloque]')!.textContent = bloque.titulo;
+			elemento.querySelector('[data-estado]')!.textContent = bloque.publicado ? 'Publicado' : 'Oculto';
+			elemento.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !bloque.es_ejemplo;
+			elemento.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
+				`/admin/textos/editar?id=${encodeURIComponent(bloque.id)}`;
+
+			for (const mover of elemento.querySelectorAll<HTMLButtonElement>('[data-mover]')) {
+				const direccion = Number(mover.dataset.mover);
+				mover.setAttribute('aria-label', `${direccion < 0 ? 'Subir' : 'Bajar'} ${bloque.titulo}`);
+				mover.disabled = (direccion < 0 && indice === 0) || (direccion > 0 && indice === total - 1);
+				mover.addEventListener('click', async () => {
+					mover.disabled = true;
+					const { error: fallo } = await supabase.rpc('mover_contenido', {
+						tabla: 'bloques_contenido',
+						id: bloque.id,
+						direccion,
+					});
+					if (fallo) {
+						mover.disabled = false;
+						errorAccion.textContent = mensajeError(fallo, 'mover');
+						return;
+					}
+					location.reload();
+				});
+			}
+
+			const borrar = elemento.querySelector<HTMLButtonElement>('[data-borrar]')!;
+			borrar.setAttribute('aria-label', `Borrar ${bloque.titulo}`);
+			borrar.addEventListener('click', async () => {
+				if (!confirmarBorrado(bloque.titulo)) return;
+				borrar.disabled = true;
+				const { data: rutas, error: fallo } = await supabase.rpc('borrar_contenido', {
+					tabla: 'bloques_contenido',
+					id: bloque.id,
+				});
+				if (fallo) {
+					borrar.disabled = false;
+					errorAccion.textContent = mensajeError(fallo, 'borrar');
+					return;
+				}
+				await borrarRutas(rutas ?? []);
+				location.reload();
+			});
+			return elemento;
+		}
+
+		for (const lista of document.querySelectorAll<HTMLOListElement>('[data-lista]')) {
+			const seccion = lista.dataset.lista!;
+			const bloques = data.filter((bloque) => bloque.seccion === seccion);
+			document.querySelector<HTMLElement>(`[data-vacia="${seccion}"]`)!.hidden = bloques.length > 0;
+			lista.replaceChildren(...bloques.map((bloque, indice) => fila(bloque, indice, bloques.length)));
+		}
+		document.querySelector<HTMLElement>('[data-secciones]')!.hidden = false;
+	}
+
+	iniciar();
+</script>

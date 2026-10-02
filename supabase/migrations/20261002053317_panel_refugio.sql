@@ -570,3 +570,55 @@ revoke execute on function public.guardar_peludo(jsonb) from public, anon;
 revoke execute on function public.mover_contenido(text, text, int) from public, anon;
 grant execute on function public.guardar_peludo(jsonb) to authenticated;
 grant execute on function public.mover_contenido(text, text, int) to authenticated;
+
+-- Texto del refugio (bloques_contenido, RF-22). Sin "id" crea uno en una de las 6 secciones, con el slug
+-- del título como id y al final de su sección; con "id" lo actualiza sin cambiar su sección.
+-- "fotos" lleva hasta 4 imágenes.
+create function public.guardar_bloque(datos jsonb) returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+	fila public.bloques_contenido;
+	fotos jsonb := coalesce(datos -> 'fotos', '[]'::jsonb);
+begin
+	perform public.exigir_panel();
+
+	fila.id := datos ->> 'id';
+	fila.titulo := public.campo_texto(datos, 'titulo');
+	fila.texto := public.campo_texto(datos, 'texto');
+	fila.publicado := coalesce((datos ->> 'publicado')::boolean, false);
+
+	if fila.id is null then
+		fila.seccion := public.campo_texto(datos, 'seccion');
+		if fila.seccion not in (
+			'quienes_somos', 'proceso_adopcion', 'esterilizacion_por_que', 'esterilizacion_cuidados',
+			'esterilizacion_preguntas', 'voluntariado'
+		) then
+			raise exception 'datos_invalidos' using detail = 'seccion';
+		end if;
+		fila.id := public.id_libre(public.slug(fila.titulo), 'bloques_contenido');
+		fila.orden := (
+			select coalesce(max(b.orden), 0) + 1 from public.bloques_contenido b where b.seccion = fila.seccion
+		);
+		fila.es_ejemplo := false;
+		insert into public.bloques_contenido values (fila.*);
+	else
+		update public.bloques_contenido b
+		set titulo = fila.titulo, texto = fila.texto, publicado = fila.publicado
+		where b.id = fila.id;
+		if not found then
+			raise exception 'no_encontrado';
+		end if;
+	end if;
+
+	return jsonb_build_object(
+		'id', fila.id,
+		'rutas_borradas', to_jsonb(public.reemplazar_fotos('imagenes_bloque', fila.id, fotos))
+	);
+end;
+$$;
+
+revoke execute on function public.guardar_bloque(jsonb) from public, anon;
+grant execute on function public.guardar_bloque(jsonb) to authenticated;
