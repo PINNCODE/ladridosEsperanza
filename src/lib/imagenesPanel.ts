@@ -1,9 +1,11 @@
-// Fotos del panel /admin (SPEC 08): se reducen en el navegador, se suben al bucket `imagenes`
+// Fotos del panel /admin (SPEC 08 y 09): se reducen en el navegador, se suben al bucket `imagenes`
 // y se mandan a las funciones RPC como { imagen_id } (ya existe) o { ruta, ancho, alto } (nueva).
 // Las RPC devuelven las rutas que quedaron sin uso, y el navegador las borra del bucket.
 import { supabaseNavegador } from './supabaseNavegador';
 
-export type Carpeta = 'peludos' | 'campanas' | 'bloques';
+export type Carpeta = 'peludos' | 'campanas' | 'bloques' | 'negocios';
+/** JPEG para fotos y carteles; PNG para logos, que conserva la transparencia (SPEC 09). */
+export type Formato = 'jpeg' | 'png';
 export type FotoReducida = { blob: Blob; ancho: number; alto: number };
 /** Lo que reciben las RPC por cada foto, en orden. */
 export type FotoDatos = { imagen_id: string } | { ruta: string; ancho: number; alto: number };
@@ -18,10 +20,10 @@ export function urlPublica(ruta: string): string {
 }
 
 /**
- * Reduce la imagen a `ladoMaximo` px en su lado mayor (sin agrandarla) y la pasa a JPEG 0.85.
- * Lanza 'imagen_ilegible' si el navegador no puede leer el archivo.
+ * Reduce la imagen a `ladoMaximo` px en su lado mayor (sin agrandarla) y la pasa a JPEG 0.85
+ * o a PNG. Lanza 'imagen_ilegible' si el navegador no puede leer el archivo.
  */
-export async function reducir(archivo: File, ladoMaximo: number): Promise<FotoReducida> {
+export async function reducir(archivo: File, ladoMaximo: number, formato: Formato = 'jpeg'): Promise<FotoReducida> {
 	let imagen: ImageBitmap;
 	try {
 		imagen = await createImageBitmap(archivo);
@@ -36,21 +38,28 @@ export async function reducir(archivo: File, ladoMaximo: number): Promise<FotoRe
 	lienzo.width = ancho;
 	lienzo.height = alto;
 	const contexto = lienzo.getContext('2d')!;
-	// Un PNG con transparencia quedaría negro en JPEG.
-	contexto.fillStyle = '#ffffff';
-	contexto.fillRect(0, 0, ancho, alto);
+	if (formato === 'jpeg') {
+		// Un PNG con transparencia quedaría negro en JPEG.
+		contexto.fillStyle = '#ffffff';
+		contexto.fillRect(0, 0, ancho, alto);
+	}
 	contexto.drawImage(imagen, 0, 0, ancho, alto);
 	imagen.close();
 
-	const blob = await new Promise<Blob | null>((resolver) => lienzo.toBlob(resolver, 'image/jpeg', 0.85));
+	const blob = await new Promise<Blob | null>((resolver) =>
+		formato === 'png' ? lienzo.toBlob(resolver, 'image/png') : lienzo.toBlob(resolver, 'image/jpeg', 0.85),
+	);
 	if (!blob) throw new Error('imagen_ilegible');
 	return { blob, ancho, alto };
 }
 
-/** Sube la foto a {carpeta}/{uuid}.jpg y devuelve su ruta. */
+/** Sube la foto a {carpeta}/{uuid}.jpg (o .png, según el formato del blob) y devuelve su ruta. */
 export async function subir(carpeta: Carpeta, blob: Blob): Promise<string> {
-	const ruta = `${carpeta}/${crypto.randomUUID()}.jpg`;
-	const { error } = await supabaseNavegador().storage.from(bucket).upload(ruta, blob, { contentType: 'image/jpeg' });
+	const png = blob.type === 'image/png';
+	const ruta = `${carpeta}/${crypto.randomUUID()}.${png ? 'png' : 'jpg'}`;
+	const { error } = await supabaseNavegador()
+		.storage.from(bucket)
+		.upload(ruta, blob, { contentType: png ? 'image/png' : 'image/jpeg' });
 	if (error) throw error;
 	return ruta;
 }
@@ -81,6 +90,7 @@ export function campoFotos(raiz: HTMLElement, alCambiar: () => void): CampoFotos
 	const carpeta = raiz.dataset.carpeta as Carpeta;
 	const maximo = Number(raiz.dataset.maximo);
 	const ladoMaximo = Number(raiz.dataset.ladoMaximo);
+	const formato = raiz.dataset.formato as Formato;
 	const lista = raiz.querySelector<HTMLUListElement>('[data-fotos]')!;
 	const plantilla = raiz.querySelector<HTMLTemplateElement>('[data-plantilla-foto]')!;
 	const entrada = raiz.querySelector<HTMLInputElement>('[data-archivo]')!;
@@ -144,7 +154,7 @@ export function campoFotos(raiz: HTMLElement, alCambiar: () => void): CampoFotos
 		mensaje.textContent = '';
 		for (const archivo of archivos) {
 			try {
-				const foto = await reducir(archivo, ladoMaximo);
+				const foto = await reducir(archivo, ladoMaximo, formato);
 				elementos.push({ tipo: 'nueva', foto, url: URL.createObjectURL(foto.blob) });
 			} catch {
 				mensaje.textContent = 'No pudimos leer esta imagen. Prueba con una foto JPG o PNG.';

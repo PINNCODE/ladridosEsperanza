@@ -1,0 +1,51 @@
+---
+// /admin/categorias/editar (SPEC 09, RF-03): crea (sin ?id=) o renombra una categoría del catálogo.
+// Guarda con la RPC guardar_categoria; el id es el slug del nombre con el que se creó.
+import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
+import { ayuda, campo, etiqueta } from '../../../components/admin/estilos';
+import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Categoría">
+	<FormularioPanel lista="/admin/categorias">
+		<div>
+			<label for="categoria-nombre" class={etiqueta}>Nombre</label>
+			<input
+				id="categoria-nombre"
+				name="nombre"
+				required
+				maxlength="40"
+				aria-describedby="categoria-nombre-ayuda"
+				class={campo}
+			/>
+			<p id="categoria-nombre-ayuda" class={ayuda}>En plural, como se ve en los filtros: "Taquerías".</p>
+		</div>
+	</FormularioPanel>
+</LayoutPanel>
+
+<script>
+	import { avisoSitio, iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import { prepararPanel } from '../../../lib/panel';
+	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
+
+	type Categoria = { nombre: string };
+
+	if (await prepararPanel('administrador')) {
+		const supabase = supabaseNavegador();
+		await iniciarFormulario<Categoria>({
+			lista: '/admin/categorias',
+			titulos: { nuevo: 'Nueva categoría', editar: 'Editar categoría' },
+			cargar: (id) => supabase.from('categorias').select('nombre').eq('id', id).maybeSingle<Categoria>(),
+			llenar: (categoria, formulario) => {
+				(formulario.elements.namedItem('nombre') as HTMLInputElement).value = categoria.nombre;
+			},
+			guardar: async (formulario, id) => {
+				const { error } = await supabase.rpc('guardar_categoria', {
+					datos: { id, nombre: texto(new FormData(formulario), 'nombre') },
+				});
+				if (error) throw error;
+				return avisoSitio;
+			},
+		});
+	}
+</script>

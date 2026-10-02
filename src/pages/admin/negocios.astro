@@ -1,0 +1,142 @@
+---
+// /admin/negocios (SPEC 09, RF-01 y RF-09): negocios de "Come por los Peludos" por nombre, con estado,
+// aporte y si su promoción está vigente. Solo para el administrador; el menú se edita en la SPEC 10.
+import CabeceraLista from '../../components/admin/CabeceraLista.astro';
+import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Negocios">
+	<CabeceraLista agregar="/admin/negocios/editar" texto="Agregar negocio" />
+	<p data-vacio hidden class="mt-6">Todavía no hay negocios.</p>
+	<ul data-lista class="mt-6 space-y-3"></ul>
+
+	<template data-plantilla>
+		<li class:list={[tarjeta, 'flex flex-wrap items-center gap-4']}>
+			<img data-logo hidden alt="" class="size-20 shrink-0 rounded-xl bg-white object-contain p-1" />
+			<div
+				data-inicial
+				hidden
+				aria-hidden="true"
+				class="grid size-20 shrink-0 place-items-center rounded-xl bg-suave font-titulos text-3xl font-bold text-sobre-suave"
+			>
+			</div>
+			<div class="min-w-0 flex-1">
+				<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+					<h2 data-nombre class="text-lg font-bold break-words"></h2>
+					<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
+				</div>
+				<p data-detalle class="text-texto-secundario"></p>
+				<p data-promocion class="text-sm font-bold text-acento empty:hidden"></p>
+			</div>
+			<div class="flex flex-wrap gap-2">
+				<a data-editar class={boton}>Editar</a>
+				<a data-ver hidden target="_blank" rel="noopener" class={boton}>Ver página</a>
+				<button type="button" data-borrar class={boton}>Borrar</button>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import { hoyEnMexico, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import { borrarRutas, urlPublica } from '../../lib/imagenesPanel';
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Promocion = { fecha_inicio: string; fecha_fin: string | null };
+	type Negocio = {
+		id: string;
+		nombre: string;
+		estado: 'borrador' | 'publicado' | 'pausado';
+		porcentaje_aporte: number;
+		es_ejemplo: boolean;
+		logo: { ruta: string } | null;
+		categoria: { nombre: string };
+		promocion: Promocion | null;
+	};
+
+	const estados = { borrador: 'Borrador', publicado: 'Publicado', pausado: 'Pausado' };
+
+	/** Igual que promocionVigente() del sitio: las fechas son días en Ciudad de México. */
+	function textoPromocion(promocion: Promocion | null, hoy: string): string {
+		if (!promocion) return '';
+		if (promocion.fecha_inicio > hoy) return 'Promoción programada';
+		if (promocion.fecha_fin && promocion.fecha_fin < hoy) return 'Promoción vencida';
+		return 'Promoción vigente';
+	}
+
+	async function iniciar() {
+		if (!(await prepararPanel('administrador'))) return;
+		const supabase = supabaseNavegador();
+		mostrarAviso(document.querySelector<HTMLElement>('[data-aviso]')!);
+
+		const { data, error } = await supabase
+			.from('negocios')
+			.select(
+				'id, nombre, estado, porcentaje_aporte, es_ejemplo, logo:imagenes(ruta), ' +
+					'categoria:categorias(nombre), promocion:promociones(fecha_inicio, fecha_fin)',
+			)
+			.order('nombre')
+			.overrideTypes<Negocio[], { merge: false }>();
+		if (error) {
+			document.querySelector<HTMLElement>('[data-error-lista]')!.hidden = false;
+			return;
+		}
+
+		const lista = document.querySelector<HTMLUListElement>('[data-lista]')!;
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+		const errorAccion = document.querySelector<HTMLElement>('[data-error-accion]')!;
+		const hoy = hoyEnMexico();
+
+		document.querySelector<HTMLElement>('[data-vacio]')!.hidden = data.length > 0;
+		lista.replaceChildren(
+			...data.map((negocio) => {
+				const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+				if (negocio.logo) {
+					const logo = fila.querySelector<HTMLImageElement>('[data-logo]')!;
+					logo.src = urlPublica(negocio.logo.ruta);
+					logo.alt = `Logo de ${negocio.nombre}`;
+					logo.hidden = false;
+				} else {
+					const inicial = fila.querySelector<HTMLElement>('[data-inicial]')!;
+					inicial.textContent = negocio.nombre.charAt(0);
+					inicial.hidden = false;
+				}
+				fila.querySelector('[data-nombre]')!.textContent = negocio.nombre;
+				fila.querySelector('[data-detalle]')!.textContent =
+					`${negocio.categoria.nombre} · ${estados[negocio.estado]} · Aporte ${negocio.porcentaje_aporte}%`;
+				fila.querySelector('[data-promocion]')!.textContent = textoPromocion(negocio.promocion, hoy);
+				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !negocio.es_ejemplo;
+				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
+					`/admin/negocios/editar?id=${encodeURIComponent(negocio.id)}`;
+				if (negocio.estado === 'publicado') {
+					const ver = fila.querySelector<HTMLAnchorElement>('[data-ver]')!;
+					ver.href = `/colabora/${encodeURIComponent(negocio.id)}`;
+					ver.setAttribute('aria-label', `Ver la página de ${negocio.nombre}`);
+					ver.hidden = false;
+				}
+
+				const borrar = fila.querySelector<HTMLButtonElement>('[data-borrar]')!;
+				borrar.setAttribute('aria-label', `Borrar ${negocio.nombre}`);
+				borrar.addEventListener('click', async () => {
+					if (!confirm(`¿Borrar ${negocio.nombre}? Se borran también su menú y horarios. No se puede deshacer.`)) {
+						return;
+					}
+					borrar.disabled = true;
+					const { data: rutas, error: fallo } = await supabase.rpc('borrar_negocio', { id: negocio.id });
+					if (fallo) {
+						borrar.disabled = false;
+						errorAccion.textContent = mensajeError(fallo, 'borrar');
+						return;
+					}
+					await borrarRutas(rutas ?? []);
+					location.reload();
+				});
+				return fila;
+			}),
+		);
+	}
+
+	iniciar();
+</script>

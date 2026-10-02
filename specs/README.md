@@ -16,8 +16,9 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 06 | [Datos en Supabase y publicación en Vercel](06-datos-en-supabase.md) | Aprobado (falta revisar las variables de Vercel) | Base para 07 y 08; parte de RF-16 (cambio visible en menos de 1 minuto) |
 | 07 | [Formulario Súmate y base del panel `/admin`](07-sumate-y-base-del-panel.md) | Implementado | RF-15, RF-17 (QR por negocio) y la base de RF-16 (sesión con TOTP, roles y RLS) |
 | 08 | [Panel del refugio](08-panel-del-refugio.md) | Implementado | Parte de RF-16 (peludos y campañas), RF-22, RF-26 (editable) y RF-29; necesidades, textos e imágenes |
-| 09 | Panel de negocios y menús | Por escribir | Parte de RF-16 (negocios, menús, horarios y promociones) |
-| 10 | Anuncios, analítica, SEO y aviso de privacidad | Por escribir | RF-18, RF-20, aviso de privacidad definitivo y requisitos no funcionales |
+| 09 | [Panel de negocios](09-panel-de-negocios.md) | Implementado (falta el paso en la nube) | Parte de RF-16 (negocios, horarios, promociones y categorías) |
+| 10 | Editor de menús | Por escribir | Parte de RF-16 (menús: grupos, secciones, platillos y precios) |
+| 11 | Anuncios, analítica, SEO y aviso de privacidad | Por escribir | RF-18, RF-20, aviso de privacidad definitivo y requisitos no funcionales |
 
 ## Decisiones que aplican a todas las specs
 
@@ -33,8 +34,9 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 ## Pendiente de decidir antes de escribir cada spec
 
 - **06:** revisar que ninguna variable de Vercel con la llave secreta lleve prefijo `PUBLIC_` (último criterio sin marcar).
-- **09:** las escrituras del panel van por funciones RPC `security definer` que revisan `rol_panel()` o `es_administrador()`, como en la SPEC 08, y reutilizan `src/lib/imagenesPanel.ts` y `src/lib/formularioPanel.ts`; el editor de menús puede reabrir la decisión de no usar un framework.
-- **10:** reemplazar los favicons de Astro (`public/favicon.svg` y `favicon.ico`) por los del refugio, junto con los metadatos para compartir.
+- **09:** aplicar `20261002065214_panel_negocios.sql` en la nube con `npx supabase db push`, cambiar el horario de un negocio con la cuenta administradora y medir el tiempo contra RF-16 (criterios de la nube sin marcar).
+- **10:** el editor de menús es un árbol (grupos, secciones, platillos y precios) en una sola página con `<script>` nativo, sin framework, y una RPC solo para el administrador que reemplaza el menú completo en una transacción, como `guardar_negocio` de la SPEC 09.
+- **11:** reemplazar los favicons de Astro (`public/favicon.svg` y `favicon.ico`) por los del refugio, junto con los metadatos para compartir.
 
 ## Antes de publicar
 

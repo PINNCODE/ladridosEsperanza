@@ -6,13 +6,23 @@ const mensajes: Record<string, string> = {
 	campana_repetida: 'Ya hay una campaña ese día.',
 	mes_repetido: 'Ese mes ya tiene registro. Edítalo desde la lista.',
 	imagen_ilegible: 'No pudimos leer esta imagen. Prueba con una foto JPG o PNG.',
+	categoria_en_uso: 'Esta categoría tiene negocios. Cámbialos de categoría antes de borrarla.',
+};
+
+/** Campos de 'datos_invalidos' (en `details`) que el formulario de negocio no alcanza a revisar. */
+const camposInvalidos: Record<string, string> = {
+	ubicacion: 'Revisa la ubicación: pega la latitud y la longitud separadas por una coma.',
+	whatsapp: 'Revisa el WhatsApp: deben ser 10 dígitos.',
+	turnos: 'Revisa los horarios: cada turno necesita una hora de apertura y otra de cierre distintas.',
+	fecha_fin: 'La promoción no puede terminar antes de empezar.',
 };
 
 /** Texto para un error de Supabase o del navegador: el de su código, o "No pudimos guardar…". */
 export function mensajeError(error: unknown, accion: 'guardar' | 'borrar' | 'mover' = 'guardar'): string {
-	const codigo = (error as { message?: unknown } | null)?.message;
+	const { message: codigo, details: campo } = (error ?? {}) as { message?: unknown; details?: unknown };
 	return (
 		(typeof codigo === 'string' && mensajes[codigo]) ||
+		(codigo === 'datos_invalidos' && typeof campo === 'string' && camposInvalidos[campo]) ||
 		`No pudimos ${accion}. Revisa tu conexión e intenta otra vez.`
 	);
 }

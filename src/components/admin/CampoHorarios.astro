@@ -1,0 +1,80 @@
+---
+// Horarios del formulario de negocio (SPEC 09, RF-07): por día "Por confirmar", "Cerrado" o "Abierto"
+// con hasta 2 turnos, y "Copiar el lunes a todos los días". Un cierre antes de la apertura cruza
+// la medianoche. campoHorarios() de src/lib/horariosPanel.ts lo conecta y lee los valores.
+import { dias } from '../../lib/horariosPanel';
+import Icono from '../Icono.astro';
+import { ayuda, boton } from './estilos';
+
+const estados = [
+	{ valor: 'confirmar', texto: 'Por confirmar' },
+	{ valor: 'cerrado', texto: 'Cerrado' },
+	{ valor: 'abierto', texto: 'Abierto' },
+];
+const hora = 'mt-1 min-h-11 w-full rounded-xl border border-lineas bg-superficie px-3 text-base';
+---
+
+<fieldset data-campo-horarios aria-describedby="negocio-horarios-ayuda">
+	<legend class="font-bold">Horarios</legend>
+	<p id="negocio-horarios-ayuda" class={ayuda}>
+		Un turno que cierra antes de abrir cruza la medianoche, por ejemplo de 13:00 a 00:30.
+	</p>
+	<div class="mt-3 space-y-3">
+		{
+			dias.map(({ dia, nombre }, i) => (
+				<fieldset data-dia={dia} data-segundo="no" class="rounded-2xl border border-lineas bg-superficie p-4">
+					<legend class="px-1 font-bold">{nombre}</legend>
+					<div class="flex flex-wrap gap-x-5 gap-y-1">
+						{estados.map(({ valor, texto }) => (
+							<label class="flex min-h-11 items-center gap-2">
+								<input
+									type="radio"
+									name={`horario-${dia}`}
+									value={valor}
+									checked={valor === 'confirmar'}
+									class="size-5 accent-acento"
+								/>
+								{texto}
+							</label>
+						))}
+					</div>
+					<div data-turnos hidden class="mt-2 space-y-3">
+						{[1, 2].map((turno) => (
+							<div data-turno class="flex flex-wrap items-end gap-3">
+								<label class="min-w-28 flex-1">
+									<span class="text-sm font-bold">Abre{turno === 2 && ' (turno 2)'}</span>
+									<input type="time" required class={hora} />
+								</label>
+								<label class="min-w-28 flex-1">
+									<span class="text-sm font-bold">Cierra{turno === 2 && ' (turno 2)'}</span>
+									<input type="time" required class={hora} />
+								</label>
+								{turno === 2 && (
+									<button
+										type="button"
+										data-quitar-turno
+										aria-label={`Quitar el turno 2 del ${nombre.toLowerCase()}`}
+										class={boton}
+									>
+										Quitar turno
+									</button>
+								)}
+							</div>
+						))}
+						<button type="button" data-agregar-turno class={boton}>
+							<Icono nombre="plus" size={20} />
+							Agregar turno
+						</button>
+					</div>
+					{i === 0 && (
+						<button type="button" data-copiar-lunes class:list={[boton, 'mt-3']}>
+							<Icono nombre="copy" size={20} />
+							Copiar el lunes a todos los días
+						</button>
+					)}
+				</fieldset>
+			))
+		}
+	</div>
+	<p data-copiado role="status" class="mt-2 text-sm font-bold text-acento empty:hidden"></p>
+</fieldset>

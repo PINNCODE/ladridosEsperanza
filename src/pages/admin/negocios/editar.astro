@@ -1,0 +1,305 @@
+---
+// /admin/negocios/editar (SPEC 09, RF-04 y RF-07 a RF-09): crea (sin ?id=) o edita un negocio con su logo,
+// horarios y promoción, en un solo guardado con la RPC guardar_negocio. El id es el slug del nombre con
+// el que se creó y no cambia: es la URL /colabora/{id} y la del QR. El menú se edita en la SPEC 10.
+import CampoFotos from '../../../components/admin/CampoFotos.astro';
+import CampoHorarios from '../../../components/admin/CampoHorarios.astro';
+import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
+import { ayuda, campo, etiqueta } from '../../../components/admin/estilos';
+import Icono from '../../../components/Icono.astro';
+import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+import { obtenerRefugio } from '../../../lib/datos';
+
+// "Probar en el mapa" busca igual que "Cómo llegar" de la página del negocio.
+const { ubicacion } = await obtenerRefugio();
+---
+
+<LayoutPanel titulo="Negocio">
+	<FormularioPanel lista="/admin/negocios">
+		<div class="grid gap-5 sm:grid-cols-2">
+			<div>
+				<label for="negocio-nombre" class={etiqueta}>Nombre</label>
+				<input id="negocio-nombre" name="nombre" required maxlength="80" class={campo} />
+			</div>
+			<div>
+				<label for="negocio-categoria" class={etiqueta}>Categoría</label>
+				<select id="negocio-categoria" name="categoria_id" required class={campo}>
+					<option value="">Elige una categoría</option>
+				</select>
+			</div>
+			<div>
+				<label for="negocio-estado" class={etiqueta}>Estado</label>
+				<select id="negocio-estado" name="estado" required aria-describedby="negocio-estado-ayuda" class={campo}>
+					<option value="borrador">Borrador</option>
+					<option value="publicado">Publicado</option>
+					<option value="pausado">Pausado</option>
+				</select>
+				<p id="negocio-estado-ayuda" class={ayuda}>Solo los publicados aparecen en /colabora.</p>
+			</div>
+			<div>
+				<label for="negocio-aporte" class={etiqueta}>Aporte al refugio (%)</label>
+				<input
+					id="negocio-aporte"
+					name="porcentaje_aporte"
+					type="number"
+					min="0"
+					max="100"
+					step="0.1"
+					inputmode="decimal"
+					required
+					class={campo}
+				/>
+			</div>
+		</div>
+		<div>
+			<label for="negocio-descripcion" class={etiqueta}>Descripción corta</label>
+			<input
+				id="negocio-descripcion"
+				name="descripcion_corta"
+				required
+				maxlength="160"
+				aria-describedby="negocio-descripcion-ayuda"
+				class={campo}
+			/>
+			<p id="negocio-descripcion-ayuda" class={ayuda}>Se ve en la tarjeta del catálogo.</p>
+		</div>
+		<div>
+			<label for="negocio-direccion" class={etiqueta}>Dirección</label>
+			<input id="negocio-direccion" name="direccion" required maxlength="200" class={campo} />
+		</div>
+		<div>
+			<label for="negocio-ubicacion" class={etiqueta}>Ubicación en el mapa <span class="font-normal text-texto-secundario">(opcional)</span></label>
+			<input
+				id="negocio-ubicacion"
+				name="ubicacion"
+				autocomplete="off"
+				placeholder="18.9608, -99.5906"
+				aria-describedby="negocio-ubicacion-ayuda"
+				class={campo}
+			/>
+			<p id="negocio-ubicacion-ayuda" class={ayuda}>
+				En Google Maps, mantén presionado el punto y copia las coordenadas. Sin ellas, "Cómo llegar" busca el nombre
+				y la dirección.
+			</p>
+			<a
+				data-probar-mapa
+				data-ubicacion-refugio={ubicacion}
+				target="_blank"
+				rel="noopener"
+				class="mt-2 inline-flex min-h-11 items-center gap-2 font-bold text-acento underline underline-offset-4"
+			>
+				<Icono nombre="map-pin" size={20} />
+				Probar en el mapa
+			</a>
+		</div>
+		<div>
+			<label for="negocio-whatsapp" class={etiqueta}>WhatsApp <span class="font-normal text-texto-secundario">(opcional)</span></label>
+			<input
+				id="negocio-whatsapp"
+				name="whatsapp"
+				type="tel"
+				inputmode="numeric"
+				autocomplete="off"
+				placeholder="55 1234 5678"
+				aria-describedby="negocio-whatsapp-ayuda"
+				class={campo}
+			/>
+			<p id="negocio-whatsapp-ayuda" class={ayuda}>10 dígitos, sin lada de país.</p>
+		</div>
+		<CampoFotos id="negocio-logo" etiqueta="Logo" carpeta="negocios" ladoMaximo={512} maximo={1} formato="png" />
+		<CampoHorarios />
+		<fieldset class="space-y-4">
+			<legend class="font-bold">Promoción</legend>
+			<label class="flex min-h-11 items-center gap-3">
+				<input type="checkbox" name="tiene_promocion" class="size-5 accent-acento" />
+				Tiene promoción
+			</label>
+			<div data-promocion-campos hidden class="space-y-4">
+				<div>
+					<label for="negocio-promocion-texto" class={etiqueta}>Texto de la promoción</label>
+					<input id="negocio-promocion-texto" name="promocion_texto" required maxlength="140" class={campo} />
+				</div>
+				<div class="grid gap-5 sm:grid-cols-2">
+					<div>
+						<label for="negocio-promocion-inicio" class={etiqueta}>Desde</label>
+						<input id="negocio-promocion-inicio" name="promocion_inicio" type="date" required class={campo} />
+					</div>
+					<div>
+						<label for="negocio-promocion-fin" class={etiqueta}>Hasta <span class="font-normal text-texto-secundario">(opcional)</span></label>
+						<input
+							id="negocio-promocion-fin"
+							name="promocion_fin"
+							type="date"
+							aria-describedby="negocio-promocion-fin-ayuda"
+							class={campo}
+						/>
+						<p id="negocio-promocion-fin-ayuda" class={ayuda}>Después de esa fecha deja de mostrarse sola.</p>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</FormularioPanel>
+</LayoutPanel>
+
+<script>
+	import { avisoSitio, hoyEnMexico, iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import type { Negocio as NegocioSitio } from '../../../lib/datos';
+	import type { Dia, Horarios } from '../../../lib/horarios';
+	import { campoHorarios } from '../../../lib/horariosPanel';
+	import { campoFotos, guardarConFotos, type FotoGuardada } from '../../../lib/imagenesPanel';
+	import { enlaceMapa } from '../../../lib/mapas';
+	import { prepararPanel } from '../../../lib/panel';
+	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
+
+	const campos = ['nombre', 'categoria_id', 'estado', 'porcentaje_aporte', 'descripcion_corta', 'direccion'] as const;
+
+	type Negocio = Record<(typeof campos)[number], string | number> & {
+		latitud: number | null;
+		longitud: number | null;
+		whatsapp: string | null;
+		logo: FotoGuardada | null;
+		horarios: { dia: Dia; cerrado: boolean; turnos: { abre: string; cierra: string; orden: number }[] }[];
+		promocion: { texto: string; fecha_inicio: string; fecha_fin: string | null } | null;
+	};
+
+	const formulario = document.querySelector<HTMLFormElement>('[data-formulario]')!;
+	const elemento = (nombre: string) => formulario.elements.namedItem(nombre) as HTMLInputElement;
+
+	let marcar = () => {};
+	const logo = campoFotos(document.querySelector('[data-campo-fotos]')!, () => marcar());
+	const horarios = campoHorarios(document.querySelector('[data-campo-horarios]')!, () => marcar());
+
+	/** "18.9608, -99.5906" → [18.9608, -99.5906]; vacío → null; si no se entiende o sale de rango, undefined. */
+	function coordenadas(valor: string): [number, number] | null | undefined {
+		if (valor.trim() === '') return null;
+		const partes = valor.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+		if (!partes) return undefined;
+		const [latitud, longitud] = [Number(partes[1]), Number(partes[2])];
+		if (Math.abs(latitud) > 90 || Math.abs(longitud) > 180) return undefined;
+		return [latitud, longitud];
+	}
+
+	/** "55 1234-5678" → "5512345678". */
+	const digitos = (valor: string) => valor.replace(/\D/g, '');
+
+	// Ubicación: valida y arma "Probar en el mapa" con lo que haya (coordenadas, o nombre y dirección).
+	const ubicacion = elemento('ubicacion');
+	const probarMapa = document.querySelector<HTMLAnchorElement>('[data-probar-mapa]')!;
+	function revisarUbicacion() {
+		const punto = coordenadas(ubicacion.value);
+		ubicacion.setCustomValidity(
+			punto === undefined
+				? 'Pega la latitud y la longitud separadas por una coma, por ejemplo 18.9608, -99.5906.'
+				: '',
+		);
+		const datos = {
+			nombre: elemento('nombre').value.trim(),
+			direccion: elemento('direccion').value.trim(),
+			latitud: punto?.[0] ?? null,
+			longitud: punto?.[1] ?? null,
+		};
+		probarMapa.href = enlaceMapa({ data: datos } as NegocioSitio, probarMapa.dataset.ubicacionRefugio!);
+	}
+	for (const nombre of ['ubicacion', 'nombre', 'direccion']) elemento(nombre).addEventListener('input', revisarUbicacion);
+
+	const whatsapp = elemento('whatsapp');
+	function revisarWhatsApp() {
+		const numero = digitos(whatsapp.value);
+		whatsapp.setCustomValidity(numero === '' || numero.length === 10 ? '' : 'Escribe 10 dígitos, sin lada de país.');
+	}
+	whatsapp.addEventListener('input', revisarWhatsApp);
+
+	// Promoción: los campos solo cuentan (y se validan) con la casilla marcada.
+	const tienePromocion = elemento('tiene_promocion');
+	const camposPromocion = document.querySelector<HTMLElement>('[data-promocion-campos]')!;
+	const inicio = elemento('promocion_inicio');
+	const fin = elemento('promocion_fin');
+	function pintarPromocion() {
+		camposPromocion.hidden = !tienePromocion.checked;
+		for (const control of camposPromocion.querySelectorAll('input')) control.disabled = !tienePromocion.checked;
+		if (tienePromocion.checked && !inicio.value) inicio.value = hoyEnMexico();
+		fin.min = inicio.value;
+	}
+	tienePromocion.addEventListener('change', pintarPromocion);
+	inicio.addEventListener('input', () => (fin.min = inicio.value));
+
+	if (await prepararPanel('administrador')) {
+		const supabase = supabaseNavegador();
+
+		const { data: categorias } = await supabase.from('categorias').select('id, nombre').order('orden').order('id');
+		elemento('categoria_id').append(
+			...(categorias ?? []).map(({ id, nombre }) => new Option(nombre, id)),
+		);
+
+		const listo = await iniciarFormulario<Negocio>({
+			lista: '/admin/negocios',
+			titulos: { nuevo: 'Nuevo negocio', editar: 'Editar negocio' },
+			cargar: (id) =>
+				supabase
+					.from('negocios')
+					.select(
+						`${campos.join(', ')}, latitud, longitud, whatsapp, logo:imagenes(id, ruta), ` +
+							'horarios(dia, cerrado, turnos(abre, cierra, orden)), ' +
+							'promocion:promociones(texto, fecha_inicio, fecha_fin)',
+					)
+					.eq('id', id)
+					.maybeSingle<Negocio>(),
+			llenar: (negocio) => {
+				for (const nombre of campos) elemento(nombre).value = String(negocio[nombre]);
+				if (negocio.latitud !== null && negocio.longitud !== null) {
+					ubicacion.value = `${negocio.latitud}, ${negocio.longitud}`;
+				}
+				// Se guarda con lada de país (52 o 521); el campo muestra los 10 dígitos del número.
+				whatsapp.value = negocio.whatsapp?.slice(-10) ?? '';
+				if (negocio.logo) logo.cargar([negocio.logo]);
+
+				const guardados: Horarios = {};
+				for (const { dia, cerrado, turnos } of negocio.horarios) {
+					guardados[dia] = cerrado
+						? 'cerrado'
+						: turnos
+								.toSorted((a, b) => a.orden - b.orden)
+								.map(({ abre, cierra }) => ({ abre: abre.slice(0, 5), cierra: cierra.slice(0, 5) }));
+				}
+				horarios.cargar(guardados);
+
+				if (negocio.promocion) {
+					tienePromocion.checked = true;
+					elemento('promocion_texto').value = negocio.promocion.texto;
+					inicio.value = negocio.promocion.fecha_inicio;
+					fin.value = negocio.promocion.fecha_fin ?? '';
+				}
+			},
+			guardar: async (formulario, id) => {
+				const datos = new FormData(formulario);
+				const punto = coordenadas(ubicacion.value);
+				const numero = digitos(whatsapp.value);
+				await guardarConFotos([logo], ([fotos]) =>
+					supabase.rpc('guardar_negocio', {
+						datos: {
+							id,
+							...Object.fromEntries(campos.map((nombre) => [nombre, texto(datos, nombre)])),
+							latitud: punto?.[0] ?? null,
+							longitud: punto?.[1] ?? null,
+							whatsapp: numero === '' ? null : numero,
+							logo: fotos[0] ?? null,
+							horarios: horarios.leer(),
+							promocion: tienePromocion.checked
+								? {
+										texto: texto(datos, 'promocion_texto'),
+										fecha_inicio: texto(datos, 'promocion_inicio'),
+										fecha_fin: texto(datos, 'promocion_fin'),
+									}
+								: null,
+						},
+					}),
+				);
+				return avisoSitio;
+			},
+		});
+		pintarPromocion();
+		revisarUbicacion();
+		revisarWhatsApp();
+		if (listo) marcar = listo.cambios.marcar;
+	}
+</script>
