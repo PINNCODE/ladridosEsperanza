@@ -1,0 +1,172 @@
+---
+// /admin/negocios/menu (SPEC 10, RF-05 y RF-16): el menú completo de un negocio (?id=) como árbol de
+// grupos, secciones y platillos, editado en memoria con DialogoMenu y guardado de una vez con la RPC
+// guardar_menu, que revisa la versión que dio leer_menu. Solo para el administrador.
+import DialogoMenu from '../../../components/admin/DialogoMenu.astro';
+import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
+import { boton, campo } from '../../../components/admin/estilos';
+import Icono from '../../../components/Icono.astro';
+import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+
+const flecha = `${boton} min-w-11 px-0`;
+const agregar = `${boton} border-dashed`;
+---
+
+<LayoutPanel titulo="Menú">
+	<p class="mt-2">
+		<a data-ver hidden target="_blank" rel="noopener" class="inline-flex min-h-11 items-center gap-2 font-bold text-acento underline underline-offset-4">
+			<Icono nombre="external-link" size={20} />
+			Ver página
+		</a>
+	</p>
+	<FormularioPanel lista="/admin/negocios">
+		<div data-editor-menu class="space-y-4">
+			<div>
+				<label for="menu-buscar" class="sr-only">Buscar platillo</label>
+				<input
+					id="menu-buscar"
+					data-buscador
+					type="search"
+					autocomplete="off"
+					placeholder="Buscar platillo…"
+					class={campo}
+				/>
+				<p data-sin-resultados role="status" class="mt-2 font-bold empty:hidden"></p>
+			</div>
+
+			<p data-menu-vacio hidden>Este negocio todavía no tiene menú.</p>
+			<ul data-grupos class="space-y-4"></ul>
+			<button type="button" data-accion="agregar-grupo" class={agregar}>
+				<Icono nombre="plus" size={20} />
+				Agregar grupo
+			</button>
+
+			<template data-plantilla-grupo>
+				<li data-elemento class="relative rounded-2xl border border-lineas bg-superficie">
+					<div data-acciones class="absolute top-2 right-2 flex gap-1">
+						<button type="button" data-accion="subir" class={flecha}><Icono nombre="arrow-up" size={20} /></button>
+						<button type="button" data-accion="bajar" class={flecha}><Icono nombre="arrow-down" size={20} /></button>
+						<button type="button" data-accion="editar" class={boton}>Editar</button>
+					</div>
+					<details>
+						<summary class="min-h-15 cursor-pointer pt-16 pr-4 pb-3 pl-4 sm:pt-3 sm:pr-48 font-titulos text-xl font-bold break-words">
+							<span data-nombre></span>
+						</summary>
+						<div class="space-y-3 px-3 pb-4">
+							<ul data-secciones class="space-y-3"></ul>
+							<button type="button" data-accion="agregar-seccion" class={agregar}>
+								<Icono nombre="plus" size={20} />
+								Agregar sección
+							</button>
+						</div>
+					</details>
+				</li>
+			</template>
+
+			<template data-plantilla-seccion>
+				<li data-elemento class="relative rounded-2xl border border-lineas bg-fondo">
+					<div data-acciones class="absolute top-2 right-2 flex gap-1">
+						<button type="button" data-accion="subir" class={flecha}><Icono nombre="arrow-up" size={20} /></button>
+						<button type="button" data-accion="bajar" class={flecha}><Icono nombre="arrow-down" size={20} /></button>
+						<button type="button" data-accion="editar" class={boton}>Editar</button>
+					</div>
+					<details>
+						<summary class="min-h-15 cursor-pointer pt-16 pr-4 pb-3 pl-4 sm:pt-3 sm:pr-48 break-words">
+							<span data-nombre class="text-lg font-bold"></span>
+							<span data-nota class="block text-sm text-texto-secundario empty:hidden"></span>
+						</summary>
+						<div class="space-y-2 px-3 pb-3">
+							<ul data-platillos class="space-y-2"></ul>
+							<button type="button" data-accion="agregar-platillo" class={agregar}>
+								<Icono nombre="plus" size={20} />
+								Agregar platillo
+							</button>
+						</div>
+					</details>
+				</li>
+			</template>
+
+			<template data-plantilla-platillo>
+				<li data-elemento class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-lineas bg-superficie p-3">
+					<div data-contenido class="min-w-40 flex-1">
+						<p class="flex flex-wrap items-baseline gap-x-2">
+							<span data-nombre class="font-bold break-words"></span>
+							<span data-extra hidden class="rounded-full bg-suave px-2 text-sm font-bold text-sobre-suave">Extra</span>
+						</p>
+						<p data-precios class="text-sm text-texto-secundario"></p>
+					</div>
+					<div data-acciones class="flex flex-wrap items-center gap-1">
+						<label class="mr-2 flex min-h-11 items-center gap-2">
+							<input type="checkbox" data-accion="disponible" class="size-5 accent-acento" />
+							<span aria-hidden="true">Disponible</span>
+						</label>
+						<button type="button" data-accion="subir" class={flecha}><Icono nombre="arrow-up" size={20} /></button>
+						<button type="button" data-accion="bajar" class={flecha}><Icono nombre="arrow-down" size={20} /></button>
+						<button type="button" data-accion="editar" class={boton}>Editar</button>
+					</div>
+				</li>
+			</template>
+		</div>
+	</FormularioPanel>
+	<DialogoMenu />
+</LayoutPanel>
+
+<script>
+	import { avisoSitio, idDeLaUrl, iniciarFormulario } from '../../../lib/formularioPanel';
+	import { editorMenu, type Grupo } from '../../../lib/menuPanel';
+	import { prepararPanel } from '../../../lib/panel';
+	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
+
+	type Menu = { nombre: string; estado: string; version: string; grupos: Grupo[] };
+
+	let marcar = () => {};
+	const editor = editorMenu(
+		document.querySelector('[data-editor-menu]')!,
+		document.querySelector('[data-dialogo-menu]')!,
+		() => marcar(),
+	);
+	/** Versión que dio leer_menu; guardar_menu la compara con la actual. */
+	let version = '';
+
+	if (await prepararPanel('administrador')) {
+		const supabase = supabaseNavegador();
+		const id = idDeLaUrl();
+
+		if (!id) {
+			// Sin ?id= no hay negocio: esta página no crea nada.
+			document.querySelector<HTMLElement>('[data-no-encontrado]')!.hidden = false;
+		} else {
+			const listo = await iniciarFormulario<Menu>({
+				lista: '/admin/negocios',
+				titulos: { nuevo: 'Menú', editar: 'Menú' },
+				cargar: async (id) => {
+					const [negocio, menu] = await Promise.all([
+						supabase.from('negocios').select('nombre, estado').eq('id', id).maybeSingle(),
+						supabase.rpc('leer_menu', { negocio_id: id }),
+					]);
+					const error = negocio.error ?? menu.error;
+					const data = !error && negocio.data && menu.data ? { ...negocio.data, ...menu.data } : null;
+					return { data, error };
+				},
+				llenar: (menu) => {
+					const titulo = `Menú de ${menu.nombre}`;
+					document.querySelector('[data-titulo]')!.textContent = titulo;
+					document.title = `${titulo} · Panel · Ladridos de Esperanza`;
+					if (menu.estado === 'publicado') {
+						const ver = document.querySelector<HTMLAnchorElement>('[data-ver]')!;
+						ver.href = `/colabora/${encodeURIComponent(id)}`;
+						ver.hidden = false;
+					}
+					version = menu.version;
+					editor.cargar(menu.grupos);
+				},
+				guardar: async (_formulario, id) => {
+					const { error } = await supabase.rpc('guardar_menu', { negocio_id: id!, version, grupos: editor.leer() });
+					if (error) throw error;
+					return avisoSitio;
+				},
+			});
+			if (listo) marcar = listo.cambios.marcar;
+		}
+	}
+</script>

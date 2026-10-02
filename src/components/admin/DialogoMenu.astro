@@ -1,0 +1,120 @@
+---
+// Diálogo del editor de menús (SPEC 10): edita un grupo (nombre), una sección (nombre y nota) o un
+// platillo (nombre, descripción, 1 a 4 precios, extra, disponible y sección). Los campos de cada tipo
+// llevan `data-solo`; editorMenu() de src/lib/menuPanel.ts los muestra, llena y lee.
+// "Listo" solo cambia el árbol en memoria: nada llega a Supabase hasta "Guardar".
+import Icono from '../Icono.astro';
+import { ayuda, boton, botonPrincipal, campo, etiqueta } from './estilos';
+
+const casilla = 'flex min-h-11 items-center gap-3';
+const flecha = `${boton} min-w-11 px-0`;
+---
+
+<dialog
+	data-dialogo-menu
+	aria-labelledby="menu-dialogo-titulo"
+	class="m-auto w-[calc(100%-2rem)] max-w-xl rounded-2xl bg-fondo p-0 text-texto backdrop:bg-black/40"
+>
+	<form data-dialogo-formulario method="dialog" class="space-y-5 p-5">
+		<h2 id="menu-dialogo-titulo" data-dialogo-titulo class="text-2xl font-extrabold"></h2>
+
+		<div>
+			<label for="menu-nombre" class={etiqueta}>Nombre</label>
+			<input id="menu-nombre" name="nombre" required maxlength="120" autocomplete="off" class={campo} />
+		</div>
+
+		<div data-solo="seccion">
+			<label for="menu-nota" class={etiqueta}>Nota <span class="font-normal text-texto-secundario">(opcional)</span></label>
+			<input
+				id="menu-nota"
+				name="nota"
+				maxlength="200"
+				autocomplete="off"
+				aria-describedby="menu-nota-ayuda"
+				class={campo}
+			/>
+			<p id="menu-nota-ayuda" class={ayuda}>Se ve bajo el nombre, por ejemplo "Precio caliente / frío o frappé".</p>
+		</div>
+
+		<div data-solo="platillo">
+			<label for="menu-descripcion" class={etiqueta}>
+				Descripción <span class="font-normal text-texto-secundario">(opcional)</span>
+			</label>
+			<textarea id="menu-descripcion" name="descripcion" rows="3" maxlength="300" class={campo}></textarea>
+		</div>
+
+		<fieldset data-solo="platillo" aria-describedby="menu-precios-ayuda">
+			<legend class="font-bold">Precios</legend>
+			<p id="menu-precios-ayuda" class={ayuda}>
+				De 1 a 4. Cada precio lleva un monto, o un texto alterno como "Incluido" si no tiene monto.
+			</p>
+			<ol data-precios class="mt-3 space-y-3"></ol>
+			<button type="button" data-agregar-precio class:list={[boton, 'mt-3']}>
+				<Icono nombre="plus" size={20} />
+				Agregar precio
+			</button>
+		</fieldset>
+
+		<div data-solo="platillo" class="space-y-1">
+			<label class={casilla}>
+				<input type="checkbox" name="es_extra" aria-describedby="menu-extra-ayuda" class="size-5 accent-acento" />
+				Es un extra
+			</label>
+			<p id="menu-extra-ayuda" class={ayuda}>Se suma a otro platillo: el precio se muestra como "+$12".</p>
+			<label class={casilla}>
+				<input type="checkbox" name="disponible" class="size-5 accent-acento" />
+				Disponible
+			</label>
+		</div>
+
+		<div data-solo="platillo">
+			<label for="menu-seccion" class={etiqueta}>Sección</label>
+			<select id="menu-seccion" name="seccion" aria-describedby="menu-seccion-ayuda" class={campo}></select>
+			<p id="menu-seccion-ayuda" class={ayuda}>Al cambiarla, el platillo pasa al final de la sección elegida.</p>
+		</div>
+
+		<div class="flex flex-wrap justify-between gap-3 border-t border-lineas pt-5">
+			<div class="flex flex-wrap gap-3">
+				<button type="button" data-solo="platillo" data-duplicar class={boton}>
+					<Icono nombre="copy" size={20} />
+					Duplicar
+				</button>
+				<button type="button" data-borrar-elemento class={boton}>
+					<Icono nombre="trash" size={20} />
+					Borrar
+				</button>
+			</div>
+			<div class="flex flex-wrap gap-3">
+				<button type="button" data-cancelar class={boton}>Cancelar</button>
+				<button type="submit" class={botonPrincipal}>Listo</button>
+			</div>
+		</div>
+	</form>
+
+	<template data-plantilla-precio>
+		<li>
+			<fieldset class="rounded-2xl border border-lineas bg-superficie p-4">
+				<legend data-leyenda class="px-1 font-bold"></legend>
+				<div class="grid gap-3 sm:grid-cols-3">
+					<label class="block">
+						<span class="text-sm font-bold">Etiqueta <span class="font-normal text-texto-secundario">(opcional)</span></span>
+						<input data-etiqueta maxlength="40" autocomplete="off" placeholder="Caliente" class={campo} />
+					</label>
+					<label class="block">
+						<span class="text-sm font-bold">Monto</span>
+						<input data-monto type="number" min="0" step="0.01" inputmode="decimal" class={campo} />
+					</label>
+					<label class="block">
+						<span class="text-sm font-bold">Texto alterno</span>
+						<input data-texto-alterno maxlength="40" autocomplete="off" placeholder="Incluido" class={campo} />
+					</label>
+				</div>
+				<div class="mt-3 flex flex-wrap gap-2">
+					<button type="button" data-precio="subir" class={flecha}><Icono nombre="arrow-up" size={20} /></button>
+					<button type="button" data-precio="bajar" class={flecha}><Icono nombre="arrow-down" size={20} /></button>
+					<button type="button" data-precio="quitar" class={boton}>Quitar</button>
+				</div>
+			</fieldset>
+		</li>
+	</template>
+</dialog>
