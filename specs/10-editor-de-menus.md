@@ -267,8 +267,8 @@ Menú de Café del Jardín                      [Buscar platillo…]
 
 ### Nube (después del paso 8)
 
-- [ ] La cuenta administradora cambia un precio y el cambio se ve en `/colabora/{id}` de Vercel; se anota el tiempo medido contra RF-16.
-- [ ] Ese guardado inicia un solo despliegue en Vercel.
+- [x] La cuenta administradora cambia un precio y el cambio se ve en `/colabora/{id}` de Vercel; se anota el tiempo medido contra RF-16.
+- [x] Ese guardado inicia un solo despliegue en Vercel.
 
 ### Observaciones de la validación
 
