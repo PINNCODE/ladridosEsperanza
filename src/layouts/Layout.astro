@@ -26,9 +26,9 @@ interface Props {
 const { titulo, descripcion, imagen, textoImagen, indexar = true, estructurados } = Astro.props;
 const refugio = await obtenerRefugio();
 
-// Analítica sin cookies (SPEC 11): solo con PUBLIC_UMAMI_ID, que existe en Production.
-// Sin ella, el script no se carga y el sitio funciona igual.
-const umami = import.meta.env.PUBLIC_UMAMI_ID;
+// Analítica sin cookies (SPEC 11): el script de Umami solo va en la compilación de Production
+// de Vercel, así las vistas previas y el desarrollo no suman visitas. El ID del sitio es público.
+const umami = process.env.VERCEL_ENV === 'production' ? '772ee111-f6dc-4300-83c5-f11dbf311746' : null;
 
 // Etiquetas para compartir (SPEC 11): el logo de un negocio va en tarjeta chica (summary)
 // y la foto del refugio en tarjeta grande. Las URL de Supabase ya son absolutas.

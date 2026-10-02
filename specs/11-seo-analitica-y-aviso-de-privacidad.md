@@ -52,11 +52,12 @@ Lee lo que ya cargan `src/lib/datos.ts` y `src/lib/cargadores.ts` (refugio, rede
 
 | Variable | Dónde | Sin ella |
 | --- | --- | --- |
-| `PUBLIC_UMAMI_ID` | Vercel, solo Production | No se carga el script de Umami; el sitio funciona igual |
 | `PUBLIC_UMAMI_TABLERO` | Vercel, solo Production | No se muestra la tarjeta "Estadísticas" en `/admin` |
 
-Las dos son opcionales: `astro.config.mjs` no detiene la compilación sin ellas.
-`.env.example` las lista vacías con un comentario.
+Es opcional: `astro.config.mjs` no detiene la compilación sin ella.
+`.env.example` la lista vacía con un comentario.
+
+El ID del sitio de Umami (`772ee111-f6dc-4300-83c5-f11dbf311746`) es público y va fijo en `Layout`; el script solo se escribe cuando Vercel compila Production (`VERCEL_ENV=production`).
 
 ### Eventos de Umami
 
@@ -92,7 +93,7 @@ Va en `src/layouts/Layout.astro`, nunca en `LayoutPanel.astro`:
 <script
   defer
   src="https://cloud.umami.is/script.js"
-  data-website-id="{PUBLIC_UMAMI_ID}"
+  data-website-id="772ee111-f6dc-4300-83c5-f11dbf311746"
   data-domains="{host de PUBLIC_URL_SITIO}"
   data-exclude-search="true"
   data-exclude-hash="true"
@@ -217,12 +218,12 @@ El enlace de WhatsApp para borrar la solicitud se quita: el canal de privacidad 
 2. Agregar a `Layout` las props `imagen` e `indexar` con `canonical`, Open Graph, Twitter y `robots`; pasarlas desde `LayoutColabora`, `[slug].astro` (logo) y `404.astro`. Comprobar las etiquetas en el HTML compilado de `/`, `/colabora/cafe-del-jardin` y `/404`.
 3. Crear `src/lib/seo.ts` y la prop `estructurados`; agregar el JSON-LD de la portada y de cada negocio. Validar los dos en el validador de schema.org.
 4. Instalar `@astrojs/sitemap` con su filtro y crear `src/pages/robots.txt.ts`. Comprobar que `dist/sitemap-index.xml` lista las páginas públicas y ninguna de `/admin`.
-5. Agregar el script de Umami a `Layout` con `PUBLIC_UMAMI_ID` y crear `src/lib/analitica.ts`. Comprobar que sin la variable el HTML no tiene el script.
+5. Agregar el script de Umami a `Layout`, solo con `VERCEL_ENV=production`, y crear `src/lib/analitica.ts`. Comprobar que sin esa variable el HTML no tiene el script.
 6. Agregar los atributos `data-umami-event` a los componentes de la tabla de eventos.
 7. Conectar `registrarBusqueda` en `CatalogoNegocios` y `MenuNegocio`, y `registrar('sumate_enviado')` en `FormularioSumate`. Comprobar con un `window.umami` falso en la consola que se llaman con los datos esperados.
 8. Agregar la tarjeta "Estadísticas" a `/admin` y las dos variables a `.env.example`.
 9. Reescribir `/aviso-de-privacidad`.
-10. Paso manual: crear el sitio en Umami Cloud con el dominio de producción y su enlace compartido; poner `PUBLIC_UMAMI_ID` y `PUBLIC_UMAMI_TABLERO` en Vercel (Production); crear en Cloudflare Email Routing la regla `privacidad@` → buzón del desarrollador; publicar en `main`.
+10. Paso manual: crear el sitio en Umami Cloud con el dominio de producción y su enlace compartido; poner `PUBLIC_UMAMI_TABLERO` en Vercel (Production); crear en Cloudflare Email Routing la regla `privacidad@` → buzón del desarrollador; publicar en `main`.
 11. Medir con Lighthouse móvil en producción `/`, `/colabora` y `/colabora/cafe-del-jardin`. Si alguna tiene LCP de 2.5 s o más, corregir (por ejemplo `fetchpriority="high"` o medidas de la imagen principal) y volver a medir.
 12. Actualizar `specs/README.md` (la 11 con este título y su enlace; nueva fila 12 "Anuncios" con RF-18 "Por escribir"; quitar el pendiente de favicons) y `CLAUDE.md` (favicons y su script, `seo.ts`, `analitica.ts`, eventos de Umami, las dos variables nuevas, mapa del sitio, `robots.txt` y el correo de privacidad).
 
@@ -258,7 +259,7 @@ El enlace de WhatsApp para borrar la solicitud se quita: el canal de privacidad 
 
 ### Analítica
 
-- [x] Sin `PUBLIC_UMAMI_ID`, ninguna página tiene el script de Umami; con ella, todas las públicas lo tienen y ninguna de `/admin`.
+- [x] Sin `VERCEL_ENV=production`, ninguna página tiene el script de Umami; con ella, todas las públicas lo tienen y ninguna de `/admin`.
 - [x] El script lleva `data-domains` con el host de producción, `data-exclude-search`, `data-exclude-hash` y `data-do-not-track`.
 - [ ] El sitio no crea ninguna cookie (revisado en las herramientas del navegador en producción).
 - [x] Cada enlace de la tabla de eventos lleva su `data-umami-event` y sus datos en el HTML compilado.
@@ -296,14 +297,14 @@ El enlace de WhatsApp para borrar la solicitud se quita: el canal de privacidad 
 Validado el 2026-10-02 en local, con Supabase en Docker (Colima), `astro build`, `astro check` y `astro preview`; Chromium sin interfaz (Playwright) a 360 y 1024 px, con un `window.umami` falso inyectado antes de cargar cada página.
 Las sesiones `aal2` del panel se abrieron con el script de Node que calcula los códigos TOTP.
 
-- **Paso 10 (manual), pendiente.** Crear el sitio en Umami Cloud y su enlace compartido, poner `PUBLIC_UMAMI_ID` y `PUBLIC_UMAMI_TABLERO` en Vercel (solo Production) y crear la regla `privacidad@` en Cloudflare Email Routing (revisando que los correos del panel por Resend sigan saliendo). Los criterios que dependen de producción siguen sin marcar.
+- **Paso 10 (manual), en curso.** El sitio de Umami ya existe (ID `772ee111-…`). Falta crear su enlace compartido, poner `PUBLIC_UMAMI_TABLERO` en Vercel (solo Production) y crear la regla `privacidad@` en Cloudflare Email Routing (revisando que los correos del panel por Resend sigan saliendo). Los criterios que dependen de producción siguen sin marcar.
 - **Paso 11 (rendimiento).** Lighthouse 13 móvil (simulado, con la limitación por omisión) sobre `astro preview` local: `/` LCP 1.7 s, `/colabora` 1.5 s y `/colabora/cafe-del-jardin` 1.7 s (CLS 0, 0 y 0.036; puntuación 100 en las tres). No hubo nada que corregir; falta repetir la medición en producción después de publicar.
 - **Prop `textoImagen`.** `Layout` y `LayoutColabora` reciben además `textoImagen` para el `og:image:alt` ("Logo de {negocio}"); la imagen sola no trae el nombre del negocio.
 - **Favicons.** `favicon.ico` es un contenedor ICO con un PNG de 32 × 32; `icono.png` (192 × 192) y `apple-touch-icon.png` (180 × 180) salen del mismo `logo.jpg`. Las 14 páginas públicas y las de `/admin` enlazan los tres archivos.
 - **Etiquetas para compartir.** La semilla no trae logos de negocio: el criterio del logo se probó poniendo en local el `logo.jpg` del refugio como logo del Café del Jardín (`og:image` del logo, 225 × 225, `twitter:card` `summary`, alt "Logo de Café del Jardín") y se revirtió. Sin logo, el café usa la foto del patio y `summary_large_image`. La URL canónica lleva la diagonal final, igual que el mapa del sitio.
 - **Datos estructurados.** validator.schema.org (su endpoint `validate` con el HTML compilado) da 0 errores y 0 avisos en la portada (`AnimalShelter`), el Café del Jardín (`CafeOrCoffeeShop`) y Tacos Don Chuy (`Restaurant`). Tacos Don Chuy trae `geo` y teléfono, el sábado con `opens` 13:00 y `closes` 00:30, y sin domingo. El café no tiene coordenadas en la semilla, así que no lleva `geo`. Una categoría temporal `neverias` dio `LocalBusiness`, y una `descripcion_corta` con `</script><b>x</b>` quedó como `\u003c/script>` en el JSON-LD; en los atributos `content` sigue tal cual, que es HTML válido dentro de comillas.
 - **Mapa del sitio y robots.** `sitemap-0.xml` lista las 7 páginas públicas y los 6 negocios publicados de la base local (los 5 de la semilla y uno creado en pruebas del panel); ninguna de `/admin` ni `/404`.
-- **Analítica.** Sin `PUBLIC_UMAMI_ID` ninguna página tiene el script; con un valor de prueba lo tienen las 14 públicas y ninguna de `/admin`, con `data-domains` igual al host de `PUBLIC_URL_SITIO`. "c" no manda nada; "Chilaquiles" manda una sola vez `busqueda` con `{ lugar: 'catalogo', texto: 'chilaquiles' }` a 1 s de la última tecla, y agregar un espacio no la repite. "latte" en el menú manda `{ lugar: 'menu', negocio: 'cafe-del-jardin', texto: 'latte' }`. Súmate manda `sumate_enviado` solo tras el `insert`; con el campo trampa, nada. Sin `window.umami`, buscar y enviar Súmate no dejan errores en la consola, y la página no crea cookies (local).
+- **Analítica.** El ID de Umami quedó fijo en `Layout` y el script depende de `VERCEL_ENV=production` en lugar de `PUBLIC_UMAMI_ID`: así no hay que poner el ID en Vercel y las vistas previas siguen sin cargarlo. Sin `VERCEL_ENV=production` ninguna página tiene el script; con ella lo tienen las 14 públicas y ninguna de `/admin`, con `data-domains` igual al host de `PUBLIC_URL_SITIO`. "c" no manda nada; "Chilaquiles" manda una sola vez `busqueda` con `{ lugar: 'catalogo', texto: 'chilaquiles' }` a 1 s de la última tecla, y agregar un espacio no la repite. "latte" en el menú manda `{ lugar: 'menu', negocio: 'cafe-del-jardin', texto: 'latte' }`. Súmate manda `sumate_enviado` solo tras el `insert`; con el campo trampa, nada. Sin `window.umami`, buscar y enviar Súmate no dejan errores en la consola, y la página no crea cookies (local).
 - **Panel.** Con `PUBLIC_UMAMI_TABLERO`, las cuentas `administrador` y `refugio` ven "Estadísticas" con `target="_blank"`; sin la variable no se compila la tarjeta. `/admin` y `/aviso-de-privacidad` miden 360 px de ancho a 360 px.
 - **Aviso.** El salto de línea antes del enlace al correo se perdía al compilar ("escríbenos aprivacidad@…"); se arregló con `{' '}`.
 
@@ -323,7 +324,7 @@ Las sesiones `aal2` del panel se abrieron con el script de Node que calcula los 
 - **Sí:** esperar 1 s y pedir 2 letras antes de mandar una búsqueda. Una búsqueda por intención, no una por tecla.
 - **Sí:** `data-exclude-search` y `data-exclude-hash`. Los filtros y las pestañas cambian la URL y contarían como visitas.
 - **Sí:** respetar "no rastrear". Coherente con un sitio que promete no rastrear.
-- **Sí:** variables de Umami solo en Production y opcionales. Las vistas previas y el desarrollo no ensucian las cifras y nada se rompe sin ellas.
+- **Sí:** Umami solo en la compilación de Production (`VERCEL_ENV`) y el tablero como variable opcional. Las vistas previas y el desarrollo no ensucian las cifras y nada se rompe sin ellas.
 - **Sí:** imagen para compartir por página con las imágenes que ya hay. El logo identifica al negocio en WhatsApp sin dependencias nuevas.
 - **No:** imágenes generadas al compilar. Más trabajo y una dependencia para algo que el logo ya resuelve.
 - **Sí:** tipo de schema.org según la categoría, con `LocalBusiness` por omisión. Más específico para Google; una categoría nueva no rompe nada.

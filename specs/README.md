@@ -36,7 +36,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 - **06:** revisar que ninguna variable de Vercel con la llave secreta lleve prefijo `PUBLIC_` (último criterio sin marcar).
 - **09:** la migración `panel_negocios` ya está en la nube; falta cambiar el horario de un negocio con la cuenta administradora y medir el tiempo contra RF-16 (criterios de la nube sin marcar).
-- **11:** crear el sitio y el enlace compartido en Umami Cloud, poner `PUBLIC_UMAMI_ID` y `PUBLIC_UMAMI_TABLERO` en Vercel (solo Production), crear la regla `privacidad@` en Cloudflare Email Routing y, ya publicada, medir Lighthouse móvil y revisar los criterios de producción.
+- **11:** crear el enlace compartido en Umami Cloud (el sitio ya existe), poner `PUBLIC_UMAMI_TABLERO` en Vercel (solo Production), crear la regla `privacidad@` en Cloudflare Email Routing y, ya publicada, medir Lighthouse móvil y revisar los criterios de producción.
 
 ## Antes de publicar
 
