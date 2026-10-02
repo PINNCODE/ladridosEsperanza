@@ -1,0 +1,104 @@
+---
+// /adopta/{id} (SPEC 13): ficha de cada peludo disponible con sus fotos, su "me gusta", sus datos,
+// su convivencia, su historia, "Su camino en el refugio" y la barra para adoptarlo o compartirlo.
+// Un peludo en proceso o adoptado no tiene ficha.
+import BotonMeGusta from '../../components/BotonMeGusta.astro';
+import Icono from '../../components/Icono.astro';
+import BarraPeludo from '../../components/adopta/BarraPeludo.astro';
+import CaminoPeludo from '../../components/adopta/CaminoPeludo.astro';
+import ConvivenciaPeludo from '../../components/adopta/ConvivenciaPeludo.astro';
+import FotosPeludo from '../../components/adopta/FotosPeludo.astro';
+import Layout from '../../layouts/Layout.astro';
+import { bloquesDeSeccion, obtenerRefugio, peludosDisponibles, type Peludo } from '../../lib/datos';
+import { parrafos, textoTalla } from '../../lib/formato';
+
+export async function getStaticPaths() {
+	return (await peludosDisponibles()).map((peludo) => ({ params: { id: peludo.id }, props: { peludo } }));
+}
+
+interface Props {
+	peludo: Peludo;
+}
+
+const { peludo } = Astro.props;
+const { id, data } = peludo;
+const refugio = await obtenerRefugio();
+const [proceso] = await bloquesDeSeccion('proceso_adopcion');
+const historia = data.descripcion ? parrafos(data.descripcion) : [];
+
+/** Corta en la última palabra completa antes de `largo` caracteres. */
+function recortar(texto: string, largo: number): string {
+	if (texto.length <= largo) return texto;
+	return `${texto.slice(0, largo).replace(/\s+\S*$/, '')}…`;
+}
+
+const descripcion = [`${data.descripcion_especie}, ${data.edad}.`, historia[0] && recortar(historia[0], 150)]
+	.filter(Boolean)
+	.join(' ');
+---
+
+<Layout
+	titulo={`${data.nombre} busca familia · ${refugio.nombre}`}
+	{descripcion}
+	imagen={data.fotos[0]}
+	textoImagen={`Foto de ${data.nombre}`}
+	barraAlta
+>
+	<a href="/adopta" class="inline-flex min-h-11 items-center gap-2 font-bold text-acento">
+		<Icono nombre="arrow-left" size={20} />
+		Todos los peludos
+	</a>
+
+	<div class="mt-2 grid gap-8 md:grid-cols-2 md:items-start">
+		<FotosPeludo peludo={peludo} />
+
+		<div>
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<h1 class="text-3xl leading-tight font-extrabold md:text-4xl">{data.nombre}</h1>
+					<p class="mt-1 text-lg text-texto-secundario">
+						{data.descripcion_especie} · {data.edad} · {textoTalla(data.tamano)}
+					</p>
+				</div>
+				<BotonMeGusta id={id} nombre={data.nombre} origen="ficha" class="border border-lineas" />
+			</div>
+
+			<ul class="mt-4 flex flex-wrap gap-2" aria-label="Rasgos">
+				{data.rasgos.map((rasgo) => <li class="rounded-full bg-suave px-3 py-1 text-sobre-suave">{rasgo}</li>)}
+			</ul>
+
+			<ConvivenciaPeludo peludo={peludo} />
+
+			{
+				historia.length > 0 && (
+					<section aria-labelledby="historia-titulo" class="mt-8">
+						<h2 id="historia-titulo" class="text-2xl font-bold">
+							Su historia
+						</h2>
+						<div class="mt-3 max-w-prose space-y-3">
+							{historia.map((parrafo) => (
+								<p>{parrafo}</p>
+							))}
+						</div>
+					</section>
+				)
+			}
+
+			<CaminoPeludo peludo={peludo} />
+
+			{
+				proceso && (
+					<a
+						href="/adopta#proceso"
+						class="mt-8 inline-flex min-h-11 items-center gap-2 font-bold text-acento underline underline-offset-4"
+					>
+						<Icono nombre="book-open" size={20} />
+						¿Cómo es adoptar?
+					</a>
+				)
+			}
+		</div>
+	</div>
+
+	<BarraPeludo slot="barra" peludo={peludo} />
+</Layout>

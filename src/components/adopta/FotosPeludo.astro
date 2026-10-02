@@ -1,0 +1,150 @@
+---
+// Fotos de la ficha de un peludo (SPEC 13): carrusel con scroll-snap, contador "2 / 5", puntos y,
+// desde sm, flechas. Con una foto no hay controles; sin fotos, el ícono de su especie.
+// Doble toque (o doble clic) sobre una foto da el "me gusta" y muestra un corazón grande.
+import { Image } from 'astro:assets';
+import Icono from '../Icono.astro';
+import type { Peludo } from '../../lib/datos';
+import { medidas } from '../../lib/imagenes';
+
+interface Props {
+	peludo: Peludo;
+}
+
+const { id, data } = Astro.props.peludo;
+const { fotos, nombre } = data;
+const varias = fotos.length > 1;
+const flecha =
+	'absolute top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-superficie/90 shadow-sm disabled:opacity-0 sm:grid';
+---
+
+<div data-fotos-peludo data-id={id} data-nombre={nombre} class="relative">
+	{
+		fotos.length > 0 ? (
+			<ul
+				data-pista
+				tabindex={varias ? 0 : undefined}
+				aria-label={`Fotos de ${nombre}`}
+				class="flex snap-x snap-mandatory overflow-x-auto rounded-3xl bg-suave [scrollbar-width:none]"
+			>
+				{fotos.map((foto, indice) => (
+					<li class="w-full shrink-0 snap-start">
+						<Image
+							src={foto.url}
+							{...medidas(foto, 720)}
+							alt={varias ? `Foto ${indice + 1} de ${nombre}` : `Foto de ${nombre}`}
+							loading={indice === 0 ? 'eager' : 'lazy'}
+							class="aspect-[4/5] w-full object-cover select-none"
+							draggable="false"
+						/>
+					</li>
+				))}
+			</ul>
+		) : (
+			<div data-pista class="grid aspect-[4/5] w-full place-items-center rounded-3xl bg-suave">
+				<Icono nombre={data.especie === 'gato' ? 'cat' : 'dog'} size={96} />
+			</div>
+		)
+	}
+	<span
+		data-corazon-grande
+		aria-hidden="true"
+		class="pointer-events-none absolute inset-0 grid place-items-center text-white drop-shadow-lg"
+	>
+		<Icono nombre="heart" tono="heredado" size={112} class="fill-current" />
+	</span>
+	{
+		varias && (
+			<>
+				<p
+					data-contador
+					aria-live="polite"
+					class="absolute top-3 left-3 rounded-full bg-black/60 px-3 py-1 text-sm font-bold text-white tabular-nums"
+				>
+					1 / {fotos.length}
+				</p>
+				<button type="button" data-anterior aria-label="Foto anterior" disabled class:list={[flecha, 'left-3']}>
+					<Icono nombre="chevron-left" size={22} />
+				</button>
+				<button type="button" data-siguiente aria-label="Foto siguiente" class:list={[flecha, 'right-3']}>
+					<Icono nombre="chevron-right" size={22} />
+				</button>
+				<div class="mt-2 flex justify-center" aria-hidden="true">
+					{fotos.map((_, indice) => (
+						<span
+							data-punto
+							aria-current={indice === 0 ? 'true' : undefined}
+							class="mx-1 block h-2.5 w-2.5 rounded-full bg-lineas aria-[current=true]:w-6 aria-[current=true]:bg-acento"
+						/>
+					))}
+				</div>
+			</>
+		)
+	}
+</div>
+
+<script>
+	import { cambiarMeGusta } from '../../lib/meGusta';
+
+	const reducirMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	document.querySelectorAll<HTMLElement>('[data-fotos-peludo]').forEach((raiz) => {
+		const pista = raiz.querySelector<HTMLElement>('[data-pista]')!;
+		const corazon = raiz.querySelector<HTMLElement>('[data-corazon-grande]')!;
+		const { id, nombre } = raiz.dataset;
+
+		// Doble toque: dos pointerup en menos de 300 ms y cerca uno del otro. Deslizar termina en
+		// pointercancel, así que no cuenta. Solo da el "me gusta", nunca lo quita.
+		let ultimo = { tiempo: 0, x: 0, y: 0 };
+		pista.addEventListener('pointerup', (evento) => {
+			const cerca = Math.hypot(evento.clientX - ultimo.x, evento.clientY - ultimo.y) < 30;
+			if (evento.timeStamp - ultimo.tiempo < 300 && cerca) {
+				ultimo = { tiempo: 0, x: 0, y: 0 };
+				corazon.classList.remove('corazon-grande');
+				void corazon.offsetWidth;
+				corazon.classList.add('corazon-grande');
+				cambiarMeGusta(id!, nombre!, 'ficha', true);
+				return;
+			}
+			ultimo = { tiempo: evento.timeStamp, x: evento.clientX, y: evento.clientY };
+		});
+		// Evita que el doble clic seleccione texto o haga zoom en la foto.
+		pista.addEventListener('dblclick', (evento) => evento.preventDefault());
+
+		const fotos = [...pista.children] as HTMLElement[];
+		if (fotos.length < 2) return;
+		const contador = raiz.querySelector<HTMLElement>('[data-contador]')!;
+		const puntos = [...raiz.querySelectorAll<HTMLElement>('[data-punto]')];
+		const anterior = raiz.querySelector<HTMLButtonElement>('[data-anterior]')!;
+		const siguiente = raiz.querySelector<HTMLButtonElement>('[data-siguiente]')!;
+
+		const actual = () => Math.round(pista.scrollLeft / pista.clientWidth);
+		const ir = (indice: number) =>
+			pista.scrollTo({ left: indice * pista.clientWidth, behavior: reducirMovimiento ? 'auto' : 'smooth' });
+
+		function pintar() {
+			const indice = actual();
+			contador.textContent = `${indice + 1} / ${fotos.length}`;
+			puntos.forEach((punto, i) => {
+				if (i === indice) punto.setAttribute('aria-current', 'true');
+				else punto.removeAttribute('aria-current');
+			});
+			anterior.disabled = indice === 0;
+			siguiente.disabled = indice === fotos.length - 1;
+		}
+
+		let espera: ReturnType<typeof setTimeout>;
+		pista.addEventListener('scroll', () => {
+			clearTimeout(espera);
+			espera = setTimeout(pintar, 60);
+		});
+		anterior.addEventListener('click', () => ir(actual() - 1));
+		siguiente.addEventListener('click', () => ir(actual() + 1));
+		pista.addEventListener('keydown', (evento) => {
+			if (evento.key === 'ArrowLeft') ir(actual() - 1);
+			else if (evento.key === 'ArrowRight') ir(actual() + 1);
+			else return;
+			evento.preventDefault();
+		});
+	});
+</script>

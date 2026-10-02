@@ -54,17 +54,33 @@ insert into problematicas (id, titulo, texto, icono, etiqueta_cifra, cifra, fech
 	('adopciones-lentas', 'Adopciones lentas', 'Muchos esperan meses o años por un hogar, y la adopción debe ser responsable para que no vuelvan.', 'hourglass', 'Tiempo promedio de espera', '8 meses', '2026-09-30', 'Registro del refugio', 7, true, true, null, null, null),
 	('pocos-recursos', 'Pocos recursos y pocas manos', 'El cuidado depende de donativos y de voluntarios.', 'hand-coins', 'Voluntarios activos', '12', null, null, 8, true, true, null, null, null);
 
-insert into peludos (id, nombre, especie, descripcion_especie, edad, tamano, descripcion, rasgos, orden, estado, es_ejemplo) values
-	('luna', 'Luna', 'perro', 'Perrita', '3 años', 'mediano', null, array['Cariñosa', 'Tranquila']::text[], 1, 'disponible', true),
-	('canelo', 'Canelo', 'perro', 'Cachorro', '4 meses', 'pequeño', null, array['Juguetón', 'Curioso']::text[], 2, 'disponible', true),
-	('miel', 'Miel', 'gato', 'Gata', '1 año', 'pequeño', null, array['Sociable', 'Dormilona']::text[], 3, 'disponible', true),
-	('rocky', 'Rocky', 'perro', 'Perro', '5 años', 'grande', null, array['Noble', 'Protector']::text[], 4, 'disponible', true),
-	('nube', 'Nube', 'gato', 'Gatita', '6 meses', 'pequeño', null, array['Juguetona', 'Tierna']::text[], 5, 'disponible', true),
-	('toby', 'Toby', 'perro', 'Perro', '2 años', 'mediano', null, array['Energético', 'Leal']::text[], 6, 'disponible', true);
+insert into peludos (id, nombre, especie, descripcion_especie, edad, tamano, descripcion, rasgos, orden, estado, convive_perros, convive_gatos, convive_ninos, es_ejemplo) values
+	('luna', 'Luna', 'perro', 'Perrita', '3 años', 'mediano', E'Luna llegó al refugio después de vivir varios meses en la calle, cerca del mercado. Al principio le daba miedo acercarse, pero bastaron unas semanas para que buscara a todos para pedir cariño.\n\nHoy es la más tranquila del patio: le gusta caminar sin prisa, dormir al sol y recargarse en las piernas de quien se siente a su lado.', array['Cariñosa', 'Tranquila']::text[], 1, 'disponible', 'si', 'no_sabemos', 'si', true),
+	('canelo', 'Canelo', 'perro', 'Cachorro', '4 meses', 'pequeño', E'Canelo y sus hermanos llegaron en una caja que dejaron en la puerta del refugio. Es el más curioso de la camada y quiere conocer todo lo que se mueve.', array['Juguetón', 'Curioso']::text[], 2, 'disponible', 'si', 'si', 'si', true),
+	('miel', 'Miel', 'gato', 'Gata', '1 año', 'pequeño', null, array['Sociable', 'Dormilona']::text[], 3, 'disponible', 'no', 'si', 'no_sabemos', true),
+	('rocky', 'Rocky', 'perro', 'Perro', '5 años', 'grande', null, array['Noble', 'Protector']::text[], 4, 'disponible', 'no', 'no', 'no_sabemos', true),
+	('nube', 'Nube', 'gato', 'Gatita', '6 meses', 'pequeño', null, array['Juguetona', 'Tierna']::text[], 5, 'disponible', 'no_sabemos', 'si', 'si', true),
+	('toby', 'Toby', 'perro', 'Perro', '2 años', 'mediano', null, array['Energético', 'Leal']::text[], 6, 'disponible', 'si', 'no_sabemos', 'no_sabemos', true);
 
 insert into fotos_peludo (peludo_id, imagen_id, orden) values
 	('luna', (select id from imagenes where ruta = 'peludos/luna.jpg'), 1),
+	('luna', (select id from imagenes where ruta = 'refugio/patio.jpg'), 2),
 	('canelo', (select id from imagenes where ruta = 'peludos/canelo.jpg'), 1);
+
+-- "Su camino en el refugio" (SPEC 13): uno con padrino y otro sin padrino.
+insert into hitos_peludo (peludo_id, orden, fecha, tipo, texto, padrino) values
+	('luna', 1, '2026-03-12', 'llegada', 'La encontraron cerca del mercado.', null),
+	('luna', 2, '2026-04-25', 'esterilizacion', null, 'Familia Ejemplo'),
+	('luna', 3, '2026-05-10', 'vacunas', 'Vacuna múltiple y antirrábica.', null),
+	('canelo', 1, '2026-07-02', 'llegada', null, null),
+	('canelo', 2, '2026-07-20', 'desparasitacion', null, null),
+	('miel', 1, '2026-06-15', 'esterilizacion', null, null);
+
+-- "Me gusta" de ejemplo (SPEC 13), para ver el contador en desarrollo.
+insert into me_gusta (peludo_id, dispositivo) values
+	('luna', '00000000-0000-4000-8000-000000000001'),
+	('luna', '00000000-0000-4000-8000-000000000002'),
+	('luna', '00000000-0000-4000-8000-000000000003');
 
 insert into campanas (id, fecha, costo, lugar, horario, forma_pago, cupo, estado, es_ejemplo, cartel_id) values
 	('2026-09-26', '2026-09-26', 380, 'Refugio Ladridos de Esperanza', 'Desde las 9:30 am aprox.', 'Se paga en el refugio de 11:30 am a 1:30 pm o por transferencia; las cuentas se piden por mensaje. Los lugares no son reembolsables en caso de inasistencia.', null, 'pasada', true, (select id from imagenes where ruta = 'campanas/cartel-2026-09-26.jpg')),

@@ -29,6 +29,21 @@
 		animation-delay: calc(var(--k, 0) * 0.45s);
 	}
 
+	/* "Me gusta" (SPEC 13): el corazón late una vez al darlo. */
+	.estallido {
+		animation: estallido 0.45s ease-out;
+	}
+
+	/* Corazones pequeños que salen del botón, cada uno hacia su --angulo. */
+	.chispa {
+		animation: chispa 0.7s ease-out forwards;
+	}
+
+	/* Corazón grande sobre la foto de la ficha con el doble toque. */
+	.corazon-grande {
+		animation: corazon-grande 0.9s ease-out;
+	}
+
 	/*
 	 * Entrada al desplazar. Sin soporte de animation-timeline, el contenido se ve sin animación.
 	 * Van propiedades sueltas y no el atajo `animation`: al minificar, el atajo absorbía
@@ -51,6 +66,22 @@
 
 .huella {
 	opacity: 0.5;
+}
+
+/* Sin animación (o con "reducir movimiento") las chispas y el corazón grande no se ven. */
+.chispa {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	pointer-events: none;
+	opacity: 0;
+	color: var(--color-corazon);
+	font-size: 0.8rem;
+	line-height: 1;
+}
+
+[data-corazon-grande] {
+	opacity: 0;
 }
 
 @keyframes latido {
@@ -105,5 +136,51 @@
 	to {
 		opacity: 1;
 		transform: none;
+	}
+}
+
+@keyframes estallido {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	35% {
+		transform: scale(1.35);
+	}
+	65% {
+		transform: scale(0.9);
+	}
+}
+
+@keyframes chispa {
+	from {
+		opacity: 1;
+		transform: translate(-50%, -50%) rotate(var(--angulo)) translateY(0) scale(0.6);
+	}
+	to {
+		opacity: 0;
+		transform: translate(-50%, -50%) rotate(var(--angulo)) translateY(-30px) scale(1);
+	}
+}
+
+@keyframes corazon-grande {
+	0% {
+		opacity: 0;
+		transform: scale(0.4);
+	}
+	25% {
+		opacity: 0.95;
+		transform: scale(1.1);
+	}
+	45% {
+		transform: scale(0.95);
+	}
+	70% {
+		opacity: 0.95;
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1.15);
 	}
 }

@@ -1,6 +1,6 @@
 ---
-// /aviso-de-privacidad (SPEC 07 y 11): aviso del formulario Súmate (RF-15) y de las estadísticas
-// de visitas, con la estructura de la LFPDPPP. Sigue pendiente de revisión legal; la nota se quita
+// /aviso-de-privacidad (SPEC 07, 11 y 13): aviso del formulario Súmate (RF-15), de las estadísticas
+// de visitas y del "me gusta" de los peludos, con la estructura de la LFPDPPP. Sigue pendiente de revisión legal; la nota se quita
 // cuando lo revise un profesional.
 import EncabezadoPagina from '../components/EncabezadoPagina.astro';
 import Layout from '../layouts/Layout.astro';
@@ -35,9 +35,10 @@ const enlace = 'text-acento underline underline-offset-4';
 		<section aria-labelledby="aviso-datos">
 			<h2 id="aviso-datos" class="text-xl font-bold">Qué datos guardamos</h2>
 			<p class="mt-2">
-				Solo los del formulario "Súmate": el nombre y el tipo de tu negocio, tu número de WhatsApp y, si
-				los escribes, tu nombre y tu mensaje, junto con la fecha del envío y tu aceptación de este aviso.
-				No pedimos ni guardamos ningún dato sensible.
+				Los del formulario "Súmate": el nombre y el tipo de tu negocio, tu número de WhatsApp y, si los
+				escribes, tu nombre y tu mensaje, junto con la fecha del envío y tu aceptación de este aviso.
+				Además, cuando le das "me gusta" a un peludo guardamos un número al azar de tu navegador (lo
+				explicamos abajo). No pedimos ni guardamos ningún dato sensible.
 			</p>
 		</section>
 
@@ -58,8 +59,24 @@ const enlace = 'text-acento underline underline-offset-4';
 			</p>
 			<p class="mt-2">
 				Contamos las páginas vistas, las búsquedas en el catálogo y en los menús (el texto buscado, sin
-				acentos), los clics a WhatsApp, a los negocios y a "Cómo llegar", y los envíos del formulario
-				"Súmate". Si tu navegador tiene activada la opción "no rastrear", no contamos nada de tu visita.
+				acentos), los clics a WhatsApp, a los negocios, a las fichas de los peludos y a "Cómo llegar", los
+				"me gusta" que das, los peludos que compartes y los envíos del formulario "Súmate". Si tu navegador tiene activada la opción "no rastrear", no contamos nada de tu visita.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-me-gusta">
+			<h2 id="aviso-me-gusta" class="text-xl font-bold">"Me gusta" de los peludos</h2>
+			<p class="mt-2">
+				La primera vez que le das "me gusta" a un peludo, tu navegador crea un número al azar y lo guarda en
+				su almacenamiento local, junto con la lista de peludos que te gustan. En nuestra base de datos
+				guardamos ese número, el peludo y la fecha, solo para contar cuántas personas le dieron "me gusta"
+				y evitar que una misma cuente varias veces. No guardamos tu nombre, tu dirección IP ni ningún otro
+				dato tuyo, y el número no nos dice quién eres.
+			</p>
+			<p class="mt-2">
+				Para quitar un "me gusta", vuelve a tocar el corazón: se borra de nuestra base de datos. Si borras
+				los datos del sitio en tu navegador, el número desaparece de tu dispositivo y los "me gusta" que
+				ya diste quedan sin forma de relacionarse contigo.
 			</p>
 		</section>
 
@@ -86,6 +103,7 @@ const enlace = 'text-acento underline underline-offset-4';
 			<p class="mt-2">
 				Mientras platicamos la colaboración o mientras tu negocio colabora con el refugio, o hasta que nos
 				pidas borrarlos.
+				Los "me gusta", hasta que los quites o hasta que borremos al peludo del sitio.
 			</p>
 		</section>
 

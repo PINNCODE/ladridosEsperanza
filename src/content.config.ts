@@ -99,6 +99,9 @@ const problematicas = defineCollection({
 	}),
 });
 
+// Si convive con perros, gatos o niños; muchas veces el refugio no lo ha probado (SPEC 13).
+const convivencia = z.enum(['si', 'no', 'no_sabemos']);
+
 const peludos = defineCollection({
 	loader: cargadorPeludos(),
 	schema: z.object({
@@ -113,6 +116,18 @@ const peludos = defineCollection({
 		fotos: z.array(imagen),
 		orden: z.number().int(),
 		estado: z.enum(['disponible', 'en_proceso', 'adoptado']),
+		convive_perros: convivencia,
+		convive_gatos: convivencia,
+		convive_ninos: convivencia,
+		// "Su camino en el refugio", en orden de fecha; `padrino` solo en la esterilización.
+		hitos: z.array(
+			z.object({
+				fecha: z.coerce.date(),
+				tipo: z.enum(['llegada', 'esterilizacion', 'vacunas', 'desparasitacion', 'otro']),
+				texto: z.string().nullable(),
+				padrino: z.string().nullable(),
+			}),
+		),
 		es_ejemplo,
 	}),
 });
