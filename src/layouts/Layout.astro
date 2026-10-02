@@ -68,9 +68,9 @@ const conBarra = Astro.slots.has('barra');
 		<meta property="og:image:alt" content={compartir.alt} />
 		<meta name="twitter:card" content={compartir.tarjeta} />
 		{estructurados && <script is:inline type="application/ld+json" set:html={jsonLd(estructurados)} />}
-		<link rel="icon" href="/favicon.ico" sizes="32x32" />
-		<link rel="icon" type="image/png" href="/icono.png" sizes="192x192" />
-		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+		<link rel="icon" type="image/png" href="/icono.png?v=2" sizes="192x192" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
 		<meta name="generator" content={Astro.generator} />
 		<Font cssVariable="--fuente-titulos" preload />
 		<Font cssVariable="--fuente-texto" preload />
