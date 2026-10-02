@@ -14,7 +14,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 04 | [Catálogo `/colabora` con búsqueda, filtros y barra fija](04-catalogo-colabora.md) | Implementado | RF-01, RF-02, RF-03, RF-13 |
 | 05 | [Página de negocio `/colabora/[slug]`](05-pagina-de-negocio.md) | Implementado | RF-04 a RF-10; el QR (RF-17) pasa a la 07 |
 | 06 | [Datos en Supabase y publicación en Vercel](06-datos-en-supabase.md) | Aprobado (implementado en local; falta publicar) | Base para 07 y 08; parte de RF-16 (cambio visible en menos de 1 minuto) |
-| 07 | [Formulario Súmate y base del panel `/admin`](07-sumate-y-base-del-panel.md) | Aprobado (implementado en local; falta la nube) | RF-15, RF-17 (QR por negocio) y la base de RF-16 (sesión con TOTP, roles y RLS) |
+| 07 | [Formulario Súmate y base del panel `/admin`](07-sumate-y-base-del-panel.md) | Implementado | RF-15, RF-17 (QR por negocio) y la base de RF-16 (sesión con TOTP, roles y RLS) |
 | 08 | Panel del refugio | Por escribir | Parte de RF-16 (peludos y campañas), RF-22 y RF-29; necesidades, textos e imágenes |
 | 09 | Panel de negocios y menús | Por escribir | Parte de RF-16 (negocios, menús, horarios y promociones) |
 | 10 | Anuncios, analítica, SEO y aviso de privacidad | Por escribir | RF-18, RF-20, aviso de privacidad definitivo y requisitos no funcionales |
@@ -33,7 +33,6 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 ## Pendiente de decidir antes de escribir cada spec
 
 - **06:** crear el proyecto de Supabase en la nube y el de Vercel (pasos 14 y 15 de la spec) y verificar los criterios que dependen de la nube, incluido el tiempo de RF-16.
-- **07:** aplicar en la nube las migraciones y la configuración de Auth (paso 12 de la spec) y verificar los criterios de la nube.
 - **08 y 09:** cada tabla que se edite desde el panel recibe sus políticas con `rol_panel()` o `es_administrador()` (SPEC 07); el editor de menús de la 09 puede reabrir la decisión de no usar un framework.
 - **10:** reemplazar los favicons de Astro (`public/favicon.svg` y `favicon.ico`) por los del refugio, junto con los metadatos para compartir.
 
