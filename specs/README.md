@@ -17,7 +17,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 07 | [Formulario Súmate y base del panel `/admin`](07-sumate-y-base-del-panel.md) | Implementado | RF-15, RF-17 (QR por negocio) y la base de RF-16 (sesión con TOTP, roles y RLS) |
 | 08 | [Panel del refugio](08-panel-del-refugio.md) | Implementado | Parte de RF-16 (peludos y campañas), RF-22, RF-26 (editable) y RF-29; necesidades, textos e imágenes |
 | 09 | [Panel de negocios](09-panel-de-negocios.md) | Implementado (falta medir RF-16 en la nube) | Parte de RF-16 (negocios, horarios, promociones y categorías) |
-| 10 | [Editor de menús](10-editor-de-menus.md) | Implementado (falta el paso en la nube) | Parte de RF-16 (menús: grupos, secciones, platillos y precios) |
+| 10 | [Editor de menús](10-editor-de-menus.md) | Implementado (falta medir RF-16 en la nube) | Parte de RF-16 (menús: grupos, secciones, platillos y precios) |
 | 11 | Anuncios, analítica, SEO y aviso de privacidad | Por escribir | RF-18, RF-20, aviso de privacidad definitivo y requisitos no funcionales |
 
 ## Decisiones que aplican a todas las specs
@@ -35,7 +35,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 - **06:** revisar que ninguna variable de Vercel con la llave secreta lleve prefijo `PUBLIC_` (último criterio sin marcar).
 - **09:** la migración `panel_negocios` ya está en la nube; falta cambiar el horario de un negocio con la cuenta administradora y medir el tiempo contra RF-16 (criterios de la nube sin marcar).
-- **10:** aplicar `20261002072909_editor_menus.sql` en la nube con `npx supabase db push`, cambiar un precio con la cuenta administradora y medir el tiempo contra RF-16 (criterios de la nube sin marcar).
+- **10:** la migración `editor_menus` ya está en la nube; falta cambiar un precio con la cuenta administradora y medir el tiempo contra RF-16 (criterios de la nube sin marcar).
 - **11:** reemplazar los favicons de Astro (`public/favicon.svg` y `favicon.ico`) por los del refugio, junto con los metadatos para compartir.
 
 ## Antes de publicar
