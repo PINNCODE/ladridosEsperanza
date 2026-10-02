@@ -370,3 +370,59 @@ $$;
 
 revoke execute on function public.guardar_registro_cifras(jsonb) from public, anon;
 grant execute on function public.guardar_registro_cifras(jsonb) to authenticated;
+
+-- Campaña de esterilización (RF-12, RF-24). Sin "id" crea una con id = su fecha ("2026-11-14");
+-- con "id" la actualiza. "cartel" es null, { imagen_id } o { ruta, ancho, alto }.
+create function public.guardar_campana(datos jsonb) returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+	fila public.campanas;
+	cartel_anterior uuid;
+begin
+	perform public.exigir_panel();
+
+	fila.id := datos ->> 'id';
+	fila.fecha := public.campo_texto(datos, 'fecha')::date;
+	fila.costo := public.campo_texto(datos, 'costo')::numeric;
+	fila.lugar := public.campo_texto(datos, 'lugar');
+	fila.horario := public.campo_texto(datos, 'horario');
+	fila.forma_pago := public.campo_texto(datos, 'forma_pago');
+	fila.cupo := public.campo_cifra(datos, 'cupo');
+	fila.estado := public.campo_texto(datos, 'estado');
+	if fila.costo < 0 then
+		raise exception 'datos_invalidos' using detail = 'costo';
+	end if;
+	if jsonb_typeof(datos -> 'cartel') = 'object' then
+		fila.cartel_id := public.guardar_imagen(datos -> 'cartel');
+	end if;
+
+	if fila.id is null then
+		fila.id := fila.fecha::text;
+		if exists (select 1 from public.campanas c where c.id = fila.id) then
+			raise exception 'campana_repetida';
+		end if;
+		fila.es_ejemplo := false;
+		insert into public.campanas values (fila.*);
+	else
+		select c.cartel_id into cartel_anterior from public.campanas c where c.id = fila.id;
+		if not found then
+			raise exception 'no_encontrado';
+		end if;
+		update public.campanas c
+		set fecha = fila.fecha, costo = fila.costo, lugar = fila.lugar, horario = fila.horario,
+			forma_pago = fila.forma_pago, cupo = fila.cupo, cartel_id = fila.cartel_id, estado = fila.estado
+		where c.id = fila.id;
+	end if;
+
+	return jsonb_build_object(
+		'id', fila.id,
+		'rutas_borradas', to_jsonb(public.limpiar_imagenes(array[cartel_anterior]))
+	);
+end;
+$$;
+
+revoke execute on function public.guardar_campana(jsonb) from public, anon;
+grant execute on function public.guardar_campana(jsonb) to authenticated;
