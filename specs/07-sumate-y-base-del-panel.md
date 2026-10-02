@@ -1,6 +1,6 @@
 # SPEC 07 — Formulario Súmate y base del panel `/admin`
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 04, SPEC 05, SPEC 06
 > **Fecha:** 2026-10-01
 > **Objetivo:** Que un negocio pida sumarse desde `/colabora/sumate` y que el equipo entre a `/admin` con verificación en dos pasos para atender esas solicitudes y descargar el QR de cada negocio.
@@ -255,15 +255,21 @@ El QR usa el paquete `qrcode`: SVG con `toString` y PNG de 1024 px con `toDataUR
 
 ### Nube (después del paso 12)
 
-- [ ] Un envío desde `*.vercel.app/colabora/sumate` aparece en `/admin/solicitudes` de la nube.
-- [ ] La cuenta invitada desde Studio recibe el correo, pone su contraseña, da de alta su TOTP y entra.
-- [ ] El registro abierto está desactivado en el proyecto de la nube.
+- [x] Un envío desde `*.vercel.app/colabora/sumate` aparece en `/admin/solicitudes` de la nube.
+- [x] La cuenta invitada desde Studio recibe el correo, pone su contraseña, da de alta su TOTP y entra.
+- [x] El registro abierto está desactivado en el proyecto de la nube.
 
 ### Observaciones de la validación
 
 Validado el 2026-10-01 en local, con Supabase en Docker (Colima) y la compilación de producción servida con `astro preview`; Playwright a 360 y 1024 px. Los códigos TOTP se calcularon en la página con WebCrypto a partir del secreto que muestra el alta.
 
-- **Pendiente: paso 12.** No se tocó el proyecto de Supabase en la nube ni Vercel. Los tres criterios de la nube quedan sin marcar.
+- **Paso 12 (nube), validado el 2026-10-02** en `https://ladridos-esperanza.vercel.app` y el proyecto de Supabase "Refugio animales":
+  - `npx supabase db push` aplicó `panel_cuentas` y `solicitudes_negocio`, sin semilla. Con la llave publicable, `solicitudes_negocio` y `usuarios_panel` devuelven `[]`, un `insert` con `estado` responde 401 y `signUp` responde `signup_disabled`.
+  - Las variables `PUBLIC_` van en Vercel para **Production y Preview**. Con solo Production, la vista previa del PR falló con "Falta la variable de entorno PUBLIC_SUPABASE_URL".
+  - El correo integrado de Supabase solo envía a miembros del equipo y no deja editar plantillas. Se compró `ladridosdeesperanza.org` en Cloudflare y se configuró el SMTP de Resend (`smtp.resend.com:465`, usuario `resend`, remitente `no-reply@ladridosdeesperanza.org`). Un usuario distinto de `resend` falla con `535 "Invalid username"`.
+  - Las plantillas se subieron con la API de administración (`PATCH /v1/projects/{ref}/config/auth`). Los correos enviados segundos después del cambio todavía salieron con la plantilla por defecto: Auth tarda unos minutos en recargar la configuración. Ese enlace pasa por `/auth/v1/verify` y deja la sesión en el `#`, que `/admin/contrasena` no reconoce ("Este enlace ya se usó o venció").
+  - La primera cuenta se invitó desde Studio; su rol se insertó con SQL. La contraseña se eligió con el correo de recuperación ya con la plantilla nueva, y la cuenta dio de alta su TOTP y entró al panel.
+  - Una solicitud enviada desde `/colabora/sumate` apareció en `/admin/solicitudes`. El cambio a `contactada` se guardó y llenó `actualizada_en`.
 - **`auth.email.enable_signup`.** La spec pedía `false`, pero en la CLI esa clave apaga el proveedor de correo: el inicio de sesión respondía `email_provider_disabled`. Queda en `true`; el registro abierto lo cierra `auth.enable_signup = false` y `signUp` responde `signup_disabled`.
 - **Plantillas de correo.** Una invitación desde Studio no deja elegir la redirección y el enlace por defecto cae en `site_url` (la portada). Se agregaron plantillas en español (`supabase/plantillas/`) que llevan a `/admin/contrasena?token_hash=…&type=…`, y la página lo verifica con `verifyOtp`. En la nube hay que copiarlas a mano (paso 12).
 - **Contraseña con TOTP.** Supabase exige `aal2` para cambiar la contraseña de una cuenta con TOTP (`insufficient_aal`). `/admin/contrasena` pide primero el código cuando la cuenta ya tiene un factor y después entra directo a `/admin`; una invitación nueva pasa a `/admin/entrar` para dar de alta el TOTP.
