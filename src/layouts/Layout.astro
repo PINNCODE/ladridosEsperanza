@@ -26,6 +26,10 @@ interface Props {
 const { titulo, descripcion, imagen, textoImagen, indexar = true, estructurados } = Astro.props;
 const refugio = await obtenerRefugio();
 
+// Analítica sin cookies (SPEC 11): solo con PUBLIC_UMAMI_ID, que existe en Production.
+// Sin ella, el script no se carga y el sitio funciona igual.
+const umami = import.meta.env.PUBLIC_UMAMI_ID;
+
 // Etiquetas para compartir (SPEC 11): el logo de un negocio va en tarjeta chica (summary)
 // y la foto del refugio en tarjeta grande. Las URL de Supabase ya son absolutas.
 const canonica = new URL(Astro.url.pathname, Astro.site).href;
@@ -69,6 +73,20 @@ const conBarra = Astro.slots.has('barra');
 		<Font cssVariable="--fuente-titulos" preload />
 		<Font cssVariable="--fuente-texto" preload />
 		<title>{titulo}</title>
+		{
+			umami && (
+				<script
+					is:inline
+					defer
+					src="https://cloud.umami.is/script.js"
+					data-website-id={umami}
+					data-domains={Astro.site!.hostname}
+					data-exclude-search="true"
+					data-exclude-hash="true"
+					data-do-not-track="true"
+				/>
+			)
+		}
 	</head>
 	<body
 		class:list={[

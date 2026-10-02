@@ -122,6 +122,7 @@ const enlace = 'text-acento underline underline-offset-4';
 </section>
 
 <script>
+	import { registrar } from '../../lib/analitica';
 	import { supabaseNavegador } from '../../lib/supabaseNavegador';
 
 	const formulario = document.querySelector<HTMLFormElement>('[data-sumate]');
@@ -203,6 +204,7 @@ const enlace = 'text-acento underline underline-offset-4';
 				});
 
 			if (!fallo) {
+				registrar('sumate_enviado');
 				mostrarGracias();
 				return;
 			}

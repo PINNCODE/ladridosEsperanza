@@ -22,6 +22,9 @@ const { negocios } = Astro.props;
 					<li class="shrink-0">
 						<a
 							href={`/colabora/${id}`}
+							data-umami-event="abrir_negocio"
+							data-umami-event-negocio={id}
+							data-umami-event-origen="mas_negocios"
 							class="flex min-h-11 items-center rounded-full border border-lineas bg-superficie px-4 whitespace-nowrap"
 						>
 							{data.nombre}

@@ -92,6 +92,7 @@ const chip =
 </section>
 
 <script>
+	import { registrarBusqueda } from '../../lib/analitica';
 	import { coincide } from '../../lib/busqueda';
 	import { estadoHorario, momentoEnMexico, type Horarios } from '../../lib/horarios';
 
@@ -180,6 +181,7 @@ const chip =
 		consulta.addEventListener('input', () => {
 			filtro.q = consulta.value;
 			cambiar();
+			registrarBusqueda('catalogo', consulta.value);
 		});
 
 		// La búsqueda es al escribir; enviar solo cierra el teclado del teléfono.

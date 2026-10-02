@@ -35,6 +35,9 @@ const { data } = negocio;
 			data.whatsapp && (
 				<a
 					href={enlaceWhatsApp(data.whatsapp)}
+					data-umami-event="whatsapp"
+					data-umami-event-motivo="negocio"
+					data-umami-event-negocio={negocio.id}
 					target="_blank"
 					rel="noopener"
 					class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-acento px-5 font-bold text-acento"
