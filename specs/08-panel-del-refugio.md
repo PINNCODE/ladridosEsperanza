@@ -246,68 +246,89 @@ Las 6 secciones del `<select>` de textos son `quienes_somos`, `proceso_adopcion`
 
 ### Seguridad
 
-- [ ] Con la llave publicable, una sesión `aal1` o una cuenta sin rol, `select` a `peludos`, `registros_cifras` e `imagenes` por PostgREST devuelve 0 filas.
-- [ ] Con las mismas sesiones, llamar a `guardar_peludo` falla y no cambia nada.
-- [ ] Con sesión `aal2` de la cuenta `refugio`, un `update` directo a `peludos` por PostgREST falla por permisos.
-- [ ] Con sesión `aal2` de la cuenta `refugio`, subir un archivo a `negocios/x.jpg` en el bucket falla y a `peludos/x.jpg` funciona.
-- [ ] `borrar_contenido('negocios', 'tacos-don-chuy')` falla y no borra nada.
-- [ ] La cuenta `refugio` sigue sin ver Solicitudes ni QR.
+- [x] Con la llave publicable, una sesión `aal1` o una cuenta sin rol, `select` a `peludos`, `registros_cifras` e `imagenes` por PostgREST devuelve 0 filas.
+- [x] Con las mismas sesiones, llamar a `guardar_peludo` falla y no cambia nada.
+- [x] Con sesión `aal2` de la cuenta `refugio`, un `update` directo a `peludos` por PostgREST falla por permisos.
+- [x] Con sesión `aal2` de la cuenta `refugio`, subir un archivo a `negocios/x.jpg` en el bucket falla y a `peludos/x.jpg` funciona.
+- [x] `borrar_contenido('negocios', 'tacos-don-chuy')` falla y no borra nada.
+- [x] La cuenta `refugio` sigue sin ver Solicitudes ni QR.
 
 ### Recompilación
 
-- [ ] Guardar un peludo con 2 fotos nuevas encola exactamente 1 llamada en `net.http_request_queue` (local, con el receptor de prueba).
-- [ ] Guardar un mes de cifras encola 0 llamadas.
-- [ ] Un `update` a `necesidades` desde Studio sigue encolando 1 llamada.
+- [x] Guardar un peludo con 2 fotos nuevas encola exactamente 1 llamada en `net.http_request_queue` (local, con el receptor de prueba).
+- [x] Guardar un mes de cifras encola 0 llamadas.
+- [x] Un `update` a `necesidades` desde Studio sigue encolando 1 llamada.
 
 ### Peludos
 
-- [ ] "Agregar" con nombre "Luna" crea el id `luna-2` porque `luna` ya existe.
-- [ ] Un peludo nuevo aparece al final de `/admin/peludos` y, si está `disponible`, al final del carrusel tras recompilar.
-- [ ] El formulario no deja guardar con un rasgo vacío.
-- [ ] Una foto de 4000 × 3000 px queda en el bucket de 1600 × 1200 px, y `imagenes` guarda esas medidas.
-- [ ] Con 4 fotos, "Agregar foto" está desactivado.
-- [ ] "Bajar" en la primera foto y guardar cambia la foto de la tarjeta en `/adopta` tras recompilar.
-- [ ] Quitar una foto y guardar borra su objeto del bucket y su fila de `imagenes`.
-- [ ] "Bajar" en el primer peludo de la lista lo cambia de lugar con el segundo y se conserva al recargar.
-- [ ] Borrar un peludo pide confirmación; al aceptar desaparece de la lista y sus fotos del bucket.
-- [ ] Un peludo sin fotos muestra el ícono de su especie en la lista y en el carrusel.
+- [x] "Agregar" con nombre "Luna" crea el id `luna-2` porque `luna` ya existe.
+- [x] Un peludo nuevo aparece al final de `/admin/peludos` y, si está `disponible`, al final del carrusel tras recompilar.
+- [x] El formulario no deja guardar con un rasgo vacío.
+- [x] Una foto de 4000 × 3000 px queda en el bucket de 1600 × 1200 px, y `imagenes` guarda esas medidas.
+- [x] Con 4 fotos, "Agregar foto" está desactivado.
+- [x] "Bajar" en la primera foto y guardar cambia la foto de la tarjeta en `/adopta` tras recompilar.
+- [x] Quitar una foto y guardar borra su objeto del bucket y su fila de `imagenes`.
+- [x] "Bajar" en el primer peludo de la lista lo cambia de lugar con el segundo y se conserva al recargar.
+- [x] Borrar un peludo pide confirmación; al aceptar desaparece de la lista y sus fotos del bucket.
+- [x] Un peludo sin fotos muestra el ícono de su especie en la lista y en el carrusel.
 
 ### Campañas, necesidades y textos
 
-- [ ] Crear una campaña con fecha `2026-11-14` crea el id `2026-11-14`; crear otra ese día muestra "Ya hay una campaña ese día."
-- [ ] Un cartel de 3000 × 4000 px queda de 1800 × 2400 px y se amplía en `VisorCartel` tras recompilar.
-- [ ] Una necesidad con vigencia de ayer aparece en la lista con "Vencida" y no en `/donar` tras recompilar.
-- [ ] Un texto nuevo en `voluntariado` con "Publicado" aparece en su página tras recompilar; desmarcado, no aparece.
-- [ ] El `<select>` de sección de textos lista las 6 secciones y no se puede cambiar al editar.
-- [ ] `/admin/textos` agrupa por sección y "Subir" y "Bajar" solo mueven dentro de la sección.
+- [x] Crear una campaña con fecha `2026-11-14` crea el id `2026-11-14`; crear otra ese día muestra "Ya hay una campaña ese día."
+- [x] Un cartel de 3000 × 4000 px queda de 1800 × 2400 px y se amplía en `VisorCartel` tras recompilar.
+- [x] Una necesidad con vigencia de ayer aparece en la lista con "Vencida" y no en `/donar` tras recompilar.
+- [x] Un texto nuevo en `voluntariado` con "Publicado" aparece en su página tras recompilar; desmarcado, no aparece.
+- [x] El `<select>` de sección de textos lista las 6 secciones y no se puede cambiar al editar.
+- [x] `/admin/textos` agrupa por sección y "Subir" y "Bajar" solo mueven dentro de la sección.
 
 ### Cifras (RF-29)
 
-- [ ] Crear el mes `2026-10` con solo "rescates" lleno guarda las otras cifras como `null`.
-- [ ] Crear otra vez `2026-10` muestra "Ese mes ya tiene registro. Edítalo desde la lista."
-- [ ] Dos gastos de 500 y 250 muestran 750 de total en `/admin/cifras`.
-- [ ] Ninguna página pública muestra datos de `registros_cifras` ni montos de gastos.
+- [x] Crear el mes `2026-10` con solo "rescates" lleno guarda las otras cifras como `null`.
+- [x] Crear otra vez `2026-10` muestra "Ese mes ya tiene registro. Edítalo desde la lista."
+- [x] Dos gastos de 500 y 250 muestran 750 de total en `/admin/cifras`.
+- [x] Ninguna página pública muestra datos de `registros_cifras` ni montos de gastos.
 
 ### Formularios
 
-- [ ] Cambiar un campo e intentar cerrar la pestaña muestra el aviso del navegador; después de guardar, no.
-- [ ] Con la red cortada, guardar muestra "No pudimos guardar…", conserva lo escrito y no deja fotos nuevas en el bucket.
-- [ ] `/admin/peludos/editar?id=no-existe` muestra "No encontramos este registro."
-- [ ] Los registros de la semilla llevan la etiqueta "Ejemplo" en las listas y la conservan al editarlos; uno creado en el panel tiene `es_ejemplo = false`.
-- [ ] Todas las páginas nuevas de `/admin` no tienen desplazamiento horizontal a 360 px y sus botones miden al menos 44 px.
-- [ ] Todas las páginas nuevas sin sesión redirigen a `/admin/entrar` sin mostrar datos.
+- [x] Cambiar un campo e intentar cerrar la pestaña muestra el aviso del navegador; después de guardar, no.
+- [x] Con la red cortada, guardar muestra "No pudimos guardar…", conserva lo escrito y no deja fotos nuevas en el bucket.
+- [x] `/admin/peludos/editar?id=no-existe` muestra "No encontramos este registro."
+- [x] Los registros de la semilla llevan la etiqueta "Ejemplo" en las listas y la conservan al editarlos; uno creado en el panel tiene `es_ejemplo = false`.
+- [x] Todas las páginas nuevas de `/admin` no tienen desplazamiento horizontal a 360 px y sus botones miden al menos 44 px.
+- [x] Todas las páginas nuevas sin sesión redirigen a `/admin/entrar` sin mostrar datos.
 
 ### Compilación
 
-- [ ] `npx supabase db reset` aplica las 6 migraciones y la semilla sin errores.
-- [ ] `astro build` y `astro check` terminan sin errores.
-- [ ] Las páginas públicas generan el mismo HTML que antes con la misma semilla.
-- [ ] Solo el formulario Súmate y el panel importan `src/lib/supabaseNavegador.ts`.
+- [x] `npx supabase db reset` aplica las 6 migraciones y la semilla sin errores.
+- [x] `astro build` y `astro check` terminan sin errores.
+- [x] Las páginas públicas generan el mismo HTML que antes con la misma semilla.
+- [x] Solo el formulario Súmate y el panel importan `src/lib/supabaseNavegador.ts`.
 
 ### Nube (después del paso 12)
 
 - [ ] La cuenta del refugio cambia el nombre de un peludo desde el panel y el cambio se ve en `/adopta` de Vercel; se anota el tiempo medido contra RF-16.
 - [ ] Ese guardado inicia un solo despliegue en Vercel.
+
+### Observaciones de la validación
+
+Validado el 2026-10-02 en local, con Supabase en Docker (Colima), `astro dev` y `astro build`; Playwright a 360 y 1024 px.
+Las sesiones `aal2` se abrieron con un script de Node y en el navegador, con los códigos TOTP calculados a partir del secreto del alta.
+Las llamadas al deploy hook se contaron con un secreto `deploy_hook_vercel` que apuntaba a un receptor HTTP local (`http://host.docker.internal:8787`).
+
+- **Paso 12 (nube) pendiente.** No se aplicó la migración en el proyecto de la nube: se hace después de revisar el PR, con `npx supabase db push`. Los dos criterios de la nube quedan sin marcar.
+- **Recompilación.** Una transacción con `update` a `peludos` y a `fotos_peludo` hizo 1 llamada; guardar un peludo nuevo con 2 fotos desde el panel, 1; siete guardados seguidos de peludos, campañas, necesidades y textos (incluido un "Subir"), 7; un mes de cifras desde el panel y por la API, 0; un `update` a `necesidades` por SQL, 1.
+- **Escrituras directas.** Además de las RPC, la migración quita `insert`, `update`, `delete` y `truncate` a `anon` y `authenticated` en las 23 tablas de contenido, como dice la spec ("ninguna tabla de contenido"). Sin eso, un `update` sin política responde 200 y no cambia nada; con eso, el `update` directo de la cuenta `refugio` responde 403 `permission denied`.
+- **Seguridad.** Con la llave publicable, con `aal1` (admin) y con una cuenta `aal2` sin rol, `peludos`, `registros_cifras` e `imagenes` devuelven `[]` (con un mes de cifras guardado), y `guardar_peludo` responde 401 (`anon`) o `sin_permiso` sin crear filas. La cuenta `refugio` sube a `peludos/x.jpg` (200) y no a `negocios/x.jpg` (400); con `aal1` tampoco sube; borrar `refugio/logo.jpg` no borra nada. `borrar_contenido('negocios', …)` y `mover_contenido('negocios', …)` responden `sin_permiso`. La cuenta `administrador` también guarda.
+- **Funciones auxiliares.** Las RPC comparten `exigir_panel()`, `campo_texto()`, `campo_cifra()`, `slug()`, `id_libre()`, `guardar_imagen()`, `limpiar_imagenes()` y `reemplazar_fotos()`, sin `execute` para `anon` ni `authenticated`. `guardar_imagen()` solo acepta rutas nuevas en `peludos/`, `campanas/` o `bloques/`.
+- **Orden.** `mover_contenido` renumera 1, 2, 3… la tabla (o la sección) antes de intercambiar, así también mueve filas con el mismo `orden`. "Bajar" a Luna la dejó después de Canelo y lo conservó al recargar; en preguntas frecuentes solo cambió esa sección.
+- **Fotos.** 4000 × 3000 quedó en 1600 × 1200 y el cartel de 3000 × 4000 en 1800 × 2400 (medido en el archivo del bucket y en `imagenes`). Un archivo que no es imagen muestra el mensaje de imagen ilegible. Reemplazar el cartel, quitar una foto o borrar el registro borró el archivo del bucket y la fila de `imagenes`.
+- **Guardado fallido.** Con fecha de campaña repetida y un cartel nuevo, la RPC falló, el cartel recién subido se borró del bucket y el formulario conservó lo escrito. Sin conexión, la subida falla antes de la RPC: aparece "No pudimos guardar…", el texto se conserva y no queda nada en el bucket.
+- **Tras recompilar.** El peludo nuevo "Luna" (`luna-2`) apareció al final del carrusel; después de "Bajar" en su primera foto, la tarjeta de `/adopta` usó la otra. Con la campaña del 24 de octubre como pasada, la del 14 de noviembre apareció en portada y `/esterilizacion`, con el cartel en `VisorCartel` (1200 × 1600). Una necesidad con vigencia del 30 de septiembre salió en la lista con "Vencida" y no en `/donar`. Las notas y el gasto de un mes de cifras no aparecen en ningún archivo de `dist/`.
+- **Secciones de un solo bloque.** Portada (Quiénes somos), `/adopta`, "Por qué esterilizar" y `/donar` (voluntariado) muestran solo el primer bloque publicado de su sección. Un texto nuevo de voluntariado apareció en `/donar` después de subirlo al primer lugar; al desmarcar "Publicado" volvió el de ejemplo. `/admin/textos` lo avisa en esas secciones, y el formulario avisa que solo Quiénes somos muestra imágenes.
+- **HTML público.** Comparado con una compilación de `main` con la misma semilla, las 13 páginas públicas son iguales salvo el nombre con hash del CSS (Tailwind agrega las clases del panel).
+- **`es_ejemplo`.** Editar a Canelo (de la semilla) conservó `es_ejemplo = true`; lo creado en el panel quedó en `false`.
+- **Piezas compartidas.** Además de los archivos de la spec, se agregaron `FormularioPanel` (marco de las páginas `editar`), `CabeceraLista`, `estilos.ts` y `secciones.ts` en `src/components/admin/`, e `iniciarFormulario()` en `src/lib/formularioPanel.ts`. `LayoutPanel` agrega `data-titulo` a su `<h1>` para "Nuevo…" y "Editar…".
+- **Servidor de desarrollo.** Después de `astro build`, `astro dev` respondía 504 "Outdated Optimize Dep" para `supabase-js`; reiniciarlo lo resuelve.
 
 ## Decisiones
 
