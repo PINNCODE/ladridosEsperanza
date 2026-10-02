@@ -5,6 +5,7 @@ import GaleriaPeludos from '../components/adopta/GaleriaPeludos.astro';
 import ProcesoAdopcion from '../components/adopta/ProcesoAdopcion.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtenerRefugio } from '../lib/datos';
+import { fotosRefugio } from '../lib/fotosRefugio';
 import { enlaceWhatsApp } from '../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
@@ -14,7 +15,7 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la p√
 ---
 
 <Layout titulo={`${titulo} ¬∑ ${refugio.nombre}`} descripcion={frase}>
-	<EncabezadoPagina titulo={titulo} frase={frase} icono="house-heart" />
+	<EncabezadoPagina titulo={titulo} frase={frase} icono="house-heart" foto={fotosRefugio.perrosEnElPatio} />
 	<GaleriaPeludos />
 	<ProcesoAdopcion />
 	<section aria-labelledby="dudas-titulo" class="mt-10 mb-4">

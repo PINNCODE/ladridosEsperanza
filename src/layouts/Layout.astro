@@ -4,6 +4,7 @@ import CintaEjemplo from '../components/CintaEjemplo.astro';
 import Encabezado from '../components/Encabezado.astro';
 import Pie from '../components/Pie.astro';
 import { mostrarEjemplos, obtenerRefugio } from '../lib/datos';
+import { imagenCompartir } from '../lib/fotosRefugio';
 import type { Imagen } from '../lib/imagenes';
 import { jsonLd } from '../lib/seo';
 import '../styles/global.css';
@@ -13,7 +14,7 @@ interface Props {
 	titulo: string;
 	/** Resumen de la página para buscadores y para compartir. */
 	descripcion: string;
-	/** Imagen para compartir; sin ella, la foto principal del refugio. */
+	/** Imagen para compartir; sin ella, la foto de los perros en la barda (SPEC 14). */
 	imagen?: Imagen;
 	/** Texto alternativo de `imagen` ("Logo de {negocio}"). */
 	textoImagen?: string;
@@ -33,11 +34,16 @@ const refugio = await obtenerRefugio();
 const umami = process.env.VERCEL_ENV === 'production' ? '772ee111-f6dc-4300-83c5-f11dbf311746' : null;
 
 // Etiquetas para compartir (SPEC 11): el logo de un negocio va en tarjeta chica (summary)
-// y la foto del refugio en tarjeta grande. Las URL de Supabase ya son absolutas.
+// y la foto del refugio en tarjeta grande. Las URL de Supabase ya son absolutas; la foto del
+// refugio sale del repo en 1200 × 630 e imagenCompartir() la vuelve absoluta (SPEC 14).
 const canonica = new URL(Astro.url.pathname, Astro.site).href;
 const compartir = imagen
 	? { ...imagen, alt: textoImagen ?? titulo, tarjeta: 'summary' }
-	: { ...refugio.foto_principal, alt: `Foto de ${refugio.nombre}`, tarjeta: 'summary_large_image' };
+	: {
+			...(await imagenCompartir(Astro.site!)),
+			alt: `Perros del refugio ${refugio.nombre} asomados a la barda`,
+			tarjeta: 'summary_large_image',
+		};
 
 // Las páginas de /colabora (SPEC 04, RF-13) y la ficha de cada peludo (SPEC 13) traen barra fija inferior. Con ella,
 // viewport-fit=cover hace que env(safe-area-inset-bottom) mida la barra de inicio del

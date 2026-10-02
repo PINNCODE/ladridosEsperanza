@@ -21,7 +21,8 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 11 | [SEO, analítica y aviso de privacidad](11-seo-analitica-y-aviso-de-privacidad.md) | Implementado | RF-20, aviso de privacidad completo y rendimiento móvil |
 | 12 | [Portada con prioridades: qué es, dónde está y cómo ayudar](12-portada-con-prioridades.md) | Implementado | Reemplaza el orden de RF-30 (los peludos pasan al 3.er lugar); ubicación y "Cómo llegar" del refugio |
 | 13 | [Adopciones: galería con "me gusta" y ficha de cada peludo](13-adopciones-galeria-y-ficha.md) | Implementado | Reemplaza la cuadrícula de RF-11; ficha `/adopta/{id}`, convivencia, hitos con padrino y "me gusta" público |
-| 14 | Anuncios | Por escribir | RF-18 |
+| 14 | [Fotos del refugio: carrusel en la portada y fotos en las páginas](14-fotos-del-refugio-y-carrusel-de-portada.md) | Implementado | Carrusel de 9 fotos reales en la presentación (RF-21), fotos en esterilización, donativos en especie y los encabezados, e imagen para compartir; las fotos viven en el repo y `refugio.foto_principal_id` ya no existe |
+| 15 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs
 
@@ -34,13 +35,14 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 - El formulario Súmate y el panel `/admin` son páginas estáticas que hablan con Supabase desde el navegador con la llave publicable; los protegen las políticas RLS, que exigen sesión `aal2` (TOTP) y el rol de `usuarios_panel` (SPEC 07).
 - No se publica ningún monto de dinero recibido por el refugio, de personas ni de negocios; `/transparencia` y RF-19 salen del MVP (SPEC 03). La portada queda con 8 secciones y la colección `informes_transparencia` ya no existe. Las equivalencias de "En qué se usa un donativo" sí se muestran.
 - Los peludos se ven en la galería de `/adopta` y en su ficha `/adopta/{id}` (SPEC 13). El "me gusta" es lo único que el sitio público escribe en Supabase además de Súmate, siempre con las RPC `marcar_me_gusta` y `conteos_me_gusta`.
+- Las fotos del refugio (no las de los peludos) viven en `src/assets/refugio/` y se listan en `src/lib/fotosRefugio.ts`; se cambian con un commit (SPEC 14).
 - El orden de la portada es el de la SPEC 12: Presentación, Quiénes somos, Adopciones, Donativos, Esterilización, Problemáticas, Colaboración y Redes. Reemplaza el de RF-30 y la SPEC 02, que no se reescribieron.
 
 ## Pendiente de decidir antes de escribir cada spec
 
-- **14:** anuncios (RF-18), por escribir.
+- **15:** anuncios (RF-18), por escribir.
 
 ## Antes de publicar
 
-- Pedirle al refugio las fotos y el logo en resolución original. Las del prototipo vienen en baja resolución (Luna y Canelo miden menos de 200 px de ancho, el patio 387 px y el logo 225 px) y se ven borrosas en pantallas de alta densidad.
+- Pedirle al refugio el logo y las fotos de los peludos en resolución original. Las del prototipo vienen en baja resolución (Luna y Canelo miden menos de 200 px de ancho y el logo 225 px) y se ven borrosas en pantallas de alta densidad. Las fotos del refugio ya son las originales (SPEC 14).
 - Confirmar con el refugio cómo funcionan el apadrinamiento y el voluntariado (requisitos y condiciones) antes de publicar las tarjetas de `/donar`.

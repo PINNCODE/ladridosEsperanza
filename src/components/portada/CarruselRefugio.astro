@@ -1,0 +1,90 @@
+---
+// Carrusel de fotos del refugio en la presentación de la portada (SPEC 14). Marco cuadrado:
+// cada foto se ve completa sobre una versión difuminada de sí misma, sea vertical u horizontal.
+// Se desliza con el dedo gracias a scroll-snap; lo demás lo agrega `iniciarCarrusel`.
+import { Image } from 'astro:assets';
+import Icono from '../Icono.astro';
+import { fotosPortada } from '../../lib/fotosRefugio';
+
+const total = fotosPortada.length;
+---
+
+<div data-carrusel="refugio" role="region" aria-roledescription="carrusel" aria-label="Fotos del refugio">
+	<ul
+		data-pista
+		tabindex="0"
+		aria-label="Lista de fotos"
+		class="flex snap-x snap-mandatory overflow-x-auto rounded-2xl border border-lineas bg-suave [scrollbar-width:none]"
+	>
+		{
+			fotosPortada.map((foto, indice) => (
+				<li
+					role="group"
+					aria-roledescription="diapositiva"
+					aria-label={`${indice + 1} de ${total}`}
+					class="relative aspect-square w-full shrink-0 snap-start overflow-hidden"
+				>
+					{/* Fondo: la misma foto a 48 px, estirada y difuminada para llenar el marco. */}
+					<Image
+						src={foto.src}
+						width={48}
+						alt=""
+						aria-hidden="true"
+						loading={indice === 0 ? 'eager' : 'lazy'}
+						class="absolute inset-0 size-full scale-150 object-cover blur-2xl"
+					/>
+					<Image
+						src={foto.src}
+						width={1280}
+						widths={[400, 640, 960, 1280]}
+						sizes="(min-width: 768px) 50vw, 100vw"
+						alt={foto.alt}
+						loading={indice === 0 ? 'eager' : 'lazy'}
+						fetchpriority={indice === 0 ? 'high' : undefined}
+						class="relative size-full object-contain"
+					/>
+				</li>
+			))
+		}
+	</ul>
+	<div class="mt-4 flex items-center justify-center gap-2">
+		<button
+			type="button"
+			data-anterior
+			aria-label="Anterior"
+			class="grid size-11 shrink-0 place-items-center rounded-full border border-lineas bg-superficie"
+		>
+			<Icono nombre="chevron-left" size={22} />
+		</button>
+		{/* Puntos de 24 px de ancho y 44 de alto: los nueve caben junto a las flechas a 360 px. */}
+		<div class="flex">
+			{
+				fotosPortada.map((_, indice) => (
+					<button
+						type="button"
+						data-punto={indice}
+						aria-label={`Ver foto ${indice + 1}`}
+						aria-current={indice === 0 ? 'true' : undefined}
+						class="group grid h-11 w-6 place-items-center rounded-full"
+					>
+						<span class="block h-2.5 w-2.5 rounded-full bg-lineas group-aria-[current=true]:w-5 group-aria-[current=true]:bg-acento" />
+					</button>
+				))
+			}
+		</div>
+		<button
+			type="button"
+			data-siguiente
+			aria-label="Siguiente"
+			class="grid size-11 shrink-0 place-items-center rounded-full border border-lineas bg-superficie"
+		>
+			<Icono nombre="chevron-right" size={22} />
+		</button>
+	</div>
+</div>
+
+<script>
+	import { iniciarCarrusel } from '../../lib/carrusel';
+
+	document.querySelectorAll<HTMLElement>('[data-carrusel="refugio"]').forEach(iniciarCarrusel);
+</script>

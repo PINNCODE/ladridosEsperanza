@@ -13,11 +13,13 @@ import QuienesSomos from '../components/portada/QuienesSomos.astro';
 import RedesContacto from '../components/portada/RedesContacto.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtener, obtenerRefugio } from '../lib/datos';
+import { imagenCompartir } from '../lib/fotosRefugio';
 import { datosRefugio } from '../lib/seo';
 
 const refugio = await obtenerRefugio();
 const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden).map(({ data }) => data.url);
-const estructurados = datosRefugio(refugio, redes, Astro.site!);
+const { url: imagen } = await imagenCompartir(Astro.site!);
+const estructurados = datosRefugio(refugio, redes, Astro.site!, imagen);
 ---
 
 <Layout titulo={refugio.nombre} descripcion={refugio.frase} estructurados={estructurados}>

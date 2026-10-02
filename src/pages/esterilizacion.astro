@@ -8,6 +8,7 @@ import PorQueEsterilizar from '../components/esterilizacion/PorQueEsterilizar.as
 import PreguntasFrecuentes from '../components/esterilizacion/PreguntasFrecuentes.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtenerRefugio } from '../lib/datos';
+import { fotosRefugio } from '../lib/fotosRefugio';
 
 const refugio = await obtenerRefugio();
 const titulo = 'Campañas de esterilización';
@@ -16,7 +17,7 @@ const frase =
 ---
 
 <Layout titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
-	<EncabezadoPagina titulo={titulo} frase={frase} icono="syringe" />
+	<EncabezadoPagina titulo={titulo} frase={frase} icono="syringe" foto={fotosRefugio.gataConSuCamada} />
 	<PorQueEsterilizar />
 	<FichaCampana />
 	<CuidadosCirugia />
