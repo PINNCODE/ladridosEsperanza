@@ -1,59 +1,88 @@
 ---
-// Quiénes somos (RF-22): historia, ubicación y fotos del bloque de contenido, y redes del refugio.
-// Sin bloque publicado, la sección no se muestra.
+// Quiénes somos (RF-22, SPEC 12): segunda sección de la portada, siempre visible porque dice dónde está
+// el refugio. Con el bloque de contenido publicado, su título, historia y fotos; sin él, "Dónde estamos".
+// Ubicación, dirección, "Cómo llegar" (solo con coordenadas) y redes se muestran en los dos casos.
 import { Image } from 'astro:assets';
 import Icono from '../Icono.astro';
 import { bloqueQuienesSomos, obtener, obtenerRefugio } from '../../lib/datos';
 import { parrafos } from '../../lib/formato';
 import { medidas } from '../../lib/imagenes';
+import { enlaceMapaRefugio } from '../../lib/mapas';
 
 const bloque = await bloqueQuienesSomos();
 const refugio = await obtenerRefugio();
 const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden);
+const comoLlegar = enlaceMapaRefugio(refugio);
 ---
 
-{
-	bloque && (
-		<section id="quienes" aria-labelledby="quienes-titulo" class="aparecer">
-			<span class="grid size-11 place-items-center rounded-xl bg-suave">
-				<Icono nombre="paw-print" />
-			</span>
-			<h2 id="quienes-titulo" class="mt-3 text-2xl font-bold md:text-3xl">
-				{bloque.data.titulo}
-			</h2>
+<section id="quienes" aria-labelledby="quienes-titulo" class="aparecer">
+	<span class="grid size-11 place-items-center rounded-xl bg-suave">
+		<Icono nombre="paw-print" />
+	</span>
+	<h2 id="quienes-titulo" class="mt-3 text-2xl font-bold md:text-3xl">
+		{bloque ? bloque.data.titulo : 'Dónde estamos'}
+	</h2>
+	{
+		bloque && (
 			<div class="mt-2 max-w-prose space-y-3 text-texto-secundario">
-				{parrafos(bloque.data.texto).map((parrafo) => <p>{parrafo}</p>)}
-			</div>
-			<p class="mt-3 flex items-center gap-2">
-				<Icono nombre="map-pin" size={20} />
-				{refugio.ubicacion}
-			</p>
-			{bloque.data.imagenes.length > 0 && (
-				<div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
-					{bloque.data.imagenes.map((imagen) => (
-						<Image
-							src={imagen.url}
-							{...medidas(imagen, 480)}
-							alt={`Foto del refugio ${refugio.nombre}`}
-							class="aspect-[4/3] w-full rounded-2xl border border-lineas object-cover"
-						/>
-					))}
-				</div>
-			)}
-			<ul class="mt-5 flex flex-wrap gap-2" aria-label="Conoce al refugio en redes">
-				{redes.map(({ data }) => (
-					<li>
-						<a
-							href={data.url}
-							target="_blank"
-							rel="noopener"
-							class="inline-flex min-h-11 items-center rounded-xl border border-acento bg-superficie px-4 font-bold text-acento"
-						>
-							{data.etiqueta}
-						</a>
-					</li>
+				{parrafos(bloque.data.texto).map((parrafo) => (
+					<p>{parrafo}</p>
 				))}
-			</ul>
-		</section>
-	)
-}
+			</div>
+		)
+	}
+	<div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+		<p class="flex items-start gap-2">
+			<Icono nombre="map-pin" size={20} class="mt-0.5 shrink-0" />
+			<span>
+				<span class="block">{refugio.ubicacion}</span>
+				{refugio.direccion && <span class="block text-texto-secundario">{refugio.direccion}</span>}
+			</span>
+		</p>
+		{
+			comoLlegar && (
+				<a
+					href={comoLlegar}
+					data-umami-event="como_llegar"
+					data-umami-event-origen="quienes"
+					target="_blank"
+					rel="noopener"
+					class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+				>
+					<Icono nombre="navigation" tono="heredado" size={18} />
+					Cómo llegar
+				</a>
+			)
+		}
+	</div>
+	{
+		bloque && bloque.data.imagenes.length > 0 && (
+			<div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
+				{bloque.data.imagenes.map((imagen) => (
+					<Image
+						src={imagen.url}
+						{...medidas(imagen, 480)}
+						alt={`Foto del refugio ${refugio.nombre}`}
+						class="aspect-[4/3] w-full rounded-2xl border border-lineas object-cover"
+					/>
+				))}
+			</div>
+		)
+	}
+	<ul class="mt-5 flex flex-wrap gap-2" aria-label="Conoce al refugio en redes">
+		{
+			redes.map(({ data }) => (
+				<li>
+					<a
+						href={data.url}
+						target="_blank"
+						rel="noopener"
+						class="inline-flex min-h-11 items-center rounded-xl border border-acento bg-superficie px-4 font-bold text-acento"
+					>
+						{data.etiqueta}
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</section>
