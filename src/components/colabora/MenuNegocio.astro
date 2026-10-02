@@ -2,6 +2,7 @@
 // Menú de un negocio (SPEC 05, RF-05 y RF-06): grupos, secciones y platillos disponibles.
 // Sin JavaScript se ve todo seguido. El script muestra las pestañas (si hay más de un grupo),
 // deja visible solo el grupo activo, guarda su hash en la URL y agrega el buscador.
+// Sin platillos disponibles solo dice que el menú está en preparación (SPEC 09).
 import Icono from '../Icono.astro';
 import { idGrupo, textoPlatillo } from '../../lib/busqueda';
 import { menuDisponible, type Negocio } from '../../lib/datos';
@@ -30,6 +31,12 @@ const chip =
 
 <section aria-labelledby="menu-titulo" data-menu class="min-w-0">
 	<h2 id="menu-titulo" class="text-2xl font-bold">Menú</h2>
+
+	{
+		grupos.length === 0 && (
+			<p class="mt-4 rounded-2xl bg-suave p-5 text-sobre-suave">Estamos preparando el menú de este negocio.</p>
+		)
+	}
 
 	<form role="search" data-buscador hidden class="relative mt-4">
 		<label for="consulta-menu" class="sr-only">Buscar en el menú</label>
@@ -107,7 +114,8 @@ const chip =
 	const menu = document.querySelector<HTMLElement>('[data-menu]');
 	const buscador = menu?.querySelector<HTMLFormElement>('[data-buscador]');
 
-	if (menu && buscador) {
+	// Sin grupos (menú en preparación) no hay nada que buscar.
+	if (menu && buscador && menu.querySelector('[data-grupo]')) {
 		const consulta = buscador.querySelector<HTMLInputElement>('[data-consulta]')!;
 		const pestanas = menu.querySelector<HTMLElement>('[data-pestanas]');
 		const botones = [...(pestanas?.querySelectorAll<HTMLButtonElement>('[data-pestana]') ?? [])];
