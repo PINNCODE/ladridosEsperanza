@@ -37,6 +37,7 @@ export function datosRefugio(refugio: Refugio, redes: string[], sitio: URL): Obj
 			refugio.longitud !== null && {
 				geo: { '@type': 'GeoCoordinates', latitude: refugio.latitud, longitude: refugio.longitud },
 			}),
+		...(refugio.enlace_mapa && { hasMap: refugio.enlace_mapa }),
 		telephone: `+${refugio.whatsapp}`,
 		sameAs: redes,
 	};

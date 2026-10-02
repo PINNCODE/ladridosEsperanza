@@ -9,8 +9,8 @@ insert into imagenes (ruta, ancho, alto) values
 	('peludos/canelo.jpg', 194, 259),
 	('campanas/cartel-2026-09-26.jpg', 820, 820);
 
-insert into refugio (id, nombre, frase, ubicacion, direccion, latitud, longitud, whatsapp, logo_id, foto_principal_id, es_ejemplo) values
-	('refugio', 'Ladridos de Esperanza', 'Un refugio que sale adelante gracias a personas como tú. Ayúdanos a esterilizar, dar en adopción y cuidar a los peludos que más lo necesitan.', 'Tenancingo, Estado de México', 'Calle de ejemplo 1, col. Centro', 18.9606, -99.5906, '5215500000000', (select id from imagenes where ruta = 'refugio/logo.jpg'), (select id from imagenes where ruta = 'refugio/patio.jpg'), true);
+insert into refugio (id, nombre, frase, ubicacion, direccion, latitud, longitud, enlace_mapa, whatsapp, logo_id, foto_principal_id, es_ejemplo) values
+	('refugio', 'Ladridos de Esperanza', 'Un refugio que sale adelante gracias a personas como tú. Ayúdanos a esterilizar, dar en adopción y cuidar a los peludos que más lo necesitan.', 'Tenancingo, Estado de México', 'Calle de ejemplo 1, col. Centro', 18.9568545, -99.6010805, 'https://www.google.com/maps/place/Ladridos+Esperanza+Tenancingo/@18.9568545,-99.6036554,17z/data=!3m1!4b1!4m6!3m5!1s0x85cd9582bfab708f:0x1677173226f55379!8m2!3d18.9568545!4d-99.6010805!16s%2Fg%2F11g2yy8f2k', '5215500000000', (select id from imagenes where ruta = 'refugio/logo.jpg'), (select id from imagenes where ruta = 'refugio/patio.jpg'), true);
 
 insert into redes (id, red, etiqueta, url, orden, es_ejemplo) values
 	('facebook', 'facebook', 'Facebook', 'https://www.facebook.com/ladridos.esperanza.5/', 1, false),

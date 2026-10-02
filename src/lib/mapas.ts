@@ -18,9 +18,10 @@ export function enlaceMapa({ data }: Negocio, ubicacion: string): string {
 }
 
 /**
- * "Cómo llegar" del refugio (SPEC 12): el punto exacto, o null sin coordenadas.
+ * "Cómo llegar" del refugio (SPEC 12): su ficha de Google Maps, si no el punto exacto, o null sin ninguno.
  * No busca por nombre ni por dirección para no mandar a nadie a un punto equivocado.
  */
-export function enlaceMapaRefugio({ latitud, longitud }: Refugio): string | null {
+export function enlaceMapaRefugio({ enlace_mapa, latitud, longitud }: Refugio): string | null {
+	if (enlace_mapa) return enlace_mapa;
 	return latitud !== null && longitud !== null ? busqueda(`${latitud},${longitud}`) : null;
 }
