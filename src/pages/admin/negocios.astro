@@ -1,6 +1,6 @@
 ---
 // /admin/negocios (SPEC 09, RF-01 y RF-09): negocios de "Come por los Peludos" por nombre, con estado,
-// aporte y si su promoción está vigente. Solo para el administrador; el menú se edita en la SPEC 10.
+// aporte y si su promoción está vigente. Solo para el administrador; "Menú" abre el editor de menús (SPEC 10).
 import CabeceraLista from '../../components/admin/CabeceraLista.astro';
 import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
 import LayoutPanel from '../../layouts/LayoutPanel.astro';
@@ -31,6 +31,7 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 			</div>
 			<div class="flex flex-wrap gap-2">
 				<a data-editar class={boton}>Editar</a>
+				<a data-menu class={boton}>Menú</a>
 				<a data-ver hidden target="_blank" rel="noopener" class={boton}>Ver página</a>
 				<button type="button" data-borrar class={boton}>Borrar</button>
 			</div>
@@ -110,6 +111,9 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !negocio.es_ejemplo;
 				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
 					`/admin/negocios/editar?id=${encodeURIComponent(negocio.id)}`;
+				const menu = fila.querySelector<HTMLAnchorElement>('[data-menu]')!;
+				menu.href = `/admin/negocios/menu?id=${encodeURIComponent(negocio.id)}`;
+				menu.setAttribute('aria-label', `Menú de ${negocio.nombre}`);
 				if (negocio.estado === 'publicado') {
 					const ver = fila.querySelector<HTMLAnchorElement>('[data-ver]')!;
 					ver.href = `/colabora/${encodeURIComponent(negocio.id)}`;
