@@ -1,0 +1,61 @@
+---
+// Campo de fotos de los formularios del panel (SPEC 08): vista previa, "Subir", "Bajar", "Quitar"
+// y "Agregar foto". La primera es la principal. Con `maximo={1}` sirve para el cartel de una campaña.
+// campoFotos() de src/lib/imagenesPanel.ts lo conecta, reduce las fotos y las sube al guardar.
+import Icono from '../Icono.astro';
+import { ayuda, boton } from './estilos';
+
+interface Props {
+	/** Prefijo de los id, por ejemplo "peludo-fotos". */
+	id: string;
+	/** Texto del <legend>, por ejemplo "Fotos". */
+	etiqueta: string;
+	/** Carpeta del bucket donde se suben. */
+	carpeta: 'peludos' | 'campanas' | 'bloques';
+	/** Lado mayor máximo en px: 1600 para fotos, 2400 para el cartel. */
+	ladoMaximo: number;
+	maximo?: number;
+}
+
+const { id, etiqueta, carpeta, ladoMaximo, maximo = 4 } = Astro.props;
+const texto = maximo > 1 ? `Hasta ${maximo} fotos. La primera es la principal.` : 'Una imagen, opcional.';
+---
+
+<fieldset
+	data-campo-fotos
+	data-carpeta={carpeta}
+	data-maximo={maximo}
+	data-lado-maximo={ladoMaximo}
+	aria-describedby={`${id}-ayuda`}
+>
+	<legend class="font-bold">{etiqueta}</legend>
+	<p id={`${id}-ayuda`} class={ayuda}>{texto} Se reducen a {ladoMaximo} px antes de subirlas.</p>
+	<ul data-fotos class="mt-3 grid gap-3 sm:grid-cols-2"></ul>
+	<input
+		id={`${id}-archivo`}
+		data-archivo
+		type="file"
+		accept="image/jpeg, image/png, image/webp"
+		multiple={maximo > 1}
+		hidden
+	/>
+	<button type="button" data-agregar-foto class:list={[boton, 'mt-3']}>
+		<Icono nombre="image-plus" size={20} />
+		{maximo > 1 ? 'Agregar foto' : 'Elegir imagen'}
+	</button>
+	<p data-mensaje-foto role="alert" class="mt-2 font-bold empty:hidden"></p>
+
+	<template data-plantilla-foto>
+		<li class="flex gap-3 rounded-2xl border border-lineas bg-superficie p-3">
+			<img class="size-24 shrink-0 rounded-xl bg-suave object-cover" />
+			<div class="flex min-w-0 flex-col gap-2">
+				<span data-principal hidden class="text-sm font-bold text-acento">Principal</span>
+				<div class="flex flex-wrap gap-2">
+					<button type="button" data-subir class={boton}>Subir</button>
+					<button type="button" data-bajar class={boton}>Bajar</button>
+					<button type="button" data-quitar class={boton}>Quitar</button>
+				</div>
+			</div>
+		</li>
+	</template>
+</fieldset>
