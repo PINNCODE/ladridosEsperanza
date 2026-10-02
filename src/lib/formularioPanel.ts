@@ -7,14 +7,18 @@ const mensajes: Record<string, string> = {
 	mes_repetido: 'Ese mes ya tiene registro. Edítalo desde la lista.',
 	imagen_ilegible: 'No pudimos leer esta imagen. Prueba con una foto JPG o PNG.',
 	categoria_en_uso: 'Esta categoría tiene negocios. Cámbialos de categoría antes de borrarla.',
+	menu_cambiado: 'Alguien guardó este menú mientras lo editabas. Recarga la página para ver la versión nueva.',
 };
 
-/** Campos de 'datos_invalidos' (en `details`) que el formulario de negocio no alcanza a revisar. */
+/** Campos de 'datos_invalidos' (en `details`) que los formularios de negocio y de menú no alcanzan a revisar. */
 const camposInvalidos: Record<string, string> = {
 	ubicacion: 'Revisa la ubicación: pega la latitud y la longitud separadas por una coma.',
 	whatsapp: 'Revisa el WhatsApp: deben ser 10 dígitos.',
 	turnos: 'Revisa los horarios: cada turno necesita una hora de apertura y otra de cierre distintas.',
 	fecha_fin: 'La promoción no puede terminar antes de empezar.',
+	nombre: 'Revisa los nombres: cada grupo, sección y platillo necesita uno.',
+	precios: 'Revisa los precios: cada platillo lleva de 1 a 4, con monto o texto alterno.',
+	monto: 'Revisa los precios: el monto no puede ser negativo y lleva a lo más 2 decimales.',
 };
 
 /** Texto para un error de Supabase o del navegador: el de su código, o "No pudimos guardar…". */
