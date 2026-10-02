@@ -1,22 +1,66 @@
 ---
-// /admin (SPEC 07): inicio del panel según el rol. El administrador ve las solicitudes nuevas y el
-// enlace a los QR; el refugio, el aviso de las secciones que llegan en la SPEC 08.
+// /admin (SPEC 07 y 08): inicio del panel. Las dos cuentas ven las secciones del refugio;
+// el administrador también ve las solicitudes nuevas y el enlace a los QR.
 import Icono from '../../components/Icono.astro';
 import LayoutPanel from '../../layouts/LayoutPanel.astro';
 
 const tarjeta = 'flex min-h-11 items-start gap-3 rounded-2xl border border-lineas bg-superficie p-5 hover:border-acento';
+
+const secciones = [
+	{
+		href: '/admin/peludos',
+		icono: 'paw-print',
+		titulo: 'Peludos',
+		texto: 'Los peludos en adopción, con sus fotos y el orden del carrusel.',
+	},
+	{
+		href: '/admin/campanas',
+		icono: 'calendar-heart',
+		titulo: 'Campañas',
+		texto: 'Fechas, costo, lugar y cartel de las campañas de esterilización.',
+	},
+	{
+		href: '/admin/necesidades',
+		icono: 'package-open',
+		titulo: 'Necesidades',
+		texto: 'Lo que el refugio necesita este mes, con su urgencia y vigencia.',
+	},
+	{
+		href: '/admin/textos',
+		icono: 'file-text',
+		titulo: 'Textos',
+		texto: 'Quiénes somos, proceso de adopción, esterilización y voluntariado.',
+	},
+	{
+		href: '/admin/cifras',
+		icono: 'clipboard-list',
+		titulo: 'Cifras del refugio',
+		texto: 'Animales recibidos, rescates, adopciones, esterilizaciones y gastos de cada mes. No se publican.',
+	},
+];
 ---
 
 <LayoutPanel titulo="Inicio">
-	<div data-vista="administrador" hidden class="mt-6 grid gap-4 md:grid-cols-2">
-		<a href="/admin/solicitudes" class={tarjeta}>
+	<div class="mt-6 grid gap-4 md:grid-cols-2">
+		{
+			secciones.map(({ href, icono, titulo, texto }) => (
+				<a href={href} class={tarjeta}>
+					<Icono nombre={icono} />
+					<span>
+						<span class="block text-xl font-bold">{titulo}</span>
+						<span class="text-texto-secundario">{texto}</span>
+					</span>
+				</a>
+			))
+		}
+		<a href="/admin/solicitudes" data-solo-administrador hidden class={tarjeta}>
 			<Icono nombre="inbox" />
 			<span>
 				<span class="block text-xl font-bold">Solicitudes</span>
 				<span data-nuevas class="text-texto-secundario">Contando solicitudes nuevas…</span>
 			</span>
 		</a>
-		<a href="/admin/qr" class={tarjeta}>
+		<a href="/admin/qr" data-solo-administrador hidden class={tarjeta}>
 			<Icono nombre="qr-code" />
 			<span>
 				<span class="block text-xl font-bold">QR de negocios</span>
@@ -24,10 +68,6 @@ const tarjeta = 'flex min-h-11 items-start gap-3 rounded-2xl border border-linea
 			</span>
 		</a>
 	</div>
-
-	<p data-vista="refugio" hidden class="mt-6 max-w-prose rounded-2xl bg-suave p-5 text-sobre-suave">
-		Pronto podrás editar peludos, campañas y necesidades desde aquí.
-	</p>
 </LayoutPanel>
 
 <script>
@@ -36,19 +76,15 @@ const tarjeta = 'flex min-h-11 items-start gap-3 rounded-2xl border border-linea
 
 	const cuenta = await prepararPanel();
 
-	if (cuenta) {
-		document.querySelector<HTMLElement>(`[data-vista="${cuenta.rol}"]`)!.hidden = false;
-
-		if (cuenta.rol === 'administrador') {
-			const { count, error } = await supabaseNavegador()
-				.from('solicitudes_negocio')
-				.select('id', { count: 'exact', head: true })
-				.eq('estado', 'nueva');
-			document.querySelector<HTMLElement>('[data-nuevas]')!.textContent = error
-				? 'No pudimos contar las solicitudes nuevas.'
-				: count === 1
-					? '1 solicitud nueva'
-					: `${count ?? 0} solicitudes nuevas`;
-		}
+	if (cuenta?.rol === 'administrador') {
+		const { count, error } = await supabaseNavegador()
+			.from('solicitudes_negocio')
+			.select('id', { count: 'exact', head: true })
+			.eq('estado', 'nueva');
+		document.querySelector<HTMLElement>('[data-nuevas]')!.textContent = error
+			? 'No pudimos contar las solicitudes nuevas.'
+			: count === 1
+				? '1 solicitud nueva'
+				: `${count ?? 0} solicitudes nuevas`;
 	}
 </script>

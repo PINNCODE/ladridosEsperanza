@@ -1,0 +1,78 @@
+---
+// /admin/necesidades/editar (SPEC 08, RF-26): crea (sin ?id=) o edita una necesidad del mes.
+// Guarda con la RPC guardar_necesidad, que arma el id {tipo}-{fecha_vigencia}.
+import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
+import { campo, etiqueta } from '../../../components/admin/estilos';
+import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Necesidad">
+	<FormularioPanel lista="/admin/necesidades">
+		<div>
+			<label for="necesidad-tipo" class={etiqueta}>Tipo</label>
+			<select id="necesidad-tipo" name="tipo" required class={campo}>
+				<option value="alimento">Alimento</option>
+				<option value="medicina">Medicina</option>
+				<option value="cobijas">Cobijas</option>
+				<option value="limpieza">Limpieza</option>
+				<option value="otro">Otro</option>
+			</select>
+		</div>
+		<div>
+			<label for="necesidad-descripcion" class={etiqueta}>Descripción</label>
+			<input id="necesidad-descripcion" name="descripcion" required maxlength="200" class={campo} />
+		</div>
+		<div>
+			<label for="necesidad-urgencia" class={etiqueta}>Urgencia</label>
+			<select id="necesidad-urgencia" name="urgencia" required class={campo}>
+				<option value="urgente">Urgente</option>
+				<option value="necesaria">Necesaria</option>
+			</select>
+		</div>
+		<div>
+			<label for="necesidad-vigencia" class={etiqueta}>Vigente hasta</label>
+			<input id="necesidad-vigencia" name="fecha_vigencia" type="date" required class={campo} />
+		</div>
+	</FormularioPanel>
+</LayoutPanel>
+
+<script>
+	import { avisoSitio, iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import { prepararPanel } from '../../../lib/panel';
+	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
+
+	type Necesidad = { tipo: string; descripcion: string; urgencia: string; fecha_vigencia: string };
+
+	if (await prepararPanel()) {
+		const supabase = supabaseNavegador();
+		await iniciarFormulario<Necesidad>({
+			lista: '/admin/necesidades',
+			titulos: { nuevo: 'Nueva necesidad', editar: 'Editar necesidad' },
+			cargar: (id) =>
+				supabase
+					.from('necesidades')
+					.select('tipo, descripcion, urgencia, fecha_vigencia')
+					.eq('id', id)
+					.maybeSingle<Necesidad>(),
+			llenar: (necesidad, formulario) => {
+				for (const [nombre, valor] of Object.entries(necesidad)) {
+					(formulario.elements.namedItem(nombre) as HTMLInputElement).value = valor;
+				}
+			},
+			guardar: async (formulario, id) => {
+				const datos = new FormData(formulario);
+				const { error } = await supabase.rpc('guardar_necesidad', {
+					datos: {
+						id,
+						tipo: texto(datos, 'tipo'),
+						descripcion: texto(datos, 'descripcion'),
+						urgencia: texto(datos, 'urgencia'),
+						fecha_vigencia: texto(datos, 'fecha_vigencia'),
+					},
+				});
+				if (error) throw error;
+				return avisoSitio;
+			},
+		});
+	}
+</script>

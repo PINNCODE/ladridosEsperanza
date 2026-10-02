@@ -1,0 +1,116 @@
+---
+// /admin/cifras (SPEC 08, RF-29): registro mensual de cifras del refugio, del mes más nuevo al más viejo.
+// Solo se ve en el panel: el sitio no publica estas cifras ni ningún monto.
+import CabeceraLista from '../../components/admin/CabeceraLista.astro';
+import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Cifras del refugio">
+	<p class="mt-3 max-w-prose text-texto-secundario">
+		Anota cada mes lo que pasó en el refugio. Estas cifras no se publican en el sitio. Deja vacío lo que no
+		sepas: un dato vacío no cuenta como cero.
+	</p>
+	<CabeceraLista agregar="/admin/cifras/editar" texto="Agregar mes" />
+	<p data-vacio hidden class="mt-6">Todavía no hay meses registrados.</p>
+	<ul data-lista class="mt-6 space-y-3"></ul>
+
+	<template data-plantilla>
+		<li class={tarjeta}>
+			<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+				<h2 data-mes class="text-lg font-bold first-letter:uppercase"></h2>
+				<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
+			</div>
+			<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr_auto_1fr]">
+				<dt>Animales recibidos</dt>
+				<dd data-cifra="animales_recibidos" class="font-bold"></dd>
+				<dt>Rescates</dt>
+				<dd data-cifra="rescates" class="font-bold"></dd>
+				<dt>Adopciones</dt>
+				<dd data-cifra="adopciones" class="font-bold"></dd>
+				<dt>Esterilizaciones</dt>
+				<dd data-cifra="esterilizaciones" class="font-bold"></dd>
+				<dt>Gastos</dt>
+				<dd data-gastos class="font-bold"></dd>
+			</dl>
+			<div class="mt-3 flex flex-wrap gap-2">
+				<a data-editar class={boton}>Editar</a>
+				<button type="button" data-borrar class={boton}>Borrar</button>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import { confirmarBorrado, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import { formatearMes, formatearPesos } from '../../lib/formato';
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	const cifras = ['animales_recibidos', 'rescates', 'adopciones', 'esterilizaciones'] as const;
+
+	type Registro = Record<(typeof cifras)[number], number | null> & {
+		id: string;
+		mes: string;
+		es_ejemplo: boolean;
+		gastos_registro: { monto: number }[];
+	};
+
+	async function iniciar() {
+		if (!(await prepararPanel())) return;
+		const supabase = supabaseNavegador();
+		mostrarAviso(document.querySelector<HTMLElement>('[data-aviso]')!);
+
+		const { data, error } = await supabase
+			.from('registros_cifras')
+			.select(`id, mes, es_ejemplo, ${cifras.join(', ')}, gastos_registro(monto)`)
+			.order('mes', { ascending: false })
+			.overrideTypes<Registro[], { merge: false }>();
+		if (error) {
+			document.querySelector<HTMLElement>('[data-error-lista]')!.hidden = false;
+			return;
+		}
+
+		const lista = document.querySelector<HTMLUListElement>('[data-lista]')!;
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+		const errorAccion = document.querySelector<HTMLElement>('[data-error-accion]')!;
+
+		document.querySelector<HTMLElement>('[data-vacio]')!.hidden = data.length > 0;
+		lista.replaceChildren(
+			...data.map((registro) => {
+				const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+				const mes = formatearMes(registro.mes);
+				fila.querySelector('[data-mes]')!.textContent = mes;
+				for (const cifra of cifras) {
+					fila.querySelector(`[data-cifra="${cifra}"]`)!.textContent = registro[cifra]?.toString() ?? 'Sin dato';
+				}
+				const total = registro.gastos_registro.reduce((suma, { monto }) => suma + Number(monto), 0);
+				fila.querySelector('[data-gastos]')!.textContent =
+					registro.gastos_registro.length > 0 ? formatearPesos(total) : 'Sin dato';
+				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !registro.es_ejemplo;
+				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
+					`/admin/cifras/editar?id=${encodeURIComponent(registro.id)}`;
+
+				const borrar = fila.querySelector<HTMLButtonElement>('[data-borrar]')!;
+				borrar.setAttribute('aria-label', `Borrar ${mes}`);
+				borrar.addEventListener('click', async () => {
+					if (!confirmarBorrado(mes)) return;
+					borrar.disabled = true;
+					const { error: fallo } = await supabase.rpc('borrar_contenido', {
+						tabla: 'registros_cifras',
+						id: registro.id,
+					});
+					if (fallo) {
+						borrar.disabled = false;
+						errorAccion.textContent = mensajeError(fallo, 'borrar');
+						return;
+					}
+					location.reload();
+				});
+				return fila;
+			}),
+		);
+	}
+
+	iniciar();
+</script>

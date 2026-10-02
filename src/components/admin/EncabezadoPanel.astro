@@ -1,5 +1,6 @@
 ---
-// Encabezado del panel /admin (SPEC 07): nombre y rol de la cuenta, enlaces según el rol y "Salir".
+// Encabezado del panel /admin (SPEC 07 y 08): nombre y rol de la cuenta, enlaces según el rol y "Salir".
+// Las secciones del refugio son para los dos roles; Solicitudes y QR, solo para el administrador.
 // prepararPanel() de src/lib/panel.ts lo llena; los enlaces de administrador empiezan ocultos.
 const enlace = 'flex min-h-11 items-center rounded-lg px-3 hover:bg-suave';
 ---
@@ -9,6 +10,11 @@ const enlace = 'flex min-h-11 items-center rounded-lg px-3 hover:bg-suave';
 		<a href="/admin" class="font-titulos text-lg font-bold">Panel · Ladridos de Esperanza</a>
 		<nav aria-label="Panel" data-navegacion hidden class="flex flex-wrap gap-1">
 			<a href="/admin" class={enlace}>Inicio</a>
+			<a href="/admin/peludos" class={enlace}>Peludos</a>
+			<a href="/admin/campanas" class={enlace}>Campañas</a>
+			<a href="/admin/necesidades" class={enlace}>Necesidades</a>
+			<a href="/admin/textos" class={enlace}>Textos</a>
+			<a href="/admin/cifras" class={enlace}>Cifras</a>
 			<a href="/admin/solicitudes" data-solo-administrador hidden class={enlace}>Solicitudes</a>
 			<a href="/admin/qr" data-solo-administrador hidden class={enlace}>QR</a>
 		</nav>

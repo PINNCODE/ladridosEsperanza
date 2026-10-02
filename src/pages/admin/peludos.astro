@@ -1,0 +1,145 @@
+---
+// /admin/peludos (SPEC 08, RF-11 y RF-30): peludos en el orden del carrusel, con "Subir" y "Bajar".
+// El sitio solo muestra los disponibles; en proceso y adoptados siguen aquí.
+import CabeceraLista from '../../components/admin/CabeceraLista.astro';
+import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import Icono from '../../components/Icono.astro';
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Peludos">
+	<CabeceraLista agregar="/admin/peludos/editar" texto="Agregar peludo" />
+	<p data-vacio hidden class="mt-6">Todavía no hay peludos.</p>
+	<ol data-lista class="mt-6 space-y-3"></ol>
+
+	<template data-plantilla>
+		<li class:list={[tarjeta, 'flex flex-wrap items-center gap-4']}>
+			<img data-foto hidden alt="" class="size-20 shrink-0 rounded-xl object-cover" />
+			<div data-icono="perro" hidden class="grid size-20 shrink-0 place-items-center rounded-xl bg-suave">
+				<Icono nombre="dog" size={40} />
+			</div>
+			<div data-icono="gato" hidden class="grid size-20 shrink-0 place-items-center rounded-xl bg-suave">
+				<Icono nombre="cat" size={40} />
+			</div>
+			<div class="min-w-0 flex-1">
+				<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+					<h2 data-nombre class="text-lg font-bold break-words"></h2>
+					<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
+				</div>
+				<p data-detalle class="text-texto-secundario"></p>
+			</div>
+			<div class="flex flex-wrap gap-2">
+				<a data-editar class={boton}>Editar</a>
+				<button type="button" data-mover="-1" class={boton}>Subir</button>
+				<button type="button" data-mover="1" class={boton}>Bajar</button>
+				<button type="button" data-borrar class={boton}>Borrar</button>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import { confirmarBorrado, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import { borrarRutas, urlPublica } from '../../lib/imagenesPanel';
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Peludo = {
+		id: string;
+		nombre: string;
+		especie: 'perro' | 'gato';
+		estado: string;
+		es_ejemplo: boolean;
+		fotos_peludo: { orden: number; imagen: { ruta: string } }[];
+	};
+
+	const estados: Record<string, string> = {
+		disponible: 'Disponible',
+		en_proceso: 'En proceso',
+		adoptado: 'Adoptado',
+	};
+
+	async function iniciar() {
+		if (!(await prepararPanel())) return;
+		const supabase = supabaseNavegador();
+		mostrarAviso(document.querySelector<HTMLElement>('[data-aviso]')!);
+
+		const { data, error } = await supabase
+			.from('peludos')
+			.select('id, nombre, especie, estado, es_ejemplo, fotos_peludo(orden, imagen:imagenes(ruta))')
+			.order('orden')
+			.order('id')
+			.overrideTypes<Peludo[], { merge: false }>();
+		if (error) {
+			document.querySelector<HTMLElement>('[data-error-lista]')!.hidden = false;
+			return;
+		}
+
+		const lista = document.querySelector<HTMLOListElement>('[data-lista]')!;
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+		const errorAccion = document.querySelector<HTMLElement>('[data-error-accion]')!;
+
+		document.querySelector<HTMLElement>('[data-vacio]')!.hidden = data.length > 0;
+		lista.replaceChildren(
+			...data.map((peludo, indice) => {
+				const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+				const [principal] = peludo.fotos_peludo.toSorted((a, b) => a.orden - b.orden);
+				if (principal) {
+					const foto = fila.querySelector<HTMLImageElement>('[data-foto]')!;
+					foto.src = urlPublica(principal.imagen.ruta);
+					foto.alt = `Foto de ${peludo.nombre}`;
+					foto.hidden = false;
+				} else {
+					fila.querySelector<HTMLElement>(`[data-icono="${peludo.especie}"]`)!.hidden = false;
+				}
+				fila.querySelector('[data-nombre]')!.textContent = peludo.nombre;
+				fila.querySelector('[data-detalle]')!.textContent =
+					`${peludo.especie === 'gato' ? 'Gato' : 'Perro'} · ${estados[peludo.estado] ?? peludo.estado}`;
+				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !peludo.es_ejemplo;
+				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
+					`/admin/peludos/editar?id=${encodeURIComponent(peludo.id)}`;
+
+				for (const mover of fila.querySelectorAll<HTMLButtonElement>('[data-mover]')) {
+					const direccion = Number(mover.dataset.mover);
+					mover.setAttribute('aria-label', `${direccion < 0 ? 'Subir' : 'Bajar'} a ${peludo.nombre}`);
+					mover.disabled = (direccion < 0 && indice === 0) || (direccion > 0 && indice === data.length - 1);
+					mover.addEventListener('click', async () => {
+						mover.disabled = true;
+						const { error: fallo } = await supabase.rpc('mover_contenido', {
+							tabla: 'peludos',
+							id: peludo.id,
+							direccion,
+						});
+						if (fallo) {
+							mover.disabled = false;
+							errorAccion.textContent = mensajeError(fallo, 'mover');
+							return;
+						}
+						location.reload();
+					});
+				}
+
+				const borrar = fila.querySelector<HTMLButtonElement>('[data-borrar]')!;
+				borrar.setAttribute('aria-label', `Borrar a ${peludo.nombre}`);
+				borrar.addEventListener('click', async () => {
+					if (!confirmarBorrado(peludo.nombre)) return;
+					borrar.disabled = true;
+					const { data: rutas, error: fallo } = await supabase.rpc('borrar_contenido', {
+						tabla: 'peludos',
+						id: peludo.id,
+					});
+					if (fallo) {
+						borrar.disabled = false;
+						errorAccion.textContent = mensajeError(fallo, 'borrar');
+						return;
+					}
+					await borrarRutas(rutas ?? []);
+					location.reload();
+				});
+				return fila;
+			}),
+		);
+	}
+
+	iniciar();
+</script>

@@ -1,0 +1,162 @@
+---
+// /admin/cifras/editar (SPEC 08, RF-29): crea (sin ?id=) o edita las cifras de un mes, con sus gastos.
+// Guarda con la RPC guardar_registro_cifras; el mes es el id y no cambia al editar.
+import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
+import { ayuda, boton, campo, etiqueta } from '../../../components/admin/estilos';
+import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+
+const cifras = [
+	{ nombre: 'animales_recibidos', texto: 'Animales recibidos' },
+	{ nombre: 'rescates', texto: 'Rescates' },
+	{ nombre: 'adopciones', texto: 'Adopciones' },
+	{ nombre: 'esterilizaciones', texto: 'Esterilizaciones' },
+];
+---
+
+<LayoutPanel titulo="Cifras del mes">
+	<FormularioPanel lista="/admin/cifras">
+		<div>
+			<label for="cifras-mes" class={etiqueta}>Mes</label>
+			<input id="cifras-mes" name="mes" type="month" required class={campo} />
+			<p data-ayuda-mes hidden class={ayuda}>El mes no se cambia; para otro mes, agrega uno nuevo.</p>
+		</div>
+
+		<fieldset>
+			<legend class="font-bold">Cifras</legend>
+			<p class={ayuda}>Deja vacío lo que no sepas: un dato vacío no cuenta como cero.</p>
+			<div class="mt-2 grid gap-4 sm:grid-cols-2">
+				{
+					cifras.map(({ nombre, texto }) => (
+						<div>
+							<label for={`cifras-${nombre}`} class={etiqueta}>
+								{texto}
+							</label>
+							<input
+								id={`cifras-${nombre}`}
+								name={nombre}
+								type="number"
+								min="0"
+								step="1"
+								inputmode="numeric"
+								class={campo}
+							/>
+						</div>
+					))
+				}
+			</div>
+		</fieldset>
+
+		<div>
+			<label for="cifras-notas" class={etiqueta}>
+				Notas <span class="font-normal text-texto-secundario">(opcional)</span>
+			</label>
+			<textarea id="cifras-notas" name="notas" rows="3" maxlength="1000" class={campo}></textarea>
+		</div>
+
+		<fieldset>
+			<legend class="font-bold">Gastos</legend>
+			<ul data-gastos class="mt-2 space-y-3"></ul>
+			<button type="button" data-agregar-gasto class:list={[boton, 'mt-3']}>Agregar gasto</button>
+		</fieldset>
+
+		<template data-plantilla-gasto>
+			<li class="flex flex-wrap items-end gap-3">
+				<div class="min-w-40 flex-1">
+					<label data-etiqueta="concepto" class={etiqueta}>Concepto</label>
+					<input data-campo="concepto" required maxlength="120" class={campo} />
+				</div>
+				<div class="w-36">
+					<label data-etiqueta="monto" class={etiqueta}>Monto ($)</label>
+					<input data-campo="monto" type="number" min="0" step="0.01" inputmode="decimal" required class={campo} />
+				</div>
+				<button type="button" data-quitar-gasto class={boton}>Quitar</button>
+			</li>
+		</template>
+	</FormularioPanel>
+</LayoutPanel>
+
+<script>
+	import { iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import { prepararPanel } from '../../../lib/panel';
+	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
+
+	const cifras = ['animales_recibidos', 'rescates', 'adopciones', 'esterilizaciones'] as const;
+
+	type Gasto = { concepto: string; monto: number };
+	type Registro = Record<(typeof cifras)[number], number | null> & {
+		mes: string;
+		notas: string | null;
+		gastos_registro: (Gasto & { orden: number })[];
+	};
+
+	const lista = document.querySelector<HTMLUListElement>('[data-gastos]')!;
+	const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla-gasto]')!;
+	let siguiente = 0;
+
+	function agregarGasto(gasto?: Gasto) {
+		const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+		siguiente += 1;
+		for (const nombre of ['concepto', 'monto'] as const) {
+			const entrada = fila.querySelector<HTMLInputElement>(`[data-campo="${nombre}"]`)!;
+			entrada.id = `gasto-${siguiente}-${nombre}`;
+			fila.querySelector<HTMLLabelElement>(`[data-etiqueta="${nombre}"]`)!.htmlFor = entrada.id;
+			if (gasto) entrada.value = String(gasto[nombre]);
+		}
+		fila.querySelector('[data-quitar-gasto]')!.addEventListener('click', () => {
+			fila.remove();
+			cambios?.marcar();
+		});
+		lista.append(fila);
+		return fila;
+	}
+
+	let cambios: { marcar: () => void } | undefined;
+
+	if (await prepararPanel()) {
+		const supabase = supabaseNavegador();
+		const listo = await iniciarFormulario<Registro>({
+			lista: '/admin/cifras',
+			titulos: { nuevo: 'Nuevo mes', editar: 'Editar mes' },
+			cargar: (id) =>
+				supabase
+					.from('registros_cifras')
+					.select(`mes, notas, ${cifras.join(', ')}, gastos_registro(concepto, monto, orden)`)
+					.eq('id', id)
+					.maybeSingle<Registro>(),
+			llenar: (registro, formulario) => {
+				const mes = formulario.elements.namedItem('mes') as HTMLInputElement;
+				mes.value = registro.mes;
+				mes.disabled = true;
+				document.querySelector<HTMLElement>('[data-ayuda-mes]')!.hidden = false;
+				for (const cifra of cifras) {
+					(formulario.elements.namedItem(cifra) as HTMLInputElement).value = registro[cifra]?.toString() ?? '';
+				}
+				(formulario.elements.namedItem('notas') as HTMLTextAreaElement).value = registro.notas ?? '';
+				for (const gasto of registro.gastos_registro.toSorted((a, b) => a.orden - b.orden)) agregarGasto(gasto);
+			},
+			guardar: async (formulario, id) => {
+				const datos = new FormData(formulario);
+				const gastos = [...lista.children].map((fila) => ({
+					concepto: fila.querySelector<HTMLInputElement>('[data-campo="concepto"]')!.value.trim(),
+					monto: fila.querySelector<HTMLInputElement>('[data-campo="monto"]')!.value,
+				}));
+				const { error } = await supabase.rpc('guardar_registro_cifras', {
+					datos: {
+						id,
+						mes: id ? undefined : texto(datos, 'mes'),
+						...Object.fromEntries(cifras.map((cifra) => [cifra, texto(datos, cifra)])),
+						notas: texto(datos, 'notas'),
+						gastos,
+					},
+				});
+				if (error) throw error;
+				return 'Guardado.';
+			},
+		});
+		cambios = listo?.cambios;
+		document.querySelector('[data-agregar-gasto]')!.addEventListener('click', () => {
+			agregarGasto().querySelector('input')!.focus();
+			cambios?.marcar();
+		});
+	}
+</script>
