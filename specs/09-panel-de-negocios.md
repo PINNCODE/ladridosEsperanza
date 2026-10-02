@@ -1,6 +1,6 @@
 # SPEC 09 — Panel de negocios
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 04, SPEC 05, SPEC 07, SPEC 08
 > **Fecha:** 2026-10-02
 > **Objetivo:** Que la cuenta `administrador` cree, edite y borre desde `/admin` los negocios de "Come por los Peludos" (ficha, logo, horarios, promoción y estado) y sus categorías, con un solo despliegue por guardado.
@@ -219,69 +219,91 @@ Si `menuDisponible(negocio)` no tiene grupos, `MenuNegocio` conserva el título 
 
 ### Seguridad
 
-- [ ] Con la llave publicable, con `aal1` y con la sesión `aal2` de la cuenta `refugio`, `select` a `categorias`, `promociones`, `horarios` y `turnos` por PostgREST devuelve 0 filas.
-- [ ] Con esas mismas sesiones, `guardar_negocio`, `borrar_negocio`, `guardar_categoria`, `borrar_categoria` y `mover_categoria` fallan y no cambian nada.
-- [ ] La cuenta `refugio` no ve los enlaces Negocios ni Categorías, y abrir `/admin/negocios` la regresa a `/admin`.
-- [ ] La cuenta `refugio` no puede subir `negocios/x.png` al bucket; la cuenta `administrador` sí.
-- [ ] `guardar_peludo` con una foto en `negocios/x.png` falla con `datos_invalidos`.
-- [ ] `borrar_contenido('negocios', 'tacos-don-chuy')` sigue fallando con `sin_permiso`, también para el administrador.
+- [x] Con la llave publicable, con `aal1` y con la sesión `aal2` de la cuenta `refugio`, `select` a `categorias`, `promociones`, `horarios` y `turnos` por PostgREST devuelve 0 filas.
+- [x] Con esas mismas sesiones, `guardar_negocio`, `borrar_negocio`, `guardar_categoria`, `borrar_categoria` y `mover_categoria` fallan y no cambian nada.
+- [x] La cuenta `refugio` no ve los enlaces Negocios ni Categorías, y abrir `/admin/negocios` la regresa a `/admin`.
+- [x] La cuenta `refugio` no puede subir `negocios/x.png` al bucket; la cuenta `administrador` sí.
+- [x] `guardar_peludo` con una foto en `negocios/x.png` falla con `datos_invalidos`.
+- [x] `borrar_contenido('negocios', 'tacos-don-chuy')` sigue fallando con `sin_permiso`, también para el administrador.
 
 ### Negocios
 
-- [ ] "Agregar" con nombre "Tacos Don Chuy" crea el id `tacos-don-chuy-2`, en `borrador`, con `es_ejemplo = false` y `fecha_alta` de hoy.
-- [ ] Cambiar el nombre de un negocio existente no cambia su id ni su URL.
-- [ ] Un negocio en `borrador` o `pausado` no aparece en `/colabora` tras recompilar; al pasarlo a `publicado`, sí.
-- [ ] Pegar "18.9608, -99.5906" en ubicación guarda `latitud = 18.9608` y `longitud = -99.5906`; dejarlo vacío guarda las dos en `null`; "hola" marca el campo y no guarda.
-- [ ] "55 0000-0001" en WhatsApp se guarda como `525500000001`, y al editar se muestra `5500000001`.
-- [ ] Editar Tacos Don Chuy (guardado como `5215500000001`) muestra `5500000001` en el campo.
-- [ ] Un logo PNG de 2000 × 1500 px con fondo transparente queda en el bucket como PNG de 512 × 384 px, con transparencia.
-- [ ] Reemplazar o quitar el logo y guardar borra el archivo anterior del bucket y su fila de `imagenes`.
-- [ ] Borrar un negocio pide confirmación; al aceptar desaparecen sus filas de `negocios`, `promociones`, `horarios`, `turnos` y del menú, y su logo del bucket.
-- [ ] Guardar un negocio con logo, horarios y promoción encola exactamente 1 llamada en `net.http_request_queue` (local, con el receptor de prueba de la SPEC 08).
+- [x] "Agregar" con nombre "Tacos Don Chuy" crea el id `tacos-don-chuy-2`, en `borrador`, con `es_ejemplo = false` y `fecha_alta` de hoy.
+- [x] Cambiar el nombre de un negocio existente no cambia su id ni su URL.
+- [x] Un negocio en `borrador` o `pausado` no aparece en `/colabora` tras recompilar; al pasarlo a `publicado`, sí.
+- [x] Pegar "18.9608, -99.5906" en ubicación guarda `latitud = 18.9608` y `longitud = -99.5906`; dejarlo vacío guarda las dos en `null`; "hola" marca el campo y no guarda.
+- [x] "55 0000-0001" en WhatsApp se guarda como `525500000001`, y al editar se muestra `5500000001`.
+- [x] Editar Tacos Don Chuy (guardado como `5215500000001`) muestra `5500000001` en el campo.
+- [x] Un logo PNG de 2000 × 1500 px con fondo transparente queda en el bucket como PNG de 512 × 384 px, con transparencia.
+- [x] Reemplazar o quitar el logo y guardar borra el archivo anterior del bucket y su fila de `imagenes`.
+- [x] Borrar un negocio pide confirmación; al aceptar desaparecen sus filas de `negocios`, `promociones`, `horarios`, `turnos` y del menú, y su logo del bucket.
+- [x] Guardar un negocio con logo, horarios y promoción encola exactamente 1 llamada en `net.http_request_queue` (local, con el receptor de prueba de la SPEC 08).
 
 ### Horarios
 
-- [ ] Un día en "Por confirmar" no deja fila en `horarios` y la página del negocio lo muestra como por confirmar.
-- [ ] Un día "Cerrado" deja una fila con `cerrado = true` y sin turnos.
-- [ ] Un turno de 13:00 a 00:30 se guarda y la página muestra "abierto ahora" a las 00:15 de ese día (RF-07).
-- [ ] Un turno con la misma hora de apertura y cierre no deja guardar.
-- [ ] Con 2 turnos en un día, "Agregar turno" está desactivado.
-- [ ] "Copiar el lunes a todos los días" copia estado y turnos del lunes a los otros 6 días.
+- [x] Un día en "Por confirmar" no deja fila en `horarios` y la página del negocio lo muestra como por confirmar.
+- [x] Un día "Cerrado" deja una fila con `cerrado = true` y sin turnos.
+- [x] Un turno de 13:00 a 00:30 se guarda y la página muestra "abierto ahora" a las 00:15 de ese día (RF-07).
+- [x] Un turno con la misma hora de apertura y cierre no deja guardar.
+- [x] Con 2 turnos en un día, "Agregar turno" está desactivado.
+- [x] "Copiar el lunes a todos los días" copia estado y turnos del lunes a los otros 6 días.
 
 ### Promoción
 
-- [ ] Marcar "Tiene promoción" sin texto no deja guardar.
-- [ ] Una promoción con "hasta" de ayer aparece como "Vencida" en `/admin/negocios` y no se muestra en la tarjeta ni en la página tras recompilar.
-- [ ] Una promoción con "desde" de mañana aparece como "Programada".
-- [ ] Desmarcar "Tiene promoción" y guardar borra la fila de `promociones`.
+- [x] Marcar "Tiene promoción" sin texto no deja guardar.
+- [x] Una promoción con "hasta" de ayer aparece como "Vencida" en `/admin/negocios` y no se muestra en la tarjeta ni en la página tras recompilar.
+- [x] Una promoción con "desde" de mañana aparece como "Programada".
+- [x] Desmarcar "Tiene promoción" y guardar borra la fila de `promociones`.
 
 ### Categorías
 
-- [ ] Crear "Heladerías" crea el id `heladerias`, al final de la lista, y aparece en el `<select>` del formulario de negocio y en el de Súmate tras recompilar.
-- [ ] Renombrar una categoría cambia su nombre en el filtro de `/colabora` tras recompilar y conserva su id.
-- [ ] "Bajar" en la primera categoría la cambia de lugar con la segunda y se conserva al recargar.
-- [ ] Borrar `taquerias` muestra "Esta categoría tiene negocios…" y no borra nada; borrar una sin negocios funciona.
+- [x] Crear "Heladerías" crea el id `heladerias`, al final de la lista, y aparece en el `<select>` del formulario de negocio y en el de Súmate tras recompilar.
+- [x] Renombrar una categoría cambia su nombre en el filtro de `/colabora` tras recompilar y conserva su id.
+- [x] "Bajar" en la primera categoría la cambia de lugar con la segunda y se conserva al recargar.
+- [x] Borrar `taquerias` muestra "Esta categoría tiene negocios…" y no borra nada; borrar una sin negocios funciona.
 
 ### Página pública
 
-- [ ] Un negocio publicado sin menú muestra "Estamos preparando el menú de este negocio." y no muestra el buscador del menú ni pestañas.
-- [ ] Con la semilla sin cambios, las páginas públicas generan el mismo HTML que antes.
+- [x] Un negocio publicado sin menú muestra "Estamos preparando el menú de este negocio." y no muestra el buscador del menú ni pestañas.
+- [x] Con la semilla sin cambios, las páginas públicas generan el mismo HTML que antes.
 
 ### Formularios y compilación
 
-- [ ] Cambiar un campo e intentar cerrar la pestaña muestra el aviso del navegador; después de guardar, no.
-- [ ] Con la red cortada, guardar muestra "No pudimos guardar…", conserva lo escrito y no deja logos nuevos en el bucket.
-- [ ] `/admin/negocios/editar?id=no-existe` muestra "No encontramos este registro."
-- [ ] Los registros de la semilla llevan la etiqueta "Ejemplo" y la conservan al editarlos.
-- [ ] Las páginas nuevas no tienen desplazamiento horizontal a 360 px y sus botones miden al menos 44 px.
-- [ ] Las páginas nuevas sin sesión redirigen a `/admin/entrar` sin mostrar datos.
-- [ ] `npx supabase db reset` aplica las 7 migraciones y la semilla sin errores.
-- [ ] `astro build` y `astro check` terminan sin errores.
+- [x] Cambiar un campo e intentar cerrar la pestaña muestra el aviso del navegador; después de guardar, no.
+- [x] Con la red cortada, guardar muestra "No pudimos guardar…", conserva lo escrito y no deja logos nuevos en el bucket.
+- [x] `/admin/negocios/editar?id=no-existe` muestra "No encontramos este registro."
+- [x] Los registros de la semilla llevan la etiqueta "Ejemplo" y la conservan al editarlos.
+- [x] Las páginas nuevas no tienen desplazamiento horizontal a 360 px y sus botones miden al menos 44 px.
+- [x] Las páginas nuevas sin sesión redirigen a `/admin/entrar` sin mostrar datos.
+- [x] `npx supabase db reset` aplica las 7 migraciones y la semilla sin errores.
+- [x] `astro build` y `astro check` terminan sin errores.
 
 ### Nube (después del paso 9)
 
 - [ ] La cuenta administradora cambia el horario de un negocio y el cambio se ve en `/colabora/{id}` de Vercel; se anota el tiempo medido contra RF-16.
 - [ ] Ese guardado inicia un solo despliegue en Vercel.
+
+### Observaciones de la validación
+
+Validado el 2026-10-02 en local, con Supabase en Docker (Colima), `astro dev`, `astro build` y `astro preview`; Chromium sin interfaz (Playwright) a 360 y 1024 px.
+Las sesiones `aal2` se abrieron con un script de Node que calcula los códigos TOTP a partir del secreto del alta.
+Las llamadas al deploy hook se contaron con un secreto `deploy_hook_vercel` que apuntaba a un receptor HTTP local (`http://host.docker.internal:8787`).
+
+- **Paso 9 (nube), pendiente.** `npx supabase db push --dry-run` muestra que solo falta `20261002065214_panel_negocios.sql`, sin semilla. El `db push` no se corrió desde la sesión de implementación: queda como paso manual, igual que la prueba con la cuenta administradora de la nube y la medición de RF-16. Los dos criterios de la nube siguen sin marcar.
+- **Orden del plan.** La migración se escribió completa (pasos 1, 2, 5 y 7) y se probó por PostgREST antes de las páginas; la interfaz siguió el orden del plan.
+- **Seguridad.** Con la llave publicable, con `aal1` (admin) y con la cuenta `refugio` en `aal2`, `categorias`, `promociones`, `horarios` y `turnos` devuelven `[]`, y las 5 RPC responden 401 (`anon`) o `sin_permiso` sin cambiar nada. La cuenta `refugio` no sube `negocios/x.png` (403); la administradora sí, y puede borrarlo. `guardar_peludo` con una ruta en `negocios/` responde `datos_invalidos` (`ruta`) y con `peludos/` sigue funcionando. `borrar_contenido('negocios', …)` responde `sin_permiso` también para el administrador.
+- **`guardar_imagen()`.** Ahora es `guardar_imagen(foto, carpetas text[] default array['peludos', 'campanas', 'bloques'])`. Las RPC de la SPEC 08 la llaman con un solo argumento y no cambiaron; `guardar_negocio` pasa `array['negocios']`.
+- **Errores de `guardar_negocio`.** Coordenadas sueltas o fuera de rango (`ubicacion`), WhatsApp que no es de 10 dígitos, aporte mayor a 100, turno con la misma hora, 3 turnos, un día que no existe, promoción que termina antes de empezar o sin texto, y un logo fuera de `negocios/` responden `datos_invalidos` con el campo en `details`. `mensajeError()` muestra un texto propio para `ubicacion`, `whatsapp`, `turnos` y `fecha_fin`; el formulario revisa los demás antes de enviar.
+- **Recompilación.** Guardar un negocio con logo, horarios y promoción hizo 1 llamada al hook; borrar el Café del Jardín (7 grupos de menú) también hizo 1, y no dejó filas de menú, horarios, turnos ni promoción.
+- **Logo.** Un PNG transparente de 2000 × 1500 quedó en el bucket como `negocios/{uuid}.png` de 512 × 384, `image/png`, con canal alfa y la esquina en `rgba(0, 0, 0, 0)`. Reemplazarlo borró el archivo anterior y su fila de `imagenes`; borrar el negocio borró el suyo. Las fotos de peludos siguen en JPEG.
+- **WhatsApp de la semilla.** Tacos Don Chuy (`5215500000001`) muestra `5500000001` en el campo; guardarlo lo reescribe como `525500000001`, el formato que pide la spec (sin el `1` antiguo de celulares).
+- **Horarios.** "Copiar el lunes" copió 13:00 a 00:30 a toda la semana; martes quedó cerrado (`cerrado = true`, sin turnos), el sábado con 2 turnos y el domingo en "Por confirmar" sin fila, que la página muestra como "Por confirmar". `estadoHorario()` da "Abierto ahora · Hasta las 0:30" a las 00:15 del martes para el turno del lunes de 13:00 a 00:30, y cerrado a las 00:45.
+- **Promoción.** Con "desde" de mañana la lista dice "Promoción programada"; la de La Cocina de Doña Mary (hasta el 30 de septiembre) dice "Promoción vencida". Una promoción vencida de un negocio nuevo no aparece en su página tras compilar. Desmarcar "Tiene promoción" borró la fila.
+- **Sin red.** Con el navegador sin conexión, guardar con un logo nuevo mostró "No pudimos guardar…", conservó lo escrito y no dejó archivos nuevos en `negocios/`.
+- **Tras compilar.** "Nieves La Esquina" (publicado, sin menú) mostró "Estamos preparando el menú de este negocio." sin buscador ni pestañas, sin desplazamiento horizontal a 360 px. Un negocio en `borrador` no generó página ni tarjeta. "Heladerías" apareció en el filtro de `/colabora` y en el `<select>` de Súmate; "Taquerías" renombrada como "Tacos y más" cambió en los dos y conservó su id.
+- **HTML público.** Comparado con una compilación de `main` con la misma semilla, las 13 páginas públicas son iguales salvo el nombre con hash del CSS y, en las 5 páginas de negocio, el del script de `MenuNegocio`.
+- **Piezas agregadas.** Además de los archivos de la spec, la lógica de `CampoHorarios` vive en `src/lib/horariosPanel.ts` (`campoHorarios()`, como `campoFotos()` en `src/lib/imagenesPanel.ts`); reutiliza los tipos `Dia` y `Horarios` de `src/lib/horarios.ts`.
+- **Después de `db reset`.** Igual que en la SPEC 07, `crear-cuentas-prueba.mjs` puede fallar con `PGRST002` mientras PostgREST recarga su caché; basta con correrlo otra vez.
 
 ## Decisiones
 
