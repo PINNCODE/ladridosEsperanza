@@ -20,7 +20,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 10 | [Editor de menús](10-editor-de-menus.md) | Implementado | Parte de RF-16 (menús: grupos, secciones, platillos y precios) |
 | 11 | [SEO, analítica y aviso de privacidad](11-seo-analitica-y-aviso-de-privacidad.md) | Implementado | RF-20, aviso de privacidad completo y rendimiento móvil |
 | 12 | [Portada con prioridades: qué es, dónde está y cómo ayudar](12-portada-con-prioridades.md) | Implementado | Reemplaza el orden de RF-30 (los peludos pasan al 3.er lugar); ubicación y "Cómo llegar" del refugio |
-| 13 | [Adopciones: galería con "me gusta" y ficha de cada peludo](13-adopciones-galeria-y-ficha.md) | Aprobado | Reemplaza la cuadrícula de RF-11; ficha `/adopta/{id}`, convivencia, hitos con padrino y "me gusta" público |
+| 13 | [Adopciones: galería con "me gusta" y ficha de cada peludo](13-adopciones-galeria-y-ficha.md) | Implementado | Reemplaza la cuadrícula de RF-11; ficha `/adopta/{id}`, convivencia, hitos con padrino y "me gusta" público |
 | 14 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs

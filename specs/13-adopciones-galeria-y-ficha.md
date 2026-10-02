@@ -1,6 +1,6 @@
 # SPEC 13 — Adopciones: galería con "me gusta" y ficha de cada peludo
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 03, SPEC 06, SPEC 08, SPEC 11, SPEC 12
 > **Fecha:** 2026-10-02
 > **Objetivo:** Cambiar las tarjetas de `/adopta` por una galería de fotos con filtro perros/gatos y un "me gusta" animado con contador público, y dar a cada peludo una ficha propia `/adopta/{id}` con sus fotos, su historia, su convivencia, una línea de tiempo con el padrino de su esterilización y un botón directo de WhatsApp para adoptarlo.
@@ -247,71 +247,71 @@ Talla: `pequeño`, `mediano` y `grande` se leen "Talla pequeña", "Talla mediana
 
 ### Datos y RPC
 
-- [ ] Después de `npx supabase db reset`, Luna tiene 2 fotos, historia, 3 hitos (uno de esterilización con padrino "Familia Ejemplo") y 3 "me gusta".
-- [ ] `guardar_peludo` con 9 fotos falla con `demasiadas_fotos`; con 8 guarda.
-- [ ] Guardar un bloque de contenido con 5 imágenes sigue fallando con `demasiadas_fotos`.
-- [ ] `guardar_peludo` con un hito `vacunas` con padrino, un `otro` sin texto, una fecha de mañana o 21 hitos falla con `datos_invalidos` y detalle `hitos`.
-- [ ] `guardar_peludo` sin la clave `hitos` conserva los hitos del peludo.
-- [ ] Un `insert` en `hitos_peludo` desde Studio encola una llamada al hook de despliegue; un `insert` en `me_gusta` no.
-- [ ] Con la llave publicable, `select` directo a `me_gusta` no devuelve filas y un `insert` directo falla.
-- [ ] `marcar_me_gusta('luna', <uuid>, true)` devuelve 4; repetirlo devuelve 4; con `false` devuelve 3.
-- [ ] `marcar_me_gusta` con un peludo adoptado falla con `no_encontrado`.
-- [ ] La 31.ª llamada con `activo = true` del mismo dispositivo en una hora falla con `limite_me_gusta`.
-- [ ] `conteos_me_gusta()` no incluye peludos con 0 ni peludos que no están disponibles.
+- [x] Después de `npx supabase db reset`, Luna tiene 2 fotos, historia, 3 hitos (uno de esterilización con padrino "Familia Ejemplo") y 3 "me gusta".
+- [x] `guardar_peludo` con 9 fotos falla con `demasiadas_fotos`; con 8 guarda.
+- [x] Guardar un bloque de contenido con 5 imágenes sigue fallando con `demasiadas_fotos`.
+- [x] `guardar_peludo` con un hito `vacunas` con padrino, un `otro` sin texto, una fecha de mañana o 21 hitos falla con `datos_invalidos` y detalle `hitos`.
+- [x] `guardar_peludo` sin la clave `hitos` conserva los hitos del peludo.
+- [x] Un `insert` en `hitos_peludo` desde Studio encola una llamada al hook de despliegue; un `insert` en `me_gusta` no.
+- [x] Con la llave publicable, `select` directo a `me_gusta` no devuelve filas y un `insert` directo falla.
+- [x] `marcar_me_gusta('luna', <uuid>, true)` devuelve 4; repetirlo devuelve 4; con `false` devuelve 3.
+- [x] `marcar_me_gusta` con un peludo adoptado falla con `no_encontrado`.
+- [x] La 31.ª llamada con `activo = true` del mismo dispositivo en una hora falla con `limite_me_gusta`.
+- [x] `conteos_me_gusta()` no incluye peludos con 0 ni peludos que no están disponibles.
 
 ### Galería y tarjeta
 
-- [ ] `/adopta` muestra una tarjeta por peludo disponible con foto 4:5, nombre, edad y corazón; ya no tiene botón de WhatsApp en la tarjeta.
-- [ ] La tarjeta de un peludo con 2 o más fotos muestra cuántas tiene.
-- [ ] Tocar la foto o el nombre lleva a `/adopta/{id}`; tocar el corazón no navega.
-- [ ] El chip "Gatos" deja solo gatos y cambia la URL a `?ver=gatos`; abrir `/adopta?ver=gatos` llega filtrado.
-- [ ] "Mis favoritos" muestra solo los peludos con corazón y su número coincide.
-- [ ] Sin favoritos, "Mis favoritos" muestra el texto que invita a tocar el corazón.
-- [ ] Con JS desactivado, `/adopta` muestra todos los peludos sin chips.
-- [ ] La rejilla tiene 2 columnas a 360 px, 3 a 768 px y 4 a 1024 px, sin desplazamiento horizontal.
-- [ ] La portada usa la misma tarjeta y su corazón comparte estado con `/adopta`.
+- [x] `/adopta` muestra una tarjeta por peludo disponible con foto 4:5, nombre, edad y corazón; ya no tiene botón de WhatsApp en la tarjeta.
+- [x] La tarjeta de un peludo con 2 o más fotos muestra cuántas tiene.
+- [x] Tocar la foto o el nombre lleva a `/adopta/{id}`; tocar el corazón no navega.
+- [x] El chip "Gatos" deja solo gatos y cambia la URL a `?ver=gatos`; abrir `/adopta?ver=gatos` llega filtrado.
+- [x] "Mis favoritos" muestra solo los peludos con corazón y su número coincide.
+- [x] Sin favoritos, "Mis favoritos" muestra el texto que invita a tocar el corazón.
+- [x] Con JS desactivado, `/adopta` muestra todos los peludos sin chips.
+- [x] La rejilla tiene 2 columnas a 360 px, 3 a 768 px y 4 a 1024 px, sin desplazamiento horizontal.
+- [x] La portada usa la misma tarjeta y su corazón comparte estado con `/adopta`.
 
 ### "Me gusta"
 
-- [ ] Tocar el corazón de Luna lo llena, muestra 4, guarda `luna` en `favoritos:v1` y crea una fila en `me_gusta`.
-- [ ] Volver a tocarlo lo vacía, muestra 3 y borra la fila.
-- [ ] Al recargar la página, el corazón sigue lleno y el número viene de `conteos_me_gusta`.
-- [ ] Con la red bloqueada hacia Supabase, el corazón alterna, no hay número y la consola no tiene errores sin capturar.
-- [ ] Un peludo sin "me gusta" no muestra "0".
-- [ ] Al dar un "me gusta" corre el latido con chispas; con "reducir movimiento" solo cambia el relleno.
-- [ ] Una página con 6 tarjetas hace una sola petición a `conteos_me_gusta`.
-- [ ] Las páginas públicas no descargan `@supabase/supabase-js`.
+- [x] Tocar el corazón de Luna lo llena, muestra 4, guarda `luna` en `favoritos:v1` y crea una fila en `me_gusta`.
+- [x] Volver a tocarlo lo vacía, muestra 3 y borra la fila.
+- [x] Al recargar la página, el corazón sigue lleno y el número viene de `conteos_me_gusta`.
+- [x] Con la red bloqueada hacia Supabase, el corazón alterna, no hay número y la consola no tiene errores sin capturar.
+- [x] Un peludo sin "me gusta" no muestra "0".
+- [x] Al dar un "me gusta" corre el latido con chispas; con "reducir movimiento" solo cambia el relleno.
+- [x] Una página con 6 tarjetas hace una sola petición a `conteos_me_gusta`.
+- [x] Las páginas públicas no descargan `@supabase/supabase-js`.
 
 ### Ficha
 
-- [ ] `/adopta/luna` existe y `/adopta/{id}` de un peludo adoptado da 404.
-- [ ] El carrusel muestra "1 / 2", se desliza con el dedo y con las flechas desde 640 px.
-- [ ] Doble toque sobre una foto llena el corazón y muestra el corazón grande; un segundo doble toque no lo quita.
-- [ ] La ficha muestra especie, edad, "Talla mediana", los rasgos y las tres insignias de convivencia con los textos de la tabla.
-- [ ] "Su historia" no aparece si el peludo no tiene `descripcion`.
-- [ ] "Su camino en el refugio" lista los hitos por fecha, y el de esterilización dice "Gracias a Familia Ejemplo, que apadrinó su esterilización."
-- [ ] Un hito de esterilización sin padrino dice "La cubrió el refugio."
-- [ ] "Quiero adoptar a Luna" abre WhatsApp con `Hola, quiero adoptar a Luna. La vi en la página de {refugio}.`
-- [ ] "¿Cómo es adoptar?" lleva a `/adopta#proceso`, y no aparece si el bloque `proceso_adopcion` está despublicado.
-- [ ] "Compartir" abre el menú de compartir en teléfono; en un navegador sin `navigator.share`, copia la URL y dice "Enlace copiado".
-- [ ] El HTML de `/adopta/luna` tiene `og:image` con la primera foto de Luna y el título "Luna busca familia · {refugio}".
-- [ ] `/adopta/luna` aparece en `sitemap-index.xml`.
-- [ ] La ficha no tiene niveles de título saltados.
+- [x] `/adopta/luna` existe y `/adopta/{id}` de un peludo adoptado da 404.
+- [x] El carrusel muestra "1 / 2", se desliza con el dedo y con las flechas desde 640 px.
+- [x] Doble toque sobre una foto llena el corazón y muestra el corazón grande; un segundo doble toque no lo quita.
+- [x] La ficha muestra especie, edad, "Talla mediana", los rasgos y las tres insignias de convivencia con los textos de la tabla.
+- [x] "Su historia" no aparece si el peludo no tiene `descripcion`.
+- [x] "Su camino en el refugio" lista los hitos por fecha, y el de esterilización dice "Gracias a Familia Ejemplo, que apadrinó su esterilización."
+- [x] Un hito de esterilización sin padrino dice "La cubrió el refugio."
+- [x] "Quiero adoptar a Luna" abre WhatsApp con `Hola, quiero adoptar a Luna. La vi en la página de {refugio}.`
+- [x] "¿Cómo es adoptar?" lleva a `/adopta#proceso`, y no aparece si el bloque `proceso_adopcion` está despublicado.
+- [x] "Compartir" abre el menú de compartir en teléfono; en un navegador sin `navigator.share`, copia la URL y dice "Enlace copiado".
+- [x] El HTML de `/adopta/luna` tiene `og:image` con la primera foto de Luna y el título "Luna busca familia · {refugio}".
+- [x] `/adopta/luna` aparece en `sitemap-index.xml`.
+- [x] La ficha no tiene niveles de título saltados.
 
 ### Panel
 
-- [ ] `/admin/peludos/editar` permite 8 fotos y no deja agregar una 9.ª.
-- [ ] El campo "Padrino" solo aparece con tipo "Esterilización" y muestra la nota de permiso.
-- [ ] Guardar un peludo con convivencia e hitos y volver a abrirlo muestra los mismos valores, con los hitos ordenados por fecha.
-- [ ] La lista `/admin/peludos` muestra "♥ 3" junto a Luna.
+- [x] `/admin/peludos/editar` permite 8 fotos y no deja agregar una 9.ª.
+- [x] El campo "Padrino" solo aparece con tipo "Esterilización" y muestra la nota de permiso.
+- [x] Guardar un peludo con convivencia e hitos y volver a abrirlo muestra los mismos valores, con los hitos ordenados por fecha.
+- [x] La lista `/admin/peludos` muestra "♥ 3" junto a Luna.
 
 ### Analítica, aviso y calidad
 
-- [ ] Dar un "me gusta" llama a `registrar('me_gusta', { peludo, origen })`; quitarlo no.
-- [ ] El enlace de la tarjeta tiene `data-umami-event="abrir_peludo"` con `peludo` y `origen`.
-- [ ] "Quiero adoptar a {nombre}" tiene `data-umami-event="whatsapp"`, `motivo` `adopcion` y `peludo`.
-- [ ] El aviso de privacidad explica el id al azar del "me gusta", qué se guarda y cómo quitarlo, y menciona los "me gusta" y los peludos compartidos entre lo que mide la analítica.
-- [ ] `npx astro check` no reporta errores.
+- [x] Dar un "me gusta" llama a `registrar('me_gusta', { peludo, origen })`; quitarlo no.
+- [x] El enlace de la tarjeta tiene `data-umami-event="abrir_peludo"` con `peludo` y `origen`.
+- [x] "Quiero adoptar a {nombre}" tiene `data-umami-event="whatsapp"`, `motivo` `adopcion` y `peludo`.
+- [x] El aviso de privacidad explica el id al azar del "me gusta", qué se guarda y cómo quitarlo, y menciona los "me gusta" y los peludos compartidos entre lo que mide la analítica.
+- [x] `npx astro check` no reporta errores.
 
 ## Decisiones
 
