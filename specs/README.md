@@ -13,10 +13,10 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 03 | [Páginas del refugio: adopta, esterilización y donar](03-paginas-adopta-esterilizacion-donar.md) | Implementado | RF-11, RF-12, RF-24, RF-25, RF-26; retira Transparencia (RF-19 sale del MVP) |
 | 04 | [Catálogo `/colabora` con búsqueda, filtros y barra fija](04-catalogo-colabora.md) | Implementado | RF-01, RF-02, RF-03, RF-13 |
 | 05 | [Página de negocio `/colabora/[slug]`](05-pagina-de-negocio.md) | Implementado | RF-04 a RF-10; el QR (RF-17) pasa a la 07 |
-| 06 | [Datos en Supabase y publicación en Vercel](06-datos-en-supabase.md) | Aprobado (falta revisar las variables de Vercel) | Base para 07 y 08; parte de RF-16 (cambio visible en menos de 1 minuto) |
+| 06 | [Datos en Supabase y publicación en Vercel](06-datos-en-supabase.md) | Implementado | Base para 07 y 08; parte de RF-16 (cambio visible en menos de 1 minuto) |
 | 07 | [Formulario Súmate y base del panel `/admin`](07-sumate-y-base-del-panel.md) | Implementado | RF-15, RF-17 (QR por negocio) y la base de RF-16 (sesión con TOTP, roles y RLS) |
 | 08 | [Panel del refugio](08-panel-del-refugio.md) | Implementado | Parte de RF-16 (peludos y campañas), RF-22, RF-26 (editable) y RF-29; necesidades, textos e imágenes |
-| 09 | [Panel de negocios](09-panel-de-negocios.md) | Implementado (falta medir RF-16 en la nube) | Parte de RF-16 (negocios, horarios, promociones y categorías) |
+| 09 | [Panel de negocios](09-panel-de-negocios.md) | Implementado | Parte de RF-16 (negocios, horarios, promociones y categorías) |
 | 10 | [Editor de menús](10-editor-de-menus.md) | Implementado | Parte de RF-16 (menús: grupos, secciones, platillos y precios) |
 | 11 | [SEO, analítica y aviso de privacidad](11-seo-analitica-y-aviso-de-privacidad.md) | Implementado | RF-20, aviso de privacidad completo y rendimiento móvil |
 | 12 | Anuncios | Por escribir | RF-18 |
@@ -34,8 +34,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 ## Pendiente de decidir antes de escribir cada spec
 
-- **06:** revisar que ninguna variable de Vercel con la llave secreta lleve prefijo `PUBLIC_` (último criterio sin marcar).
-- **09:** la migración `panel_negocios` ya está en la nube; falta cambiar el horario de un negocio con la cuenta administradora y medir el tiempo contra RF-16 (criterios de la nube sin marcar).
+- **12:** anuncios (RF-18), por escribir.
 
 ## Antes de publicar
 
