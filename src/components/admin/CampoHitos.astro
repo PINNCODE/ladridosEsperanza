@@ -1,0 +1,57 @@
+---
+// Hitos de "Su camino en el refugio" (SPEC 13): hasta 20 filas con fecha, tipo, texto y, solo en la
+// esterilización, el padrino. Se ordenan por fecha al guardar. campoHitos() de src/lib/hitosPanel.ts
+// lo conecta y lee los valores.
+import { maximoHitos, tiposHito } from '../../lib/hitosPanel';
+import Icono from '../Icono.astro';
+import { ayuda, boton, campo, etiqueta } from './estilos';
+---
+
+<fieldset data-campo-hitos aria-describedby="hitos-ayuda">
+	<legend class="font-bold">Su camino en el refugio</legend>
+	<p id="hitos-ayuda" class={ayuda}>
+		Llegada, esterilización, vacunas y otros momentos, hasta {maximoHitos}. Se muestran en orden de fecha.
+	</p>
+	<ol data-lista class="mt-3 space-y-3"></ol>
+	<button type="button" data-agregar class:list={[boton, 'mt-3']}>
+		<Icono nombre="plus" size={20} />
+		Agregar hito
+	</button>
+	<template data-plantilla>
+		<li data-hito class="rounded-2xl border border-lineas bg-superficie p-4">
+			<div class="grid gap-4 sm:grid-cols-2">
+				<label>
+					<span class={etiqueta}>Fecha</span>
+					<input type="date" data-fecha required class={campo} />
+				</label>
+				<label>
+					<span class={etiqueta}>Tipo</span>
+					<select data-tipo required class={campo}>
+						{tiposHito.map(({ valor, texto }) => <option value={valor}>{texto}</option>)}
+					</select>
+				</label>
+				<label class="sm:col-span-2">
+					<span class={etiqueta}>
+						Texto <span data-opcional class="font-normal text-texto-secundario">(opcional)</span>
+					</span>
+					<input data-texto maxlength="140" class={campo} />
+				</label>
+				<div data-bloque-padrino class="sm:col-span-2">
+					<label>
+						<span class={etiqueta}>
+							Padrino <span class="font-normal text-texto-secundario">(opcional)</span>
+						</span>
+						<input data-padrino maxlength="60" class={campo} />
+					</label>
+					<p class={ayuda}>
+						Pide permiso antes de publicar su nombre. Puedes usar nombre de pila, una familia o «Anónimo».
+					</p>
+				</div>
+			</div>
+			<button type="button" data-quitar class:list={[boton, 'mt-3']}>
+				<Icono nombre="trash-2" size={20} />
+				Quitar
+			</button>
+		</li>
+	</template>
+</fieldset>

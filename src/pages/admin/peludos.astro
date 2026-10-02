@@ -1,6 +1,7 @@
 ---
 // /admin/peludos (SPEC 08, RF-11 y RF-30): peludos en el orden del carrusel, con "Subir" y "Bajar".
 // El sitio solo muestra los disponibles; en proceso y adoptados siguen aquí.
+// Junto a cada disponible, sus "me gusta" (SPEC 13) de la RPC conteos_me_gusta.
 import CabeceraLista from '../../components/admin/CabeceraLista.astro';
 import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
 import Icono from '../../components/Icono.astro';
@@ -64,12 +65,19 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 		const supabase = supabaseNavegador();
 		mostrarAviso(document.querySelector<HTMLElement>('[data-aviso]')!);
 
-		const { data, error } = await supabase
-			.from('peludos')
-			.select('id, nombre, especie, estado, es_ejemplo, fotos_peludo(orden, imagen:imagenes(ruta))')
-			.order('orden')
-			.order('id')
-			.overrideTypes<Peludo[], { merge: false }>();
+		const [{ data, error }, { data: conteos }] = await Promise.all([
+			supabase
+				.from('peludos')
+				.select('id, nombre, especie, estado, es_ejemplo, fotos_peludo(orden, imagen:imagenes(ruta))')
+				.order('orden')
+				.order('id')
+				.overrideTypes<Peludo[], { merge: false }>(),
+			// Sin conteos la lista se muestra igual, solo sin el número.
+			supabase.rpc('conteos_me_gusta'),
+		]);
+		const meGusta = new Map<string, number>(
+			((conteos ?? []) as { peludo_id: string; total: number }[]).map(({ peludo_id, total }) => [peludo_id, total]),
+		);
 		if (error) {
 			document.querySelector<HTMLElement>('[data-error-lista]')!.hidden = false;
 			return;
@@ -93,8 +101,10 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 					fila.querySelector<HTMLElement>(`[data-icono="${peludo.especie}"]`)!.hidden = false;
 				}
 				fila.querySelector('[data-nombre]')!.textContent = peludo.nombre;
+				const total = meGusta.get(peludo.id);
 				fila.querySelector('[data-detalle]')!.textContent =
-					`${peludo.especie === 'gato' ? 'Gato' : 'Perro'} · ${estados[peludo.estado] ?? peludo.estado}`;
+					`${peludo.especie === 'gato' ? 'Gato' : 'Perro'} · ${estados[peludo.estado] ?? peludo.estado}` +
+					(total ? ` · ♥ ${total}` : '');
 				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !peludo.es_ejemplo;
 				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
 					`/admin/peludos/editar?id=${encodeURIComponent(peludo.id)}`;

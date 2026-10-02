@@ -19,6 +19,7 @@ const camposInvalidos: Record<string, string> = {
 	nombre: 'Revisa los nombres: cada grupo, sección y platillo necesita uno.',
 	precios: 'Revisa los precios: cada platillo lleva de 1 a 4, con monto o texto alterno.',
 	monto: 'Revisa los precios: el monto no puede ser negativo y lleva a lo más 2 decimales.',
+	hitos: 'Revisa los hitos: cada uno necesita una fecha de hoy o antes, y los de tipo "Otro", un texto.',
 };
 
 /** Texto para un error de Supabase o del navegador: el de su código, o "No pudimos guardar…". */

@@ -1,10 +1,18 @@
 ---
-// /admin/peludos/editar (SPEC 08, RF-11 y RF-30): crea (sin ?id=) o edita un peludo con hasta 4 fotos.
-// Guarda con la RPC guardar_peludo; un peludo nuevo va al final del carrusel.
+// /admin/peludos/editar (SPEC 08, RF-11 y RF-30): crea (sin ?id=) o edita un peludo con hasta 8 fotos,
+// su convivencia y los hitos de su ficha (SPEC 13). Guarda con la RPC guardar_peludo; un peludo nuevo
+// va al final del carrusel.
 import CampoFotos from '../../../components/admin/CampoFotos.astro';
+import CampoHitos from '../../../components/admin/CampoHitos.astro';
 import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
 import { ayuda, campo, etiqueta } from '../../../components/admin/estilos';
 import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+
+const convivencias = [
+	{ nombre: 'convive_perros', texto: 'Convive con perros' },
+	{ nombre: 'convive_gatos', texto: 'Convive con gatos' },
+	{ nombre: 'convive_ninos', texto: 'Convive con niños' },
+];
 ---
 
 <LayoutPanel titulo="Peludo">
@@ -66,27 +74,67 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 			<label for="peludo-descripcion" class={etiqueta}>
 				Descripción <span class="font-normal text-texto-secundario">(opcional)</span>
 			</label>
-			<textarea id="peludo-descripcion" name="descripcion" rows="4" maxlength="1000" class={campo}></textarea>
+			<textarea
+				id="peludo-descripcion"
+				name="descripcion"
+				rows="4"
+				maxlength="1000"
+				aria-describedby="peludo-descripcion-ayuda"
+				class={campo}></textarea>
+			<p id="peludo-descripcion-ayuda" class={ayuda}>
+				Su historia, en la ficha del peludo. Deja una línea en blanco entre párrafos.
+			</p>
 		</div>
-		<CampoFotos id="peludo-fotos" etiqueta="Fotos" carpeta="peludos" ladoMaximo={1600} />
+		<div class="grid gap-5 sm:grid-cols-3">
+			{
+				convivencias.map(({ nombre, texto }) => (
+					<div>
+						<label for={`peludo-${nombre}`} class={etiqueta}>
+							{texto}
+						</label>
+						<select id={`peludo-${nombre}`} name={nombre} required class={campo}>
+							<option value="no_sabemos">No sabemos</option>
+							<option value="si">Sí</option>
+							<option value="no">No</option>
+						</select>
+					</div>
+				))
+			}
+		</div>
+		<CampoFotos id="peludo-fotos" etiqueta="Fotos" carpeta="peludos" ladoMaximo={1600} maximo={8} />
+		<CampoHitos />
 	</FormularioPanel>
 </LayoutPanel>
 
 <script>
 	import { avisoSitio, iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import { campoHitos, type Hito } from '../../../lib/hitosPanel';
 	import { campoFotos, guardarConFotos, type FotoGuardada } from '../../../lib/imagenesPanel';
 	import { prepararPanel } from '../../../lib/panel';
 	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
 
-	const campos = ['nombre', 'estado', 'especie', 'descripcion_especie', 'edad', 'tamano', 'descripcion'] as const;
+	const campos = [
+		'nombre',
+		'estado',
+		'especie',
+		'descripcion_especie',
+		'edad',
+		'tamano',
+		'descripcion',
+		'convive_perros',
+		'convive_gatos',
+		'convive_ninos',
+	] as const;
 
 	type Peludo = Record<(typeof campos)[number], string | null> & {
 		rasgos: string[];
 		fotos_peludo: { orden: number; imagen: FotoGuardada }[];
+		hitos_peludo: (Hito & { orden: number })[];
 	};
 
 	let marcar = () => {};
 	const fotos = campoFotos(document.querySelector('[data-campo-fotos]')!, () => marcar());
+	const hitos = campoHitos(document.querySelector('[data-campo-hitos]')!, () => marcar());
 
 	if (await prepararPanel()) {
 		const supabase = supabaseNavegador();
@@ -96,7 +144,10 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 			cargar: (id) =>
 				supabase
 					.from('peludos')
-					.select(`${campos.join(', ')}, rasgos, fotos_peludo(orden, imagen:imagenes(id, ruta))`)
+					.select(
+						`${campos.join(', ')}, rasgos, fotos_peludo(orden, imagen:imagenes(id, ruta)), ` +
+							'hitos_peludo(orden, fecha, tipo, texto, padrino)',
+					)
 					.eq('id', id)
 					.maybeSingle<Peludo>(),
 			llenar: (peludo, formulario) => {
@@ -105,6 +156,7 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 				campo('rasgo_1').value = peludo.rasgos[0] ?? '';
 				campo('rasgo_2').value = peludo.rasgos[1] ?? '';
 				fotos.cargar(peludo.fotos_peludo.toSorted((a, b) => a.orden - b.orden).map(({ imagen }) => imagen));
+				hitos.cargar(peludo.hitos_peludo.toSorted((a, b) => a.orden - b.orden));
 			},
 			guardar: async (formulario, id) => {
 				const datos = new FormData(formulario);
@@ -115,6 +167,7 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 							...Object.fromEntries(campos.map((nombre) => [nombre, texto(datos, nombre)])),
 							rasgos: [texto(datos, 'rasgo_1'), texto(datos, 'rasgo_2')],
 							fotos: lista,
+							hitos: hitos.leer(),
 						},
 					}),
 				);
