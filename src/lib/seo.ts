@@ -1,4 +1,4 @@
-// Datos estructurados schema.org (SPEC 11): AnimalShelter en la portada y un tipo de negocio
+// Datos estructurados schema.org (SPEC 11 y 12): AnimalShelter en la portada y un tipo de negocio
 // por categoría en cada /colabora/{id}. Layout los escribe en <head> con jsonLd().
 import type { Negocio, Refugio } from './datos';
 import type { Dia } from './horarios';
@@ -26,7 +26,17 @@ export function datosRefugio(refugio: Refugio, redes: string[], sitio: URL): Obj
 		url: sitio.href,
 		logo: refugio.logo.url,
 		image: refugio.foto_principal.url,
-		address: refugio.ubicacion,
+		address: {
+			'@type': 'PostalAddress',
+			...(refugio.direccion && { streetAddress: refugio.direccion }),
+			addressLocality: 'Tenancingo',
+			addressRegion: 'Estado de México',
+			addressCountry: 'MX',
+		},
+		...(refugio.latitud !== null &&
+			refugio.longitud !== null && {
+				geo: { '@type': 'GeoCoordinates', latitude: refugio.latitud, longitude: refugio.longitud },
+			}),
 		telephone: `+${refugio.whatsapp}`,
 		sameAs: redes,
 	};

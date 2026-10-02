@@ -29,6 +29,11 @@ const refugio = defineCollection({
 		nombre: z.string(),
 		frase: z.string(),
 		ubicacion: z.string(),
+		// Calle sin el municipio, que ya está en `ubicacion`. Opcionales (SPEC 12).
+		direccion: z.string().nullable(),
+		// Punto del enlace "Cómo llegar"; las dos juntas o ninguna.
+		latitud: z.number().nullable(),
+		longitud: z.number().nullable(),
 		// Solo dígitos con lada, listo para wa.me: "5215500000000".
 		whatsapp: z.string().regex(/^\d{10,15}$/),
 		logo: imagen,

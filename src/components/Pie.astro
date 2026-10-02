@@ -1,10 +1,13 @@
 ---
-// Pie común: redes del refugio como enlaces de texto (no se incrustan) y WhatsApp.
+// Pie común: dirección y "Cómo llegar" del refugio cuando existen (SPEC 12), redes como enlaces
+// de texto (no se incrustan) y WhatsApp.
 import { obtener, obtenerRefugio } from '../lib/datos';
+import { enlaceMapaRefugio } from '../lib/mapas';
 import { enlaceWhatsApp } from '../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden);
+const comoLlegar = enlaceMapaRefugio(refugio);
 const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
 ---
 
@@ -12,9 +15,26 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la p�
 	<div class="mx-auto max-w-5xl px-4 py-8">
 		<p class="font-titulos text-lg font-bold">{refugio.nombre}</p>
 		<p class="text-sm text-texto-secundario">Refugio en {refugio.ubicacion}</p>
+		{refugio.direccion && <p class="text-sm text-texto-secundario">{refugio.direccion}</p>}
 
 		<nav aria-label="Redes y contacto" class="mt-4">
 			<ul class="flex flex-wrap gap-x-2">
+				{
+					comoLlegar && (
+						<li>
+							<a
+								href={comoLlegar}
+								data-umami-event="como_llegar"
+								data-umami-event-origen="pie"
+								target="_blank"
+								rel="noopener"
+								class="flex min-h-11 items-center rounded-lg px-2 text-acento underline underline-offset-4"
+							>
+								Cómo llegar
+							</a>
+						</li>
+					)
+				}
 				{
 					redes.map(({ data }) => (
 						<li>

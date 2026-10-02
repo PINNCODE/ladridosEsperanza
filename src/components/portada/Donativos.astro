@@ -1,8 +1,22 @@
 ---
-// Resumen de donativos en la portada: por qué donar y las necesidades vigentes (RF-26).
-// La página completa es /donar (SPEC 03).
+// Donativos en la portada (SPEC 12): dos caminos, dinero y especie, con las necesidades vigentes (RF-26).
+// La página completa es /donar (SPEC 03); el mensaje para pedir los datos es el mismo que allá.
 import Icono from '../Icono.astro';
 import ListaNecesidades from '../ListaNecesidades.astro';
+import { necesidadesVigentes, obtenerRefugio } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+const refugio = await obtenerRefugio();
+const hayNecesidades = (await necesidadesVigentes(new Date())).length > 0;
+const pedirDatos = enlaceWhatsApp(refugio.whatsapp, `Hola, quiero los datos para donar a ${refugio.nombre}.`);
+const donarEspecie = enlaceWhatsApp(
+	refugio.whatsapp,
+	`Hola, quiero donar en especie a ${refugio.nombre}. ¿Qué les hace falta?`,
+);
+
+const tarjeta = 'flex flex-col rounded-2xl border border-lineas bg-superficie p-5';
+const boton =
+	'mt-4 inline-flex min-h-11 items-center self-start rounded-xl bg-acento px-5 font-bold text-sobre-acento';
 ---
 
 <section id="donar" aria-labelledby="donar-titulo" class="aparecer">
@@ -14,11 +28,51 @@ import ListaNecesidades from '../ListaNecesidades.astro';
 		Cuidar animales cuesta todos los días. Cada aporte, grande o pequeño, se convierte en comida,
 		atención veterinaria, esterilizaciones y rescates.
 	</p>
-	<ListaNecesidades class="mt-5 max-w-md" />
-	<a
-		href="/donar"
-		class="mt-5 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
-	>
-		Ver cómo ayudar
-	</a>
+	<div class="mt-5 grid gap-4 md:grid-cols-2">
+		<article class={tarjeta}>
+			<Icono nombre="landmark" />
+			<h3 class="mt-3 text-lg font-bold">Dona dinero</h3>
+			<p class="mt-1 text-texto-secundario">Pide los datos oficiales por WhatsApp para donar con seguridad.</p>
+			<a
+				href={pedirDatos}
+				data-umami-event="whatsapp"
+				data-umami-event-motivo="donativo"
+				target="_blank"
+				rel="noopener"
+				class={boton}
+			>
+				Pedir datos para donar
+			</a>
+			<a
+				href="/donar"
+				class="mt-2 inline-flex min-h-11 items-center self-start px-1 text-acento underline underline-offset-4"
+			>
+				Ver todas las formas de ayudar
+			</a>
+		</article>
+
+		<article class={tarjeta}>
+			<Icono nombre="package" />
+			<h3 class="mt-3 text-lg font-bold">Dona en especie</h3>
+			{
+				hayNecesidades ? (
+					<ListaNecesidades nivel="h4" class="mt-4" />
+				) : (
+					<p class="mt-1 text-texto-secundario">
+						Croquetas, medicinas, cobijas y artículos de limpieza. Escríbenos y te decimos qué hace falta.
+					</p>
+				)
+			}
+			<a
+				href={donarEspecie}
+				data-umami-event="whatsapp"
+				data-umami-event-motivo="especie"
+				target="_blank"
+				rel="noopener"
+				class={boton}
+			>
+				Quiero donar en especie
+			</a>
+		</article>
+	</div>
 </section>

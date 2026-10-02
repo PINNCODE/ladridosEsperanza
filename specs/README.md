@@ -19,7 +19,8 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 09 | [Panel de negocios](09-panel-de-negocios.md) | Implementado | Parte de RF-16 (negocios, horarios, promociones y categorías) |
 | 10 | [Editor de menús](10-editor-de-menus.md) | Implementado | Parte de RF-16 (menús: grupos, secciones, platillos y precios) |
 | 11 | [SEO, analítica y aviso de privacidad](11-seo-analitica-y-aviso-de-privacidad.md) | Implementado | RF-20, aviso de privacidad completo y rendimiento móvil |
-| 12 | Anuncios | Por escribir | RF-18 |
+| 12 | [Portada con prioridades: qué es, dónde está y cómo ayudar](12-portada-con-prioridades.md) | Implementado | Reemplaza el orden de RF-30 (los peludos pasan al 3.er lugar); ubicación y "Cómo llegar" del refugio |
+| 13 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs
 
@@ -31,10 +32,11 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 - La calculadora de aportes del prototipo no forma parte del sitio.
 - El formulario Súmate y el panel `/admin` son páginas estáticas que hablan con Supabase desde el navegador con la llave publicable; los protegen las políticas RLS, que exigen sesión `aal2` (TOTP) y el rol de `usuarios_panel` (SPEC 07).
 - No se publica ningún monto de dinero recibido por el refugio, de personas ni de negocios; `/transparencia` y RF-19 salen del MVP (SPEC 03). La portada queda con 8 secciones y la colección `informes_transparencia` ya no existe. Las equivalencias de "En qué se usa un donativo" sí se muestran.
+- El orden de la portada es el de la SPEC 12: Presentación, Quiénes somos, Adopciones, Donativos, Esterilización, Problemáticas, Colaboración y Redes. Reemplaza el de RF-30 y la SPEC 02, que no se reescribieron.
 
 ## Pendiente de decidir antes de escribir cada spec
 
-- **12:** anuncios (RF-18), por escribir.
+- **13:** anuncios (RF-18), por escribir.
 
 ## Antes de publicar
 
