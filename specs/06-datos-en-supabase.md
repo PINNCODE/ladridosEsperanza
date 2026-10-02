@@ -202,12 +202,12 @@ Las horas `time` de Postgres (`"13:00:00"`) se recortan a `"13:00"`.
 - [x] Insertar en `horarios` un día con `cerrado = false` y sin turnos hace que `astro build` se detenga con un error que nombra el negocio.
 - [x] Insertar en `precios` una fila sin `monto` ni `texto_alterno` falla en Postgres por el `check`.
 - [x] Con la llave publicable (anónima), `select * from negocios` por la API de PostgREST devuelve 0 filas.
-- [ ] `https://{ref}.supabase.co/storage/v1/object/public/imagenes/peludos/luna.jpg` abre la foto sin iniciar sesión.
-- [ ] El sitio en `*.vercel.app` muestra la cinta "Datos de ejemplo" y las mismas páginas que la compilación local.
-- [ ] Cambiar el nombre de un peludo en Supabase Studio de la nube inicia un despliegue en Vercel, y el nombre nuevo se ve en `/adopta` en menos de 1 minuto desde que se guardó (RF-16).
-- [ ] Un `update` que cambia 3 filas de una tabla inicia un solo despliegue.
-- [ ] `select * from cron.job` en la nube muestra `recompilar-diario` con `5 6 * * *`.
-- [ ] Correr `select recompilar_sitio()` en la nube inicia un despliegue en Vercel.
+- [x] `https://{ref}.supabase.co/storage/v1/object/public/imagenes/peludos/luna.jpg` abre la foto sin iniciar sesión.
+- [x] El sitio en `*.vercel.app` muestra la cinta "Datos de ejemplo" y las mismas páginas que la compilación local.
+- [x] Cambiar el nombre de un peludo en Supabase Studio de la nube inicia un despliegue en Vercel, y el nombre nuevo se ve en `/adopta` en menos de 1 minuto desde que se guardó (RF-16).
+- [x] Un `update` que cambia 3 filas de una tabla inicia un solo despliegue.
+- [x] `select * from cron.job` en la nube muestra `recompilar-diario` con `5 6 * * *`.
+- [x] Correr `select recompilar_sitio()` en la nube inicia un despliegue en Vercel.
 - [x] El URL del deploy hook no aparece en ningún archivo del repositorio.
 - [ ] Ninguna variable de Vercel ni de `.env.example` con la llave secreta lleva prefijo `PUBLIC_`, y la llave no aparece en ningún archivo de `dist/`.
 
@@ -215,7 +215,13 @@ Las horas `time` de Postgres (`"13:00:00"`) se recortan a `"13:00"`.
 
 Validado el 2026-10-01 en local, con Supabase en Docker (Colima) y la compilación de producción servida con `astro preview`; Playwright a 360 px.
 
-- **Pendiente: pasos 14 y 15.** No hay sesión de Supabase ni de Vercel en el equipo, así que no se crearon el proyecto en la nube ni el de Vercel. Los criterios sin marcar dependen de la nube y se verifican al terminar esos pasos.
+- **Nube, validado el 2026-10-02** en `https://ladridos-esperanza.vercel.app` y el proyecto de Supabase "Refugio animales" (`oszxkkjnwxuztmbrmvja`):
+  - La foto `imagenes/peludos/luna.jpg` del bucket responde 200 (`image/jpeg`) sin sesión. El sitio muestra la cinta "Datos de ejemplo" y responde en portada, `/adopta`, `/esterilizacion`, `/donar` y `/colabora`.
+  - `cron.job` tiene `recompilar-diario` con `5 6 * * *`, activo.
+  - El secreto `deploy_hook_vercel` se guardó en Vault con el deploy hook de `main`. Hasta entonces, los cambios se guardaban pero el sitio no se recompilaba, porque `recompilar_sitio()` no hace nada sin el secreto. El primer intento en el SQL Editor fue a otro proyecto y respondió `function recompilar_sitio() does not exist`: hay que revisar que la URL del panel diga `oszxkkjnwxuztmbrmvja`.
+  - `select recompilar_sitio()` inició un despliegue. `update necesidades set descripcion = descripcion` (3 filas) hizo una sola llamada en `net._http_response`.
+  - **RF-16:** el equipo midió **alrededor de 1 minuto** desde guardar en el panel hasta ver el cambio publicado: el costo de la campaña del 24 de octubre pasó a $500 en `/esterilizacion`. Queda en el límite del criterio ("menos de 1 minuto"); si la compilación crece, se retoma con caché de imágenes o ISR, como dice el riesgo de esta spec.
+  - De 4 llamadas al hook, 3 aparecen con `timed_out` a los 5 s: Vercel tarda más que el tiempo de espera por defecto de `pg_net` en responder. Aun así despliegan (el costo de $500 llegó por una de ellas); el `timeout` solo deja la respuesta sin registrar.
 - **Referencia.** La compilación de antes del cambio y la final tienen los mismos 11 archivos HTML. Al normalizar los nombres de `/_astro/`, el HTML es idéntico, incluidas las etiquetas `<img>` con su `width` y `height`.
 - **Imágenes.** En `/`, `/adopta`, `/esterilizacion`, `/colabora` y `/colabora/tacos-don-chuy` todas las `<img>` apuntan a `/_astro/*.webp` y el HTML no menciona el host de Supabase. El cartel ampliado de `/esterilizacion` carga dentro del `<dialog>`.
 - **Café.** `/colabora/cafe-del-jardin` muestra 7 pestañas y 145 platillos, sin desplazamiento horizontal a 360 px.

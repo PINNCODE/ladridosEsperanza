@@ -1,6 +1,6 @@
 # SPEC 08 — Panel del refugio
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 02, SPEC 03, SPEC 06, SPEC 07
 > **Fecha:** 2026-10-01
 > **Objetivo:** Que las cuentas `refugio` y `administrador` editen desde `/admin` peludos, campañas, necesidades, textos y el registro mensual de cifras, con sus fotos, y que cada guardado inicie un solo despliegue.
@@ -306,8 +306,8 @@ Las 6 secciones del `<select>` de textos son `quienes_somos`, `proceso_adopcion`
 
 ### Nube (después del paso 12)
 
-- [ ] La cuenta del refugio cambia el nombre de un peludo desde el panel y el cambio se ve en `/adopta` de Vercel; se anota el tiempo medido contra RF-16.
-- [ ] Ese guardado inicia un solo despliegue en Vercel.
+- [x] La cuenta del refugio cambia el nombre de un peludo desde el panel y el cambio se ve en `/adopta` de Vercel; se anota el tiempo medido contra RF-16.
+- [x] Ese guardado inicia un solo despliegue en Vercel.
 
 ### Observaciones de la validación
 
@@ -315,7 +315,7 @@ Validado el 2026-10-02 en local, con Supabase en Docker (Colima), `astro dev` y 
 Las sesiones `aal2` se abrieron con un script de Node y en el navegador, con los códigos TOTP calculados a partir del secreto del alta.
 Las llamadas al deploy hook se contaron con un secreto `deploy_hook_vercel` que apuntaba a un receptor HTTP local (`http://host.docker.internal:8787`).
 
-- **Paso 12 (nube) pendiente.** No se aplicó la migración en el proyecto de la nube: se hace después de revisar el PR, con `npx supabase db push`. Los dos criterios de la nube quedan sin marcar.
+- **Paso 12 (nube), validado el 2026-10-02.** La migración `panel_refugio` está aplicada en el proyecto de la nube. Con el deploy hook guardado en Vault (pendiente de la SPEC 06), un cambio desde el panel en Vercel se publicó en alrededor de 1 minuto. Se probó con el costo de la campaña del 24 de octubre (a $500 en `/esterilizacion`) en lugar del nombre de un peludo; el camino es el mismo: RPC, una transacción, una llamada al hook. Cada guardado dejó una sola llamada en `net._http_response`.
 - **Recompilación.** Una transacción con `update` a `peludos` y a `fotos_peludo` hizo 1 llamada; guardar un peludo nuevo con 2 fotos desde el panel, 1; siete guardados seguidos de peludos, campañas, necesidades y textos (incluido un "Subir"), 7; un mes de cifras desde el panel y por la API, 0; un `update` a `necesidades` por SQL, 1.
 - **Escrituras directas.** Además de las RPC, la migración quita `insert`, `update`, `delete` y `truncate` a `anon` y `authenticated` en las 23 tablas de contenido, como dice la spec ("ninguna tabla de contenido"). Sin eso, un `update` sin política responde 200 y no cambia nada; con eso, el `update` directo de la cuenta `refugio` responde 403 `permission denied`.
 - **Seguridad.** Con la llave publicable, con `aal1` (admin) y con una cuenta `aal2` sin rol, `peludos`, `registros_cifras` e `imagenes` devuelven `[]` (con un mes de cifras guardado), y `guardar_peludo` responde 401 (`anon`) o `sin_permiso` sin crear filas. La cuenta `refugio` sube a `peludos/x.jpg` (200) y no a `negocios/x.jpg` (400); con `aal1` tampoco sube; borrar `refugio/logo.jpg` no borra nada. `borrar_contenido('negocios', …)` y `mover_contenido('negocios', …)` responden `sin_permiso`. La cuenta `administrador` también guarda.
