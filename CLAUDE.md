@@ -1,6 +1,15 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. `AGENTS.md` holds the same text for other coding agents; keep both in sync.
+
+## Status
+
+The site is live at https://www.ladridosdeesperanza.org (Vercel, from `main`; the bare domain redirects there). Specs 01 to 11 are implemented, which covers the MVP of the parent spec except ads (RF-18, SPEC 12, not written yet). Still open before treating it as final:
+
+- Production still builds with `PUBLIC_MOSTRAR_EJEMPLOS=true`, so it shows the sample data and the "Datos de ejemplo" ribbon until the shelter's real records are loaded in the cloud project and that variable is removed in Vercel.
+- The privacy notice still says it is pending legal review.
+- Unchecked cloud criteria: SPEC 06 (no Vercel variable with the secret key has the `PUBLIC_` prefix) and SPEC 09 (measure a business hours change against RF-16).
+- The shelter's original-resolution photos and logo, and the conditions of sponsorship and volunteering (see "Antes de publicar" in `specs/README.md`).
 
 ## Development
 
@@ -77,7 +86,9 @@ Every collection record has `es_ejemplo`. Records with `es_ejemplo: true` are on
 
 ### Hosting
 
-The site is static and hosted on Vercel from `main` at `https://www.ladridosdeesperanza.org` (the bare domain redirects there; it is `PUBLIC_URL_SITIO`, so canonical URLs, the sitemap, the QR codes and Umami's `data-domains` follow it), with `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `PUBLIC_MOSTRAR_EJEMPLOS=true` and the three browser variables above set there, each for both Production and Preview (pull request previews build in Preview). Auth settings in `supabase/config.toml` (signup off, TOTP on, site URL, email templates) only apply locally; in the cloud they are set in the dashboard or with the Management API (`PATCH /v1/projects/{ref}/config/auth`), and Auth takes a few minutes to pick them up. Cloud emails go through custom SMTP with Resend (`smtp.resend.com`, user `resend`, sender `no-reply@ladridosdeesperanza.org`, domain bought in Cloudflare); the built-in Supabase mailer only sends to team members and locks the templates. Panel accounts are invited from Studio and get their role with an `insert` into `usuarios_panel`. Any change to a content table (except `registros_cifras` and `gastos_registro`, which the site never shows) calls the Vercel deploy hook through `pg_net`, once per transaction, so a panel save starts one deploy, and `pg_cron` calls it daily at 00:05 Mexico City time. The hook URL lives only in Supabase Vault as `deploy_hook_vercel`; without it (local development) nothing is called.
+Work goes through branches and pull requests on GitHub (`PINNCODE/ladridosEsperanza`): each pull request gets a Vercel Preview deploy and a merge to `main` deploys Production. New migrations reach the cloud Supabase project ("Refugio animales", ref `oszxkkjnwxuztmbrmvja`) only with `npx supabase db push`, run by hand after the merge; it never pushes `seed.sql`.
+
+The site is static and hosted on Vercel from `main` at `https://www.ladridosdeesperanza.org` (the bare domain redirects there; it is `PUBLIC_URL_SITIO`, so canonical URLs, the sitemap, the QR codes and Umami's `data-domains` follow it; the old `ladridos-esperanza.vercel.app` URL is no longer the site URL, so print QR codes only from the own domain), with `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `PUBLIC_MOSTRAR_EJEMPLOS=true` and the three browser variables above set there, each for both Production and Preview (pull request previews build in Preview). Auth settings in `supabase/config.toml` (signup off, TOTP on, site URL, email templates) only apply locally; in the cloud they are set in the dashboard or with the Management API (`PATCH /v1/projects/{ref}/config/auth`), and Auth takes a few minutes to pick them up. Cloud emails go through custom SMTP with Resend (`smtp.resend.com`, user `resend`, sender `no-reply@ladridosdeesperanza.org`, domain bought in Cloudflare); the built-in Supabase mailer only sends to team members and locks the templates. Panel accounts are invited from Studio and get their role with an `insert` into `usuarios_panel`. Any change to a content table (except `registros_cifras` and `gastos_registro`, which the site never shows) calls the Vercel deploy hook through `pg_net`, once per transaction, so a panel save starts one deploy, and `pg_cron` calls it daily at 00:05 Mexico City time. The hook URL lives only in Supabase Vault as `deploy_hook_vercel`; without it (local development) nothing is called.
 
 ## Documentation
 

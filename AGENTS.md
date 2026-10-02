@@ -1,4 +1,25 @@
+# AGENTS.md
+
+This file provides guidance to coding agents working with code in this repository. `CLAUDE.md` holds the same text for Claude Code; keep both in sync.
+
+## Status
+
+The site is live at https://www.ladridosdeesperanza.org (Vercel, from `main`; the bare domain redirects there). Specs 01 to 11 are implemented, which covers the MVP of the parent spec except ads (RF-18, SPEC 12, not written yet). Still open before treating it as final:
+
+- Production still builds with `PUBLIC_MOSTRAR_EJEMPLOS=true`, so it shows the sample data and the "Datos de ejemplo" ribbon until the shelter's real records are loaded in the cloud project and that variable is removed in Vercel.
+- The privacy notice still says it is pending legal review.
+- Unchecked cloud criteria: SPEC 06 (no Vercel variable with the secret key has the `PUBLIC_` prefix) and SPEC 09 (measure a business hours change against RF-16).
+- The shelter's original-resolution photos and logo, and the conditions of sponsorship and volunteering (see "Antes de publicar" in `specs/README.md`).
+
 ## Development
+
+The site reads its data from Supabase at build time, so start local Supabase (Docker) before `astro dev` or `astro build`:
+
+```
+npx supabase start
+```
+
+`npx supabase db reset` reapplies the migrations and the seed; after it, `node scripts/crear-cuentas-prueba.mjs` creates the local panel accounts `admin@ejemplo.test` and `refugio@ejemplo.test` (password `panel-prueba-2026`; it refuses to run against a non-local `SUPABASE_URL`). Each account enrolls its TOTP on first sign-in at `/admin/entrar`; local emails (invitations, password recovery) land in Mailpit at http://127.0.0.1:54324. Data changes in Supabase show up in `astro dev` after restarting the dev server (the loaders run at startup).
 
 When starting the dev server, use background mode:
 
@@ -7,6 +28,67 @@ astro dev --background
 ```
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+
+Playwright MCP screenshots always go in `.playwright-mcp-screenshots/` (pass `filename: ".playwright-mcp-screenshots/<name>.png"` to every screenshot call). Both that folder and `.playwright-mcp/` are git-ignored.
+
+Build for production: `astro build`
+Preview production build: `astro preview`
+Type check: `npx astro check`
+
+## Project Structure
+
+This is an Astro 7 site (`ladridosdeesperanzaweb`) for the Ladridos de Esperanza animal shelter. Specs live in `specs/` (roadmap in `specs/README.md`); the parent spec and HTML prototype are in `referencias/`.
+
+- `src/layouts/Layout.astro` — HTML shell (`lang="es-MX"`); props `titulo` and `descripcion`, plus the SEO props `imagen`, `textoImagen`, `indexar` and `estructurados`; renders the sample-data ribbon, `Encabezado`, `<main>` and `Pie`, plus an optional `barra` slot (adds `viewport-fit=cover` and bottom padding when used)
+- `src/layouts/LayoutColabora.astro` — `Layout` plus the fixed bottom bar `BarraRefugio` (Adopta / Esteriliza / Dona); every `/colabora` page uses it
+- `src/layouts/LayoutPanel.astro` — HTML shell of `/admin` (`noindex`, no sample-data ribbon, no public header or footer); prop `titulo`, and `protegido` (default `true`) hides the content until `prepararPanel()` confirms the session; `entrar` and `contrasena` pass `protegido={false}`; the `<h1>` has `data-titulo` so `editar` pages can say "Nuevo…" or "Editar…"
+- `src/pages/` — file-based routes (`index.astro` home with 8 sections, `adopta.astro`, `esterilizacion.astro`, `donar.astro`, `404.astro`, `colabora/index.astro` catalog "Come por los Peludos", `colabora/[slug].astro` one page per published business, `colabora/sumate.astro` the Súmate form, `aviso-de-privacidad.astro` privacy notice with the LFPDPPP structure (still marked pending legal review), and the panel `admin/entrar.astro` (password, then TOTP enroll or code), `admin/contrasena.astro` (target of invitation and recovery emails), `admin/index.astro`, `admin/solicitudes.astro` and `admin/qr.astro` for the administrator, a list plus an `editar.astro` form for `admin/negocios` (profile, logo, hours and promotion) and `admin/categorias`, plus `admin/negocios/menu.astro` (`?id=`; the whole menu of a business as a tree of groups, sections and dishes, saved at once; menus are no longer edited in Studio), all administrator only, and for both roles a list plus an `editar.astro` form (`?id=`; none means new) for `admin/peludos`, `admin/campanas`, `admin/necesidades`, `admin/textos` (`bloques_contenido`) and `admin/cifras` (monthly figures, RF-29, panel only)); there is no `/transparencia` and the site never shows money the shelter received
+- `src/components/` — `Encabezado`, `Pie`, `CintaEjemplo`, `Icono` (only way to render Lucide icons; `nombre` in kebab-case), and reusable pieces `CarruselPeludos`, `TarjetaPeludo`, `CaminoHuellas`, `FigurasFlotantes`, `EncabezadoPagina` (the `<h1>` of each shelter page), `VisorCartel` (enlargeable poster in a native `<dialog>`), `ListaNecesidades`
+- `src/components/portada/` — one component per home section (`Presentacion`, `Adopciones`, `QuienesSomos`, `Problematicas`, `Esterilizacion`, `Donativos`, `Colaboracion`, `RedesContacto`)
+- `src/components/adopta/`, `src/components/esterilizacion/`, `src/components/donar/` — sections of each shelter page; the pages only assemble them
+- `src/components/colabora/` — `BarraRefugio`, `TarjetaNegocio`, `CatalogoNegocios` (search, filters and "abierto ahora" in one native `<script>`; state lives in the URL `?q=&categoria=&abierto=1&promocion=1`), `SumaTuNegocio` (links to `/colabora/sumate`) and `FormularioSumate` (inserts into `solicitudes_negocio` from the browser; honeypot field `sitio_web`); the business page uses `CabeceraNegocio`, `MenuNegocio` (group tabs with the active one in the hash `#menu-{grupo}`, plus a menu search; without JS every group shows; with no available dishes it only says the menu is being prepared), `HorariosNegocio`, `ContactoNegocio`, `AporteNegocio`, `NotaRefugio` and `MasNegocios`
+- `src/components/admin/` — `EncabezadoPanel` (account name and role, links by role, "Salir"), filled by `prepararPanel()`; `FormularioPanel` (frame of every `editar` page: form, "Guardar", "Cancelar", errors and "No encontramos este registro."), `CabeceraLista` ("Agregar" button and the notice after saving), `CampoFotos` (up to N photos with move and remove; `maximo={1}` for a poster, plus `formato="png"` for a business logo), `CampoHorarios` (per day "Por confirmar", "Cerrado" or up to 2 shifts, and "Copiar el lunes a todos los días"), `DialogoMenu` (the `<dialog>` of the menu editor for a group, section or dish, with up to 4 prices), `estilos.ts` (shared Tailwind classes) and `secciones.ts` (the 6 `bloques_contenido` sections and where they show)
+- `src/styles/global.css` — Tailwind v4 import and design tokens in `@theme` (`bg-fondo`, `text-acento`, `font-titulos`, …); light mode only
+- `src/styles/animaciones.css` — CSS-only animation classes (`latido`, `flotar`, `asomarse`, `huella`, `aparecer`); only `transform` and `opacity`, all off with "reduce motion"
+- `src/content.config.ts` — all content collections with Zod schemas (Spanish `snake_case` fields, same as the Postgres columns); images are `{ url, ancho, alto }`
+- `supabase/` — Supabase CLI project: `migrations/` (content tables with RLS and no policies, the public `imagenes` bucket, the rebuild triggers plus the daily `pg_cron` job, `usuarios_panel` with `rol_panel()` and `es_administrador()`, which only count `aal2` sessions, and `solicitudes_negocio` with column grants, anti-spam trigger and its RLS policies, and `panel_refugio` (SPEC 08): no API writes on any content table, panel read policies on the shelter tables, Storage policies for the `peludos/`, `campanas/` and `bloques/` folders, and the `security definer` RPCs `guardar_peludo`, `guardar_campana`, `guardar_necesidad`, `guardar_bloque`, `guardar_registro_cifras`, `borrar_contenido` and `mover_contenido`, which check `rol_panel()`, build the ids and return the image paths left unused; the rebuild trigger calls the hook once per transaction and `registros_cifras` / `gastos_registro` no longer trigger it, and `panel_negocios` (SPEC 09): administrator-only read policies on `categorias`, `promociones`, `horarios` and `turnos`, Storage policies for the `negocios/` folder, `guardar_imagen(foto, carpetas)` limiting each RPC's folders, and the RPCs `guardar_negocio` (profile, logo, hours and promotion in one transaction; stores WhatsApp as `52` plus 10 digits), `borrar_negocio`, `guardar_categoria`, `borrar_categoria` (`categoria_en_uso` if a business uses it) and `mover_categoria`, which check `es_administrador()`, and `editor_menus` (SPEC 10): `leer_menu(negocio_id)` returns `{ version, grupos }` and `guardar_menu(negocio_id, version, grupos)` replaces the whole menu in one transaction, raising `menu_cambiado` if `version` (the `md5` of the current menu from the internal `menu_json()`, so Studio edits count too) changed; the menu tables still have no read policies), `seed.sql` (all sample data, including 3 sample `solicitudes_negocio`; edit sample records here), `semilla/imagenes/` (sample images loaded into the bucket) and `plantillas/` (Spanish invitation and recovery emails that link to `/admin/contrasena?token_hash=…`); editable shelter texts live in `bloques_contenido` by `seccion` (`quienes_somos`, `proceso_adopcion`, `esterilizacion_por_que`, `esterilizacion_cuidados`, `esterilizacion_preguntas`, `voluntariado`), and a part with no published block is not shown
+- `src/lib/supabase.ts` — build-time Supabase client with the secret key; only `src/lib/cargadores.ts` imports it
+- `src/lib/supabaseNavegador.ts` — browser Supabase client with the publishable key; only the Súmate form and the panel use it
+- `src/lib/panel.ts` — `exigirSesion(rol?)` (session, `aal2` and role; redirects to `/admin/entrar` or `/admin`), `prepararPanel(rol?)` (that plus filling `LayoutPanel`) and `salir()`
+- `src/lib/formularioPanel.ts` — `iniciarFormulario()` (title, load, `beforeunload` warning, "Guardando…", error and return to the list), `mensajeError(error, accion)` by RPC code, `confirmarBorrado`, `volverALista`/`mostrarAviso` (notice through `sessionStorage`), `hoyEnMexico` and `texto`
+- `src/lib/imagenesPanel.ts` — `reducir(archivo, ladoMaximo, formato)` (canvas to JPEG 0.85, or PNG that keeps transparency; 1600 px for photos, 2400 px for posters, 512 px PNG for business logos in `negocios/`), `subir`, `borrarRutas`, `urlPublica`, `campoFotos(raiz, alCambiar)` for a `CampoFotos`, and `guardarConFotos` (upload, call the RPC, then remove fresh uploads on failure or the returned unused paths on success)
+- `src/lib/cargadores.ts` — one content-collection loader per table; rebuilds the nested shape (menu, hours, promotion, images) the schemas expect
+- `src/lib/imagenes.ts` — `Imagen` type and `medidas(imagen, ancho)` for `<Image>` with remote images
+- `src/lib/datos.ts` — the only place that reads collections (`obtener`, `obtenerRefugio`, plus queries such as `peludosDisponibles`, `proximaCampana(hoy)`, `campanaAnterior`, `necesidadesVigentes(hoy)`, `bloquesDeSeccion(seccion)`, `destinosDonativo`, `negociosPublicados`, `promocionVigente(negocio, hoy)`, `categoriasConNegocios`, `menuDisponible(negocio)` without unavailable dishes, `categoriasOrdenadas` for the Súmate form); pages never call `getCollection` directly
+- `src/lib/formato.ts` — `formatearPesos`, `formatearFecha`, `formatearMes`, `formatearPrecio`, `parrafos` (splits block text on blank lines); dates are formatted in UTC because collection dates are UTC midnight
+- `src/lib/whatsapp.ts` — `enlaceWhatsApp(numero, mensaje?)`
+- `src/lib/mapas.ts` — `enlaceMapa(negocio, ubicacion)`: Google Maps search with coordinates, or name and address
+- `src/lib/menuPanel.ts` — `editorMenu(raiz, dialogo, alCambiar)` for `admin/negocios/menu`: the menu tree in memory (add, edit, move up and down, move a dish to another section, duplicate, delete, "Disponible" on the row and the dish search, which turns off moving) and `leer()` for `guardar_menu`
+- `src/lib/horariosPanel.ts` — `campoHorarios(raiz, alCambiar)` for a `CampoHorarios`: loads and reads the hours `guardar_negocio` expects
+- `src/lib/horarios.ts` — `momentoEnMexico`, `estadoHorario`, `formatearHora`, `textoDia`; "abierto ahora" always in `America/Mexico_City`, with midnight-crossing shifts; no Astro imports so browser scripts can use it
+- `src/lib/busqueda.ts` — `normalizar` (lowercase, no accents), `textoBusqueda(negocio, categoria)` built at compile time, `coincide` (every word must appear), `textoPlatillo` and `idGrupo` for the business menu
+
+- `src/lib/seo.ts` — `tipoNegocio(categoriaId)` (`CafeOrCoffeeShop`, `Bakery`, `Restaurant` or `LocalBusiness`), `datosRefugio` (`AnimalShelter` JSON-LD of the home page), `datosNegocio` (business JSON-LD with address, geo and one `OpeningHoursSpecification` per shift) and `jsonLd(objeto)`, which escapes `<` as `\u003c`
+- `src/lib/analitica.ts` — `registrar(evento, datos)` (calls `window.umami?.track`, so nothing breaks when a blocker stops Umami) and `registrarBusqueda(lugar, texto, extra)` (normalized, cut to 60 characters, sent 1 s after the last key, 2 letters or more, never the same text twice in a row); no Astro imports
+- `src/pages/robots.txt.ts` — `Disallow: /admin` and the sitemap URL; `@astrojs/sitemap` in `astro.config.mjs` builds `sitemap-index.xml` without `/admin` and `/404`
+
+Fonts (Bricolage Grotesque, DM Sans) are self-hosted through the Astro fonts API in `astro.config.mjs`.
+
+### SEO, favicons and analytics
+
+`Layout` writes `canonical`, Open Graph and Twitter tags for every public page; props `imagen` and `textoImagen` (the business logo on `/colabora/[slug]`, otherwise the shelter's `foto_principal`), `indexar={false}` (`noindex`, used by `404.astro`) and `estructurados` (JSON-LD; the home page and each business page pass one); `LayoutColabora` forwards them. The favicons (`public/favicon.ico` 32×32, `icono.png` 192×192, `apple-touch-icon.png` 180×180) come from `supabase/semilla/imagenes/refugio/logo.jpg` through `node scripts/generar-favicons.mjs`; rerun it when the original logo arrives. `LayoutPanel` links the same favicons and nothing else.
+
+Analytics is Umami Cloud, cookie-free: `Layout` (never `LayoutPanel`) loads its script (site ID fixed in `Layout`) only when Vercel builds Production (`VERCEL_ENV=production`), with `data-domains` set to the host of `PUBLIC_URL_SITIO`, `data-exclude-search`, `data-exclude-hash` and `data-do-not-track`. Clicks are tracked with `data-umami-event` attributes: `whatsapp` with `data-umami-event-motivo` (`adopcion` plus `peludo` in `TarjetaPeludo`, `esterilizacion` in `FichaCampana` and `portada/Esterilizacion`, `donativo` / `apadrinar` / `voluntariado` in `donar/FormasDeAyudar`, `contacto` in `Pie` and `portada/RedesContacto`, `negocio` plus `negocio` in `ContactoNegocio`) and `abrir_negocio` with `negocio` and `origen` (`catalogo` in `TarjetaNegocio`, `mas_negocios` in `MasNegocios`); `CatalogoNegocios` and `MenuNegocio` call `registrarBusqueda` (`lugar` `catalogo` or `menu` plus `negocio`), and `FormularioSumate` calls `registrar('sumate_enviado')` only after a successful insert. `PUBLIC_UMAMI_TABLERO` (Umami's read-only share link) adds the "Estadísticas" card to `/admin` for both roles. It is optional and lives in Vercel for Production only; previews and development never load Umami. The privacy notice gives `privacidad@ladridosdeesperanza.org` for ARCO rights; Cloudflare Email Routing forwards it to the developer's inbox.
+
+### Sample data
+
+Every collection record has `es_ejemplo`. Records with `es_ejemplo: true` are only included when `PUBLIC_MOSTRAR_EJEMPLOS=true` (copy `.env.example` to `.env` for development; it also has the local `SUPABASE_URL`; paste the local secret key from `npx supabase status` into `SUPABASE_SECRET_KEY`). Without it they are filtered out, and the build fails until a real `refugio` record exists — this is intentional so sample data never ships. The browser also needs `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `PUBLIC_URL_SITIO` (Astro's `site` and the target of the panel QR codes); `astro.config.mjs` stops the build without any of them. `PUBLIC_UMAMI_TABLERO` is optional (see SEO, favicons and analytics). `.env` exists only locally, so a published preview with sample data needs `PUBLIC_MOSTRAR_EJEMPLOS=true` set in the hosting environment.
+
+### Hosting
+
+Work goes through branches and pull requests on GitHub (`PINNCODE/ladridosEsperanza`): each pull request gets a Vercel Preview deploy and a merge to `main` deploys Production. New migrations reach the cloud Supabase project ("Refugio animales", ref `oszxkkjnwxuztmbrmvja`) only with `npx supabase db push`, run by hand after the merge; it never pushes `seed.sql`.
+
+The site is static and hosted on Vercel from `main` at `https://www.ladridosdeesperanza.org` (the bare domain redirects there; it is `PUBLIC_URL_SITIO`, so canonical URLs, the sitemap, the QR codes and Umami's `data-domains` follow it; the old `ladridos-esperanza.vercel.app` URL is no longer the site URL, so print QR codes only from the own domain), with `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `PUBLIC_MOSTRAR_EJEMPLOS=true` and the three browser variables above set there, each for both Production and Preview (pull request previews build in Preview). Auth settings in `supabase/config.toml` (signup off, TOTP on, site URL, email templates) only apply locally; in the cloud they are set in the dashboard or with the Management API (`PATCH /v1/projects/{ref}/config/auth`), and Auth takes a few minutes to pick them up. Cloud emails go through custom SMTP with Resend (`smtp.resend.com`, user `resend`, sender `no-reply@ladridosdeesperanza.org`, domain bought in Cloudflare); the built-in Supabase mailer only sends to team members and locks the templates. Panel accounts are invited from Studio and get their role with an `insert` into `usuarios_panel`. Any change to a content table (except `registros_cifras` and `gastos_registro`, which the site never shows) calls the Vercel deploy hook through `pg_net`, once per transaction, so a panel save starts one deploy, and `pg_cron` calls it daily at 00:05 Mexico City time. The hook URL lives only in Supabase Vault as `deploy_hook_vercel`; without it (local development) nothing is called.
 
 ## Documentation
 
