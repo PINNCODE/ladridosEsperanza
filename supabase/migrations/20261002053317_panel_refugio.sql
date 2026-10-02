@@ -312,3 +312,61 @@ revoke execute on function public.guardar_necesidad(jsonb) from public, anon;
 revoke execute on function public.borrar_contenido(text, text) from public, anon;
 grant execute on function public.guardar_necesidad(jsonb) to authenticated;
 grant execute on function public.borrar_contenido(text, text) to authenticated;
+
+-- Cifras del mes (RF-29), solo para el panel. Sin "id" crea el mes (su id es el mes, "2026-10");
+-- con "id" lo actualiza. Una cifra vacía queda en null, nunca en 0. Reemplaza los gastos.
+create function public.guardar_registro_cifras(datos jsonb) returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+	fila public.registros_cifras;
+	gasto jsonb;
+	monto numeric;
+	orden int := 0;
+begin
+	perform public.exigir_panel();
+
+	fila.id := datos ->> 'id';
+	fila.animales_recibidos := public.campo_cifra(datos, 'animales_recibidos');
+	fila.rescates := public.campo_cifra(datos, 'rescates');
+	fila.adopciones := public.campo_cifra(datos, 'adopciones');
+	fila.esterilizaciones := public.campo_cifra(datos, 'esterilizaciones');
+	fila.notas := public.campo_texto(datos, 'notas', false);
+
+	if fila.id is null then
+		fila.mes := public.campo_texto(datos, 'mes');
+		if exists (select 1 from public.registros_cifras r where r.mes = fila.mes or r.id = fila.mes) then
+			raise exception 'mes_repetido';
+		end if;
+		fila.id := fila.mes;
+		fila.es_ejemplo := false;
+		insert into public.registros_cifras values (fila.*);
+	else
+		update public.registros_cifras r
+		set animales_recibidos = fila.animales_recibidos, rescates = fila.rescates,
+			adopciones = fila.adopciones, esterilizaciones = fila.esterilizaciones, notas = fila.notas
+		where r.id = fila.id;
+		if not found then
+			raise exception 'no_encontrado';
+		end if;
+	end if;
+
+	delete from public.gastos_registro g where g.registro_id = fila.id;
+	for gasto in select * from jsonb_array_elements(coalesce(datos -> 'gastos', '[]'::jsonb)) loop
+		monto := public.campo_texto(gasto, 'monto')::numeric;
+		if monto < 0 then
+			raise exception 'datos_invalidos' using detail = 'monto';
+		end if;
+		orden := orden + 1;
+		insert into public.gastos_registro (registro_id, concepto, monto, orden)
+		values (fila.id, public.campo_texto(gasto, 'concepto'), monto, orden);
+	end loop;
+
+	return jsonb_build_object('id', fila.id, 'rutas_borradas', '[]'::jsonb);
+end;
+$$;
+
+revoke execute on function public.guardar_registro_cifras(jsonb) from public, anon;
+grant execute on function public.guardar_registro_cifras(jsonb) to authenticated;
