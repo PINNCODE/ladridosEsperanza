@@ -1,6 +1,6 @@
 ---
-// /admin (SPEC 07 y 08): inicio del panel. Las dos cuentas ven las secciones del refugio;
-// el administrador también ve las solicitudes nuevas y el enlace a los QR.
+// /admin (SPEC 07, 08 y 09): inicio del panel. Las dos cuentas ven las secciones del refugio;
+// el administrador también ve negocios, categorías, las solicitudes nuevas y el enlace a los QR.
 import Icono from '../../components/Icono.astro';
 import LayoutPanel from '../../layouts/LayoutPanel.astro';
 
@@ -53,6 +53,20 @@ const secciones = [
 				</a>
 			))
 		}
+		<a href="/admin/negocios" data-solo-administrador hidden class={tarjeta}>
+			<Icono nombre="store" />
+			<span>
+				<span class="block text-xl font-bold">Negocios</span>
+				<span class="text-texto-secundario">Ficha, logo, horarios, promoción y estado de cada negocio.</span>
+			</span>
+		</a>
+		<a href="/admin/categorias" data-solo-administrador hidden class={tarjeta}>
+			<Icono nombre="tags" />
+			<span>
+				<span class="block text-xl font-bold">Categorías</span>
+				<span class="text-texto-secundario">Las categorías del catálogo y el orden de sus filtros.</span>
+			</span>
+		</a>
 		<a href="/admin/solicitudes" data-solo-administrador hidden class={tarjeta}>
 			<Icono nombre="inbox" />
 			<span>

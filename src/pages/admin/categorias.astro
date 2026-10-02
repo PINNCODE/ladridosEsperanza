@@ -1,0 +1,107 @@
+---
+// /admin/categorias (SPEC 09, RF-03): categorías del catálogo en el orden de los filtros de /colabora,
+// con "Subir" y "Bajar". Solo para el administrador; una categoría con negocios no se puede borrar.
+import CabeceraLista from '../../components/admin/CabeceraLista.astro';
+import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Categorías">
+	<CabeceraLista agregar="/admin/categorias/editar" texto="Agregar categoría" />
+	<p data-vacio hidden class="mt-6">Todavía no hay categorías.</p>
+	<ol data-lista class="mt-6 space-y-3"></ol>
+
+	<template data-plantilla>
+		<li class:list={[tarjeta, 'flex flex-wrap items-center gap-4']}>
+			<div class="min-w-0 flex-1">
+				<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+					<h2 data-nombre class="text-lg font-bold break-words"></h2>
+					<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
+				</div>
+				<p data-detalle class="text-texto-secundario"></p>
+			</div>
+			<div class="flex flex-wrap gap-2">
+				<a data-editar class={boton}>Editar</a>
+				<button type="button" data-mover="-1" class={boton}>Subir</button>
+				<button type="button" data-mover="1" class={boton}>Bajar</button>
+				<button type="button" data-borrar class={boton}>Borrar</button>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import { confirmarBorrado, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Categoria = { id: string; nombre: string; es_ejemplo: boolean; negocios: { count: number }[] };
+
+	async function iniciar() {
+		if (!(await prepararPanel('administrador'))) return;
+		const supabase = supabaseNavegador();
+		mostrarAviso(document.querySelector<HTMLElement>('[data-aviso]')!);
+
+		const { data, error } = await supabase
+			.from('categorias')
+			.select('id, nombre, es_ejemplo, negocios(count)')
+			.order('orden')
+			.order('id')
+			.overrideTypes<Categoria[], { merge: false }>();
+		if (error) {
+			document.querySelector<HTMLElement>('[data-error-lista]')!.hidden = false;
+			return;
+		}
+
+		const lista = document.querySelector<HTMLOListElement>('[data-lista]')!;
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+		const errorAccion = document.querySelector<HTMLElement>('[data-error-accion]')!;
+
+		document.querySelector<HTMLElement>('[data-vacio]')!.hidden = data.length > 0;
+		lista.replaceChildren(
+			...data.map((categoria, indice) => {
+				const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+				const negocios = categoria.negocios[0]?.count ?? 0;
+				fila.querySelector('[data-nombre]')!.textContent = categoria.nombre;
+				fila.querySelector('[data-detalle]')!.textContent =
+					negocios === 1 ? '1 negocio' : `${negocios} negocios`;
+				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !categoria.es_ejemplo;
+				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
+					`/admin/categorias/editar?id=${encodeURIComponent(categoria.id)}`;
+
+				for (const mover of fila.querySelectorAll<HTMLButtonElement>('[data-mover]')) {
+					const direccion = Number(mover.dataset.mover);
+					mover.setAttribute('aria-label', `${direccion < 0 ? 'Subir' : 'Bajar'} ${categoria.nombre}`);
+					mover.disabled = (direccion < 0 && indice === 0) || (direccion > 0 && indice === data.length - 1);
+					mover.addEventListener('click', async () => {
+						mover.disabled = true;
+						const { error: fallo } = await supabase.rpc('mover_categoria', { id: categoria.id, direccion });
+						if (fallo) {
+							mover.disabled = false;
+							errorAccion.textContent = mensajeError(fallo, 'mover');
+							return;
+						}
+						location.reload();
+					});
+				}
+
+				const borrar = fila.querySelector<HTMLButtonElement>('[data-borrar]')!;
+				borrar.setAttribute('aria-label', `Borrar ${categoria.nombre}`);
+				borrar.addEventListener('click', async () => {
+					if (!confirmarBorrado(categoria.nombre)) return;
+					borrar.disabled = true;
+					const { error: fallo } = await supabase.rpc('borrar_categoria', { id: categoria.id });
+					if (fallo) {
+						borrar.disabled = false;
+						errorAccion.textContent = mensajeError(fallo, 'borrar');
+						return;
+					}
+					location.reload();
+				});
+				return fila;
+			}),
+		);
+	}
+
+	iniciar();
+</script>
