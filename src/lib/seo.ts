@@ -18,14 +18,15 @@ export function tipoNegocio(categoriaId: string): string {
 	return tipoPorCategoria[categoriaId] ?? 'LocalBusiness';
 }
 
-export function datosRefugio(refugio: Refugio, redes: string[], sitio: URL): Objeto {
+/** `imagen`: URL absoluta de la foto del refugio, la de imagenCompartir() (SPEC 14). */
+export function datosRefugio(refugio: Refugio, redes: string[], sitio: URL, imagen: string): Objeto {
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'AnimalShelter',
 		name: refugio.nombre,
 		url: sitio.href,
 		logo: refugio.logo.url,
-		image: refugio.foto_principal.url,
+		image: imagen,
 		address: {
 			'@type': 'PostalAddress',
 			...(refugio.direccion && { streetAddress: refugio.direccion }),
