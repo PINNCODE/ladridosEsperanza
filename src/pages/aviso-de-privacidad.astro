@@ -1,15 +1,17 @@
 ---
-// /aviso-de-privacidad (SPEC 07): aviso provisional del formulario Súmate (RF-15).
-// La SPEC 10 lo reemplaza por el texto definitivo, revisado por un profesional.
+// /aviso-de-privacidad (SPEC 07 y 11): aviso del formulario Súmate (RF-15) y de las estadísticas
+// de visitas, con la estructura de la LFPDPPP. Sigue pendiente de revisión legal; la nota se quita
+// cuando lo revise un profesional.
 import EncabezadoPagina from '../components/EncabezadoPagina.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtenerRefugio } from '../lib/datos';
-import { enlaceWhatsApp } from '../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const titulo = 'Aviso de privacidad';
-const frase = 'Qué datos guardamos cuando un negocio pide sumarse a Come por los Peludos y para qué los usamos.';
-const whatsapp = enlaceWhatsApp(refugio.whatsapp, 'Hola, quiero que borren los datos de mi solicitud de Súmate.');
+const frase = 'Qué datos guardamos, qué medimos de las visitas y cómo ejercer tus derechos.';
+const actualizacion = '2 de octubre de 2026';
+const correo = 'privacidad@ladridosdeesperanza.org';
+const enlace = 'text-acento underline underline-offset-4';
 ---
 
 <Layout titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
@@ -18,14 +20,24 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, 'Hola, quiero que borren los d
 	<p class="mt-4 max-w-prose rounded-xl bg-suave px-4 py-3 font-bold text-sobre-suave">
 		Texto provisional, pendiente de revisión legal.
 	</p>
+	<p class="mt-3 text-sm text-texto-secundario">Última actualización: {actualizacion}</p>
 
 	<div class="mt-8 max-w-prose space-y-8">
+		<section aria-labelledby="aviso-responsable">
+			<h2 id="aviso-responsable" class="text-xl font-bold">Quién es responsable</h2>
+			<p class="mt-2">
+				El refugio {refugio.nombre}, en {refugio.ubicacion}, es responsable de los datos que recibe este
+				sitio. Para cualquier duda sobre tus datos escríbenos a{' '}
+				<a href={`mailto:${correo}`} class={`${enlace} break-all`}>{correo}</a>.
+			</p>
+		</section>
+
 		<section aria-labelledby="aviso-datos">
 			<h2 id="aviso-datos" class="text-xl font-bold">Qué datos guardamos</h2>
 			<p class="mt-2">
-				Cuando llenas el formulario "Súmate" guardamos el nombre y el tipo de tu negocio, tu número de
-				WhatsApp y, si los escribes, tu nombre y tu mensaje, junto con la fecha del envío. No guardamos
-				ningún otro dato tuyo.
+				Solo los del formulario "Súmate": el nombre y el tipo de tu negocio, tu número de WhatsApp y, si
+				los escribes, tu nombre y tu mensaje, junto con la fecha del envío y tu aceptación de este aviso.
+				No pedimos ni guardamos ningún dato sensible.
 			</p>
 		</section>
 
@@ -33,27 +45,66 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, 'Hola, quiero que borren los d
 			<h2 id="aviso-uso" class="text-xl font-bold">Para qué los usamos</h2>
 			<p class="mt-2">
 				Solo para escribirte por WhatsApp y platicar cómo sumar tu negocio a Come por los Peludos. No los
-				vendemos, no los compartimos y no los usamos para publicidad.
+				usamos para ninguna otra finalidad ni para publicidad.
 			</p>
 		</section>
 
-		<section aria-labelledby="aviso-acceso">
-			<h2 id="aviso-acceso" class="text-xl font-bold">Quién los ve</h2>
+		<section aria-labelledby="aviso-estadisticas">
+			<h2 id="aviso-estadisticas" class="text-xl font-bold">Estadísticas de visitas</h2>
 			<p class="mt-2">
-				Solo las personas que administran el sitio de {refugio.nombre}, desde un panel con contraseña y
-				verificación en dos pasos.
+				Para saber qué partes del sitio sirven usamos Umami, un servicio de estadísticas que no usa
+				cookies, no guarda tu dirección IP y no identifica a nadie. Este sitio no usa cookies propias ni de
+				terceros.
+			</p>
+			<p class="mt-2">
+				Contamos las páginas vistas, las búsquedas en el catálogo y en los menús (el texto buscado, sin
+				acentos), los clics a WhatsApp y a los negocios, y los envíos del formulario "Súmate". Si tu
+				navegador tiene activada la opción "no rastrear", no contamos nada de tu visita.
 			</p>
 		</section>
 
-		<section aria-labelledby="aviso-borrar">
-			<h2 id="aviso-borrar" class="text-xl font-bold">Cómo pedir que los borremos</h2>
+		<section aria-labelledby="aviso-whatsapp">
+			<h2 id="aviso-whatsapp" class="text-xl font-bold">WhatsApp</h2>
 			<p class="mt-2">
-				Escríbenos por <a
-					href={whatsapp}
-					target="_blank"
-					rel="noopener"
-					class="text-acento underline underline-offset-4">WhatsApp</a
-				> desde el mismo número y borraremos tu solicitud.
+				Los botones de WhatsApp abren una conversación en la aplicación. El sitio no guarda esa
+				conversación, que queda sujeta al aviso de privacidad de WhatsApp.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-terceros">
+			<h2 id="aviso-terceros" class="text-xl font-bold">Quién más los trata</h2>
+			<p class="mt-2">
+				Dentro del refugio, solo las personas que administran el sitio, desde un panel con contraseña y
+				verificación en dos pasos. Fuera de él, solo los servicios que hacen funcionar el sitio: Supabase
+				(base de datos), Vercel (hospedaje y registros técnicos de cada visita) y Umami (estadísticas). Los
+				tratan solo para darnos ese servicio. No vendemos ni transferimos tus datos a nadie.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-tiempo">
+			<h2 id="aviso-tiempo" class="text-xl font-bold">Cuánto tiempo los guardamos</h2>
+			<p class="mt-2">
+				Mientras platicamos la colaboración o mientras tu negocio colabora con el refugio, o hasta que nos
+				pidas borrarlos.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-derechos">
+			<h2 id="aviso-derechos" class="text-xl font-bold">Tus derechos (ARCO) y cómo revocar tu consentimiento</h2>
+			<p class="mt-2">
+				Puedes pedir acceder a tus datos, corregirlos, borrarlos u oponerte a que los usemos, y también
+				retirar tu consentimiento. Escríbenos a{' '}
+				<a href={`mailto:${correo}`} class={`${enlace} break-all`}>{correo}</a> con el nombre de tu negocio,
+				el WhatsApp que usaste en el formulario y lo que nos pides. Te respondemos en un máximo de 20 días
+				hábiles.
+			</p>
+		</section>
+
+		<section aria-labelledby="aviso-cambios">
+			<h2 id="aviso-cambios" class="text-xl font-bold">Cambios a este aviso</h2>
+			<p class="mt-2">
+				Si cambiamos este aviso, publicamos la nueva versión en esta página con su fecha de última
+				actualización.
 			</p>
 		</section>
 	</div>
