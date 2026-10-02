@@ -77,11 +77,10 @@ export const cargadorRegistrosCifras = () =>
 export const cargadorRefugio = () =>
 	cargador(
 		'refugio',
-		`*, logo:imagenes!logo_id(${columnasImagen}), foto_principal:imagenes!foto_principal_id(${columnasImagen})`,
-		({ logo_id: _l, foto_principal_id: _f, logo, foto_principal, ...resto }) => ({
+		`*, logo:imagenes!logo_id(${columnasImagen})`,
+		({ logo_id: _l, logo, ...resto }) => ({
 			...resto,
 			logo: imagen(logo),
-			foto_principal: imagen(foto_principal),
 		}),
 	);
 

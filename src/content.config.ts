@@ -39,7 +39,7 @@ const refugio = defineCollection({
 		// Solo dígitos con lada, listo para wa.me: "5215500000000".
 		whatsapp: z.string().regex(/^\d{10,15}$/),
 		logo: imagen,
-		foto_principal: imagen,
+		// Las fotos del refugio viven en src/assets/refugio/ (SPEC 14).
 		es_ejemplo,
 	}),
 });
