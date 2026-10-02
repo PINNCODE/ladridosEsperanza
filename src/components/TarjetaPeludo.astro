@@ -40,7 +40,12 @@ const [foto] = data.fotos;
 				</div>
 			)
 		}
-		<div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/75 via-black/40 to-transparent p-4 pt-14 text-white">
+		<div
+			class:list={[
+				'absolute inset-x-0 bottom-0 p-4 pt-14',
+				foto ? 'bg-linear-to-t from-black/75 via-black/40 to-transparent text-white' : 'text-sobre-suave',
+			]}
+		>
 			<h3 class="text-xl font-bold">{data.nombre}</h3>
 			<p class="text-sm">{data.descripcion_especie} · {data.edad}</p>
 		</div>
@@ -54,6 +59,8 @@ const [foto] = data.fotos;
 			</span>
 		)
 	}
-	<BotonMeGusta id={id} nombre={data.nombre} origen={origen} class="absolute top-2 right-2" />
+	<div class="absolute top-2 right-2">
+		<BotonMeGusta id={id} nombre={data.nombre} origen={origen} />
+	</div>
 </article>
 

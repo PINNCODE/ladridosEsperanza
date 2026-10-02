@@ -21,9 +21,11 @@ interface Props {
 	indexar?: boolean;
 	/** Objeto schema.org que se escribe como JSON-LD en <head>. */
 	estructurados?: Record<string, unknown>;
+	/** La barra del slot `barra` mide 60 px y no 48 (la de la ficha de un peludo, SPEC 13). */
+	barraAlta?: boolean;
 }
 
-const { titulo, descripcion, imagen, textoImagen, indexar = true, estructurados } = Astro.props;
+const { titulo, descripcion, imagen, textoImagen, indexar = true, estructurados, barraAlta = false } = Astro.props;
 const refugio = await obtenerRefugio();
 
 // Analítica sin cookies (SPEC 11): el script de Umami solo va en la compilación de Production
@@ -37,7 +39,7 @@ const compartir = imagen
 	? { ...imagen, alt: textoImagen ?? titulo, tarjeta: 'summary' }
 	: { ...refugio.foto_principal, alt: `Foto de ${refugio.nombre}`, tarjeta: 'summary_large_image' };
 
-// Solo las páginas de /colabora traen barra fija inferior (SPEC 04, RF-13). Con ella,
+// Las páginas de /colabora (SPEC 04, RF-13) y la ficha de cada peludo (SPEC 13) traen barra fija inferior. Con ella,
 // viewport-fit=cover hace que env(safe-area-inset-bottom) mida la barra de inicio del
 // teléfono, y el relleno inferior evita que la barra tape el pie.
 const conBarra = Astro.slots.has('barra');
@@ -91,7 +93,8 @@ const conBarra = Astro.slots.has('barra');
 	<body
 		class:list={[
 			'flex min-h-dvh flex-col',
-			conBarra && 'pb-[calc(3rem+env(safe-area-inset-bottom))]',
+			conBarra &&
+				(barraAlta ? 'pb-[calc(3.75rem+env(safe-area-inset-bottom))]' : 'pb-[calc(3rem+env(safe-area-inset-bottom))]'),
 		]}
 	>
 		{mostrarEjemplos && <CintaEjemplo />}

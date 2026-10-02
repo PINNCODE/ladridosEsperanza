@@ -1,0 +1,49 @@
+---
+// Convivencia de la ficha (SPEC 13): con perros, gatos y niños, cada una "Sí", "No" o "Por conocer".
+import Icono from '../Icono.astro';
+import type { Peludo } from '../../lib/datos';
+
+interface Props {
+	peludo: Peludo;
+}
+
+const { data } = Astro.props.peludo;
+
+const insignias = [
+	{
+		icono: 'dog',
+		valor: data.convive_perros,
+		textos: { si: 'Convive con perros', no: 'Mejor sin perros', no_sabemos: 'Con perros: por conocer' },
+	},
+	{
+		icono: 'cat',
+		valor: data.convive_gatos,
+		textos: { si: 'Convive con gatos', no: 'Mejor sin gatos', no_sabemos: 'Con gatos: por conocer' },
+	},
+	{
+		icono: 'baby',
+		valor: data.convive_ninos,
+		textos: { si: 'Convive con niños', no: 'Mejor sin niños', no_sabemos: 'Con niños: por conocer' },
+	},
+];
+
+const estilos = {
+	si: 'bg-suave text-sobre-suave',
+	no: 'border border-lineas bg-superficie',
+	no_sabemos: 'border border-dashed border-lineas bg-superficie text-texto-secundario',
+};
+---
+
+<section aria-labelledby="convivencia-titulo" class="mt-6">
+	<h2 id="convivencia-titulo" class="text-lg font-bold">Convivencia</h2>
+	<ul class="mt-2 flex flex-wrap gap-2">
+		{
+			insignias.map(({ icono, valor, textos }) => (
+				<li class:list={['inline-flex min-h-10 items-center gap-2 rounded-full px-3 text-sm font-bold', estilos[valor]]}>
+					<Icono nombre={icono} size={18} />
+					{textos[valor]}
+				</li>
+			))
+		}
+	</ul>
+</section>

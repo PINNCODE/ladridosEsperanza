@@ -1,0 +1,57 @@
+---
+// "Su camino en el refugio" (SPEC 13): los hitos del peludo en orden de fecha. El de esterilización
+// agradece a su padrino, o dice que la cubrió el refugio. Sin hitos, no se muestra.
+import Icono from '../Icono.astro';
+import type { Peludo } from '../../lib/datos';
+import { formatearFecha } from '../../lib/formato';
+
+interface Props {
+	peludo: Peludo;
+}
+
+const { hitos } = Astro.props.peludo.data;
+
+const tipos = {
+	llegada: { titulo: 'Llegó al refugio', icono: 'house' },
+	esterilizacion: { titulo: 'Esterilización', icono: 'heart-handshake' },
+	vacunas: { titulo: 'Vacunas', icono: 'syringe' },
+	desparasitacion: { titulo: 'Desparasitación', icono: 'pill' },
+	otro: { titulo: '', icono: 'sparkles' },
+};
+---
+
+{
+	hitos.length > 0 && (
+		<section aria-labelledby="camino-titulo" class="mt-8">
+			<h2 id="camino-titulo" class="text-2xl font-bold">
+				Su camino en el refugio
+			</h2>
+			<ol class="mt-4">
+				{hitos.map((hito, indice) => {
+					const { titulo, icono } = tipos[hito.tipo];
+					const ultimo = indice === hitos.length - 1;
+					return (
+						<li class="relative flex gap-4 pb-6 last:pb-0">
+							{!ultimo && <span aria-hidden="true" class="absolute top-11 bottom-0 left-5 w-0.5 bg-lineas" />}
+							<span class="relative grid size-10 shrink-0 place-items-center rounded-full bg-suave">
+								<Icono nombre={icono} size={20} />
+							</span>
+							<div class="pt-1">
+								<p class="text-sm text-texto-secundario">{formatearFecha(hito.fecha)}</p>
+								<h3 class="font-bold">{hito.tipo === 'otro' ? hito.texto : titulo}</h3>
+								{hito.tipo !== 'otro' && hito.texto && <p>{hito.texto}</p>}
+								{hito.tipo === 'esterilizacion' && (
+									<p class="mt-1 text-sobre-suave">
+										{hito.padrino
+											? `Gracias a ${hito.padrino}, que apadrinó su esterilización.`
+											: 'La cubrió el refugio.'}
+									</p>
+								)}
+							</div>
+						</li>
+					);
+				})}
+			</ol>
+		</section>
+	)
+}

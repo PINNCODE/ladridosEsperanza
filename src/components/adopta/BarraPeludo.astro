@@ -1,0 +1,85 @@
+---
+// Barra fija inferior de la ficha de un peludo (SPEC 13): "Quiero adoptar a {nombre}" por WhatsApp
+// y "Compartir". Mide 60 px más el área segura; la página pasa `barraAlta` a Layout.
+// "Compartir" usa el menú del teléfono; sin él copia el enlace, y sin ninguno de los dos no aparece.
+import Icono from '../Icono.astro';
+import { obtenerRefugio, type Peludo } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+interface Props {
+	peludo: Peludo;
+}
+
+const { nombre } = Astro.props.peludo.data;
+const refugio = await obtenerRefugio();
+const whatsapp = enlaceWhatsApp(
+	refugio.whatsapp,
+	`Hola, quiero adoptar a ${nombre}. La vi en la página de ${refugio.nombre}.`,
+);
+---
+
+<div
+	class="fixed inset-x-0 bottom-0 z-10 bg-superficie shadow-[0_-1px_0_var(--color-lineas)] pb-[env(safe-area-inset-bottom)]"
+>
+	<div class="mx-auto flex h-15 max-w-5xl items-center gap-2 px-4">
+		<a
+			href={whatsapp}
+			data-umami-event="whatsapp"
+			data-umami-event-motivo="adopcion"
+			data-umami-event-peludo={nombre}
+			target="_blank"
+			rel="noopener"
+			class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-acento px-4 text-center font-bold text-sobre-acento"
+		>
+			<Icono nombre="heart-handshake" tono="heredado" size={20} />
+			Quiero adoptar a {nombre}
+		</a>
+		<button
+			type="button"
+			data-compartir
+			data-nombre={nombre}
+			hidden
+			class="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl border border-lineas bg-superficie px-3 font-bold sm:px-4"
+		>
+			<Icono nombre="share-2" size={20} />
+			{/* En teléfono solo el ícono, para que "Quiero adoptar a {nombre}" quepa en una línea. */}
+			<span data-texto-compartir aria-live="polite" class="sr-only sm:not-sr-only">Compartir</span>
+		</button>
+	</div>
+</div>
+
+<script>
+	import { registrar } from '../../lib/analitica';
+
+	const boton = document.querySelector<HTMLButtonElement>('[data-compartir]');
+	const puedeCompartir = typeof navigator.share === 'function';
+	const puedeCopiar = typeof navigator.clipboard?.writeText === 'function';
+
+	if (boton && (puedeCompartir || puedeCopiar)) {
+		const nombre = boton.dataset.nombre!;
+		const texto = boton.querySelector<HTMLElement>('[data-texto-compartir]')!;
+		let espera: ReturnType<typeof setTimeout>;
+		boton.hidden = false;
+
+		boton.addEventListener('click', async () => {
+			registrar('compartir', { peludo: nombre });
+			const url = location.origin + location.pathname;
+			if (puedeCompartir) {
+				try {
+					await navigator.share({ title: document.title, text: `Conoce a ${nombre}, busca familia.`, url });
+				} catch {
+					// La persona cerró el menú de compartir.
+				}
+				return;
+			}
+			try {
+				await navigator.clipboard.writeText(url);
+				texto.textContent = 'Enlace copiado';
+				clearTimeout(espera);
+				espera = setTimeout(() => (texto.textContent = 'Compartir'), 2000);
+			} catch {
+				// Sin permiso para el portapapeles: no pasa nada.
+			}
+		});
+	}
+</script>
