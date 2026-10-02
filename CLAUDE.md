@@ -8,7 +8,7 @@ The site is live at https://www.ladridosdeesperanza.org (Vercel, from `main`; th
 
 - Production still builds with `PUBLIC_MOSTRAR_EJEMPLOS=true`, so it shows the sample data and the "Datos de ejemplo" ribbon until the shelter's real records are loaded in the cloud project and that variable is removed in Vercel.
 - The privacy notice still says it is pending legal review.
-- Unchecked cloud criteria: SPEC 06 (no Vercel variable with the secret key has the `PUBLIC_` prefix) and SPEC 09 (measure a business hours change against RF-16).
+- Unchecked cloud criteria: SPEC 09 (measure a business hours change against RF-16).
 - The shelter's original-resolution photos and logo, and the conditions of sponsorship and volunteering (see "Antes de publicar" in `specs/README.md`).
 
 ## Development

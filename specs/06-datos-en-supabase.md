@@ -209,7 +209,7 @@ Las horas `time` de Postgres (`"13:00:00"`) se recortan a `"13:00"`.
 - [x] `select * from cron.job` en la nube muestra `recompilar-diario` con `5 6 * * *`.
 - [x] Correr `select recompilar_sitio()` en la nube inicia un despliegue en Vercel.
 - [x] El URL del deploy hook no aparece en ningún archivo del repositorio.
-- [ ] Ninguna variable de Vercel ni de `.env.example` con la llave secreta lleva prefijo `PUBLIC_`, y la llave no aparece en ningún archivo de `dist/`.
+- [x] Ninguna variable de Vercel ni de `.env.example` con la llave secreta lleva prefijo `PUBLIC_`, y la llave no aparece en ningún archivo de `dist/`.
 
 ### Observaciones de la validación
 
@@ -222,6 +222,7 @@ Validado el 2026-10-01 en local, con Supabase en Docker (Colima) y la compilaci�
   - `select recompilar_sitio()` inició un despliegue. `update necesidades set descripcion = descripcion` (3 filas) hizo una sola llamada en `net._http_response`.
   - **RF-16:** el equipo midió **alrededor de 1 minuto** desde guardar en el panel hasta ver el cambio publicado: el costo de la campaña del 24 de octubre pasó a $500 en `/esterilizacion`. Queda en el límite del criterio ("menos de 1 minuto"); si la compilación crece, se retoma con caché de imágenes o ISR, como dice el riesgo de esta spec.
   - De 4 llamadas al hook, 3 aparecen con `timed_out` a los 5 s: Vercel tarda más que el tiempo de espera por defecto de `pg_net` en responder. Aun así despliegan (el costo de $500 llegó por una de ellas); el `timeout` solo deja la respuesta sin registrar.
+- **Llave secreta, validado el 2026-10-02.** En Vercel, `SUPABASE_SECRET_KEY` y `SUPABASE_URL` no llevan `PUBLIC_` (Production y Preview) y son de tipo Sensitive, así que `vercel env pull` no devuelve su valor. Ninguna variable `PUBLIC_` contiene `sb_secret_` ni `service_role`, y `PUBLIC_SUPABASE_PUBLISHABLE_KEY` es una `sb_publishable_…`. En `.env.example` la única variable de la llave es `SUPABASE_SECRET_KEY`, vacía. Como el valor no se puede leer, en `https://www.ladridosdeesperanza.org` se buscó el prefijo `sb_secret_` en 14 páginas (públicas, una de negocio, panel y 404) con sus 18 archivos JS y su CSS: solo aparece en `supabaseNavegador.*.js`, en el código de supabase-js que revisa el prefijo de una llave, no en una llave.
 - **Referencia.** La compilación de antes del cambio y la final tienen los mismos 11 archivos HTML. Al normalizar los nombres de `/_astro/`, el HTML es idéntico, incluidas las etiquetas `<img>` con su `width` y `height`.
 - **Imágenes.** En `/`, `/adopta`, `/esterilizacion`, `/colabora` y `/colabora/tacos-don-chuy` todas las `<img>` apuntan a `/_astro/*.webp` y el HTML no menciona el host de Supabase. El cartel ampliado de `/esterilizacion` carga dentro del `<dialog>`.
 - **Café.** `/colabora/cafe-del-jardin` muestra 7 pestañas y 145 platillos, sin desplazamiento horizontal a 360 px.
