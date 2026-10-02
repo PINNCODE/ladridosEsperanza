@@ -1,8 +1,11 @@
 ---
-// /admin (SPEC 07, 08 y 09): inicio del panel. Las dos cuentas ven las secciones del refugio;
-// el administrador también ve negocios, categorías, las solicitudes nuevas y el enlace a los QR.
+// /admin (SPEC 07, 08, 09 y 11): inicio del panel. Las dos cuentas ven las secciones del refugio
+// y, si existe PUBLIC_UMAMI_TABLERO, el tablero de estadísticas de Umami; el administrador
+// también ve negocios, categorías, las solicitudes nuevas y el enlace a los QR.
 import Icono from '../../components/Icono.astro';
 import LayoutPanel from '../../layouts/LayoutPanel.astro';
+
+const tablero = import.meta.env.PUBLIC_UMAMI_TABLERO;
 
 const tarjeta = 'flex min-h-11 items-start gap-3 rounded-2xl border border-lineas bg-superficie p-5 hover:border-acento';
 
@@ -52,6 +55,19 @@ const secciones = [
 					</span>
 				</a>
 			))
+		}
+		{
+			tablero && (
+				<a href={tablero} target="_blank" rel="noopener" class={tarjeta}>
+					<Icono nombre="chart-line" />
+					<span>
+						<span class="block text-xl font-bold">Estadísticas</span>
+						<span class="text-texto-secundario">
+							Visitas, búsquedas y clics a WhatsApp de cada semana, en Umami.
+						</span>
+					</span>
+				</a>
+			)
 		}
 		<a href="/admin/negocios" data-solo-administrador hidden class={tarjeta}>
 			<Icono nombre="store" />

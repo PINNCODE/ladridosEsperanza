@@ -28,6 +28,9 @@ const promocion = promocionVigente(negocio, new Date());
 >
 	<a
 		href={`/colabora/${id}`}
+		data-umami-event="abrir_negocio"
+		data-umami-event-negocio={id}
+		data-umami-event-origen="catalogo"
 		class="flex h-full flex-col overflow-hidden rounded-2xl border border-lineas bg-superficie"
 	>
 		<div class="relative grid h-32 place-items-center bg-suave">

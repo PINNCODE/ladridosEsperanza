@@ -18,7 +18,8 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 08 | [Panel del refugio](08-panel-del-refugio.md) | Implementado | Parte de RF-16 (peludos y campañas), RF-22, RF-26 (editable) y RF-29; necesidades, textos e imágenes |
 | 09 | [Panel de negocios](09-panel-de-negocios.md) | Implementado (falta medir RF-16 en la nube) | Parte de RF-16 (negocios, horarios, promociones y categorías) |
 | 10 | [Editor de menús](10-editor-de-menus.md) | Implementado | Parte de RF-16 (menús: grupos, secciones, platillos y precios) |
-| 11 | Anuncios, analítica, SEO y aviso de privacidad | Por escribir | RF-18, RF-20, aviso de privacidad definitivo y requisitos no funcionales |
+| 11 | [SEO, analítica y aviso de privacidad](11-seo-analitica-y-aviso-de-privacidad.md) | Implementado (faltan el paso 10 manual y las pruebas en producción) | RF-20, aviso de privacidad completo y rendimiento móvil |
+| 12 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs
 
@@ -35,7 +36,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 - **06:** revisar que ninguna variable de Vercel con la llave secreta lleve prefijo `PUBLIC_` (último criterio sin marcar).
 - **09:** la migración `panel_negocios` ya está en la nube; falta cambiar el horario de un negocio con la cuenta administradora y medir el tiempo contra RF-16 (criterios de la nube sin marcar).
-- **11:** reemplazar los favicons de Astro (`public/favicon.svg` y `favicon.ico`) por los del refugio, junto con los metadatos para compartir.
+- **11:** crear la regla `privacidad@` en Cloudflare Email Routing y, ya publicada, medir Lighthouse móvil y revisar los criterios de producción.
 
 ## Antes de publicar
 

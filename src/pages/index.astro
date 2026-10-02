@@ -11,12 +11,15 @@ import Problematicas from '../components/portada/Problematicas.astro';
 import QuienesSomos from '../components/portada/QuienesSomos.astro';
 import RedesContacto from '../components/portada/RedesContacto.astro';
 import Layout from '../layouts/Layout.astro';
-import { obtenerRefugio } from '../lib/datos';
+import { obtener, obtenerRefugio } from '../lib/datos';
+import { datosRefugio } from '../lib/seo';
 
 const refugio = await obtenerRefugio();
+const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden).map(({ data }) => data.url);
+const estructurados = datosRefugio(refugio, redes, Astro.site!);
 ---
 
-<Layout titulo={refugio.nombre} descripcion={refugio.frase}>
+<Layout titulo={refugio.nombre} descripcion={refugio.frase} estructurados={estructurados}>
 	<Presentacion />
 	<CaminoHuellas />
 	<Adopciones />

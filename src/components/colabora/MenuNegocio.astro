@@ -29,7 +29,7 @@ const chip =
 	'flex min-h-11 shrink-0 items-center rounded-full border border-lineas bg-superficie px-4 whitespace-nowrap aria-pressed:border-acento aria-pressed:bg-acento aria-pressed:font-bold aria-pressed:text-sobre-acento';
 ---
 
-<section aria-labelledby="menu-titulo" data-menu class="min-w-0">
+<section aria-labelledby="menu-titulo" data-menu data-negocio={negocio.id} class="min-w-0">
 	<h2 id="menu-titulo" class="text-2xl font-bold">Menú</h2>
 
 	{
@@ -109,6 +109,7 @@ const chip =
 </section>
 
 <script>
+	import { registrarBusqueda } from '../../lib/analitica';
 	import { coincide } from '../../lib/busqueda';
 
 	const menu = document.querySelector<HTMLElement>('[data-menu]');
@@ -173,7 +174,10 @@ const chip =
 			});
 		}
 
-		consulta.addEventListener('input', aplicar);
+		consulta.addEventListener('input', () => {
+			aplicar();
+			registrarBusqueda('menu', consulta.value, { negocio: menu.dataset.negocio! });
+		});
 
 		// La búsqueda es al escribir; enviar solo cierra el teclado del teléfono.
 		buscador.addEventListener('submit', (evento) => {

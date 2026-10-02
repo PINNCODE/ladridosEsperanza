@@ -12,6 +12,7 @@ import NotaRefugio from '../../components/colabora/NotaRefugio.astro';
 import LayoutColabora from '../../layouts/LayoutColabora.astro';
 import { categoriasConNegocios, negociosPublicados, obtenerRefugio, type Negocio } from '../../lib/datos';
 import { enlaceMapa } from '../../lib/mapas';
+import { datosNegocio } from '../../lib/seo';
 
 export async function getStaticPaths() {
 	const negocios = await negociosPublicados();
@@ -37,11 +38,15 @@ const { negocio, categoria, otros } = Astro.props;
 const { data } = negocio;
 const refugio = await obtenerRefugio();
 const mapa = enlaceMapa(negocio, refugio.ubicacion);
+const estructurados = datosNegocio(negocio, new URL(Astro.url.pathname, Astro.site).href);
 ---
 
 <LayoutColabora
 	titulo={`${data.nombre} · Come por los Peludos`}
 	descripcion={`${categoria}. ${data.descripcion_corta}. ${data.direccion}.`}
+	imagen={data.logo ?? undefined}
+	textoImagen={`Logo de ${data.nombre}`}
+	estructurados={estructurados}
 >
 	<CabeceraNegocio negocio={negocio} categoria={categoria} mapa={mapa} />
 
