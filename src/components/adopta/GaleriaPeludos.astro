@@ -18,7 +18,8 @@ const chip =
 	'flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-lineas bg-superficie px-4 whitespace-nowrap aria-pressed:border-acento aria-pressed:bg-acento aria-pressed:font-bold aria-pressed:text-sobre-acento';
 ---
 
-<section aria-label="Peludos en adopción" class="mt-6">
+<section aria-labelledby="galeria-titulo" class="mt-6">
+	<h2 id="galeria-titulo" class="sr-only">Peludos en adopción</h2>
 	{
 		peludos.length > 0 ? (
 			<div data-galeria>
