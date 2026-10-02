@@ -1,0 +1,25 @@
+---
+// Cabecera de las listas del panel (SPEC 08): botón "Agregar", aviso al volver de guardar
+// (mostrarAviso() de src/lib/formularioPanel.ts) y error de carga.
+import Icono from '../Icono.astro';
+import { botonPrincipal } from './estilos';
+
+interface Props {
+	/** Página del formulario, por ejemplo "/admin/peludos/editar". */
+	agregar: string;
+	/** Texto del botón, por ejemplo "Agregar peludo". */
+	texto: string;
+}
+
+const { agregar, texto } = Astro.props;
+---
+
+<div class="mt-6 flex flex-wrap items-center gap-4">
+	<a href={agregar} class={botonPrincipal}>
+		<Icono nombre="plus" tono="heredado" size={20} />
+		{texto}
+	</a>
+	<p data-aviso role="status" class="font-bold text-acento"></p>
+</div>
+<p data-error-lista hidden class="mt-6 font-bold">No pudimos cargar la lista. Recarga la página.</p>
+<p data-error-accion role="alert" class="mt-4 font-bold empty:hidden"></p>

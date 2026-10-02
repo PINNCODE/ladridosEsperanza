@@ -1,0 +1,28 @@
+---
+// Marco de las páginas `editar` del panel (SPEC 08): el formulario (oculto hasta cargar el registro),
+// "Guardar" y "Cancelar", el error al guardar y el aviso de registro que no existe.
+// Los campos van en el slot; el <script> de cada página llena, valida y guarda.
+import { boton, botonPrincipal } from './estilos';
+
+interface Props {
+	/** Lista a la que regresan "Cancelar" y "Guardar", por ejemplo "/admin/peludos". */
+	lista: string;
+}
+
+const { lista } = Astro.props;
+---
+
+<p data-no-encontrado hidden class="mt-6">
+	No encontramos este registro.{' '}
+	<a href={lista} class="text-acento underline underline-offset-4">Volver a la lista</a>
+</p>
+<p data-error-carga hidden class="mt-6 font-bold">No pudimos cargar el registro. Recarga la página.</p>
+
+<form data-formulario hidden class="mt-6 max-w-2xl space-y-5">
+	<slot />
+	<p data-error-guardar role="alert" class="font-bold empty:hidden"></p>
+	<div class="flex flex-wrap gap-3">
+		<button type="submit" data-guardar class={botonPrincipal}>Guardar</button>
+		<a href={lista} class={boton}>Cancelar</a>
+	</div>
+</form>

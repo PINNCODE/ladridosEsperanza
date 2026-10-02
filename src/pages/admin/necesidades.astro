@@ -1,0 +1,112 @@
+---
+// /admin/necesidades (SPEC 08, RF-26): necesidades del mes, de la vigencia más próxima a la más lejana.
+// Las vencidas siguen en la lista con la etiqueta "Vencida"; el sitio ya no las muestra.
+import CabeceraLista from '../../components/admin/CabeceraLista.astro';
+import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import LayoutPanel from '../../layouts/LayoutPanel.astro';
+---
+
+<LayoutPanel titulo="Necesidades">
+	<CabeceraLista agregar="/admin/necesidades/editar" texto="Agregar necesidad" />
+	<p data-vacio hidden class="mt-6">Todavía no hay necesidades.</p>
+	<ul data-lista class="mt-6 space-y-3"></ul>
+
+	<template data-plantilla>
+		<li class={tarjeta}>
+			<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+				<h2 data-descripcion class="text-lg font-bold break-words"></h2>
+				<span data-vencida hidden class="rounded-full bg-texto px-3 py-0.5 text-sm font-bold text-superficie"
+					>Vencida</span
+				>
+				<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
+			</div>
+			<p data-detalle class="mt-1 text-texto-secundario"></p>
+			<div class="mt-3 flex flex-wrap gap-2">
+				<a data-editar class={boton}>Editar</a>
+				<button type="button" data-borrar class={boton}>Borrar</button>
+			</div>
+		</li>
+	</template>
+</LayoutPanel>
+
+<script>
+	import { confirmarBorrado, hoyEnMexico, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import { formatearFecha } from '../../lib/formato';
+	import { prepararPanel } from '../../lib/panel';
+	import { supabaseNavegador } from '../../lib/supabaseNavegador';
+
+	type Necesidad = {
+		id: string;
+		tipo: string;
+		descripcion: string;
+		urgencia: string;
+		fecha_vigencia: string;
+		es_ejemplo: boolean;
+	};
+
+	const tipos: Record<string, string> = {
+		alimento: 'Alimento',
+		medicina: 'Medicina',
+		cobijas: 'Cobijas',
+		limpieza: 'Limpieza',
+		otro: 'Otro',
+	};
+
+	async function iniciar() {
+		if (!(await prepararPanel())) return;
+		const supabase = supabaseNavegador();
+		mostrarAviso(document.querySelector<HTMLElement>('[data-aviso]')!);
+
+		const { data, error } = await supabase
+			.from('necesidades')
+			.select('id, tipo, descripcion, urgencia, fecha_vigencia, es_ejemplo')
+			.order('fecha_vigencia')
+			.order('descripcion')
+			.overrideTypes<Necesidad[], { merge: false }>();
+		if (error) {
+			document.querySelector<HTMLElement>('[data-error-lista]')!.hidden = false;
+			return;
+		}
+
+		const lista = document.querySelector<HTMLUListElement>('[data-lista]')!;
+		const plantilla = document.querySelector<HTMLTemplateElement>('[data-plantilla]')!;
+		const errorAccion = document.querySelector<HTMLElement>('[data-error-accion]')!;
+		const hoy = hoyEnMexico();
+
+		document.querySelector<HTMLElement>('[data-vacio]')!.hidden = data.length > 0;
+		lista.replaceChildren(
+			...data.map((necesidad) => {
+				const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+				const urgencia = necesidad.urgencia === 'urgente' ? 'Urgente' : 'Necesaria';
+				const vigencia = formatearFecha(new Date(necesidad.fecha_vigencia));
+				fila.querySelector('[data-descripcion]')!.textContent = necesidad.descripcion;
+				fila.querySelector('[data-detalle]')!.textContent =
+					`${tipos[necesidad.tipo] ?? necesidad.tipo} · ${urgencia} · Vigente hasta el ${vigencia}`;
+				fila.querySelector<HTMLElement>('[data-vencida]')!.hidden = necesidad.fecha_vigencia >= hoy;
+				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !necesidad.es_ejemplo;
+				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
+					`/admin/necesidades/editar?id=${encodeURIComponent(necesidad.id)}`;
+
+				const borrar = fila.querySelector<HTMLButtonElement>('[data-borrar]')!;
+				borrar.setAttribute('aria-label', `Borrar ${necesidad.descripcion}`);
+				borrar.addEventListener('click', async () => {
+					if (!confirmarBorrado(necesidad.descripcion)) return;
+					borrar.disabled = true;
+					const { error: fallo } = await supabase.rpc('borrar_contenido', {
+						tabla: 'necesidades',
+						id: necesidad.id,
+					});
+					if (fallo) {
+						borrar.disabled = false;
+						errorAccion.textContent = mensajeError(fallo, 'borrar');
+						return;
+					}
+					location.reload();
+				});
+				return fila;
+			}),
+		);
+	}
+
+	iniciar();
+</script>
