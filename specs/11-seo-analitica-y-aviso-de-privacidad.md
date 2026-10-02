@@ -1,6 +1,6 @@
 # SPEC 11 — SEO, analítica y aviso de privacidad
 
-> **Estado:** Implementado (faltan el paso 10 manual y las pruebas en producción)
+> **Estado:** Implementado
 > **Depende de:** SPEC 02, SPEC 03, SPEC 04, SPEC 05, SPEC 07
 > **Fecha:** 2026-10-02
 > **Objetivo:** Que el sitio público se encuentre y se comparta bien (mapa del sitio, etiquetas para compartir, datos estructurados y favicons del refugio), mida sus visitas y clics sin cookies en Umami, y tenga un aviso de privacidad completo que explique todo lo que guarda.
@@ -240,7 +240,7 @@ El enlace de WhatsApp para borrar la solicitud se quita: el canal de privacidad 
 - [x] `/colabora/cafe-del-jardin` usa el logo del negocio en `og:image` y `twitter:card` `summary`; `/` usa la foto principal del refugio y `summary_large_image`.
 - [x] Un negocio sin logo usa la foto del refugio en `og:image`.
 - [x] `/404` tiene `<meta name="robots" content="noindex">` y las demás páginas públicas no.
-- [ ] Pegar la URL de producción de un negocio en WhatsApp muestra su nombre, su descripción y su logo.
+- [x] Pegar la URL de producción de un negocio en WhatsApp muestra su nombre, su descripción y su logo.
 
 ### Datos estructurados
 
@@ -261,15 +261,15 @@ El enlace de WhatsApp para borrar la solicitud se quita: el canal de privacidad 
 
 - [x] Sin `VERCEL_ENV=production`, ninguna página tiene el script de Umami; con ella, todas las públicas lo tienen y ninguna de `/admin`.
 - [x] El script lleva `data-domains` con el host de producción, `data-exclude-search`, `data-exclude-hash` y `data-do-not-track`.
-- [ ] El sitio no crea ninguna cookie (revisado en las herramientas del navegador en producción).
+- [x] El sitio no crea ninguna cookie (revisado en las herramientas del navegador en producción).
 - [x] Cada enlace de la tabla de eventos lleva su `data-umami-event` y sus datos en el HTML compilado.
 - [x] Escribir "Chilaquiles" en el catálogo y esperar 1 s llama una vez a `umami.track('busqueda', { lugar: 'catalogo', texto: 'chilaquiles' })`; escribir una sola letra no llama.
 - [x] Buscar "latte" en el menú del café llama a `umami.track` con `lugar: 'menu'` y `negocio: 'cafe-del-jardin'`.
 - [x] Enviar Súmate con éxito llama a `umami.track('sumate_enviado')`; con el campo trampa lleno, no.
 - [x] Sin el script cargado (bloqueador de anuncios), buscar y enviar Súmate funcionan sin errores en la consola.
-- [ ] En producción, cambiar filtros del catálogo y pestañas del menú no suma visitas en Umami.
-- [ ] En producción, un clic a WhatsApp de un peludo aparece en Umami como evento `whatsapp` con `motivo` `adopcion` y el nombre del peludo.
-- [ ] El enlace compartido de Umami muestra las visitas y los eventos de los últimos 7 días sin iniciar sesión.
+- [x] En producción, cambiar filtros del catálogo y pestañas del menú no suma visitas en Umami.
+- [x] En producción, un clic a WhatsApp de un peludo aparece en Umami como evento `whatsapp` con `motivo` `adopcion` y el nombre del peludo.
+- [x] El enlace compartido de Umami muestra las visitas y los eventos de los últimos 7 días sin iniciar sesión.
 
 ### Panel
 
@@ -280,12 +280,12 @@ El enlace de WhatsApp para borrar la solicitud se quita: el canal de privacidad 
 - [x] `/aviso-de-privacidad` tiene las 9 secciones en el orden de la spec, la nota "pendiente de revisión legal" y la fecha de última actualización.
 - [x] El aviso nombra al refugio como responsable con su ubicación y da `privacidad@ladridosdeesperanza.org` como enlace `mailto:`.
 - [x] El aviso menciona Umami, Supabase y Vercel, y dice que el sitio no usa cookies.
-- [ ] Un correo enviado a `privacidad@ladridosdeesperanza.org` llega al buzón del desarrollador.
+- [x] Un correo enviado a `privacidad@ladridosdeesperanza.org` llega al buzón del desarrollador.
 - [x] El formulario Súmate y el pie siguen enlazando el aviso.
 
 ### Rendimiento
 
-- [ ] Lighthouse móvil en producción da LCP menor a 2.5 s en `/`, `/colabora` y `/colabora/cafe-del-jardin`; los valores medidos se anotan en las observaciones de esta spec.
+- [x] Lighthouse móvil en producción da LCP menor a 2.5 s en `/`, `/colabora` y `/colabora/cafe-del-jardin`; los valores medidos se anotan en las observaciones de esta spec.
 
 ### Compilación
 
@@ -297,8 +297,11 @@ El enlace de WhatsApp para borrar la solicitud se quita: el canal de privacidad 
 Validado el 2026-10-02 en local, con Supabase en Docker (Colima), `astro build`, `astro check` y `astro preview`; Chromium sin interfaz (Playwright) a 360 y 1024 px, con un `window.umami` falso inyectado antes de cargar cada página.
 Las sesiones `aal2` del panel se abrieron con el script de Node que calcula los códigos TOTP.
 
-- **Paso 10 (manual), en curso.** El sitio de Umami ya existe (ID `772ee111-…`), y el 2026-10-02 se creó su enlace compartido y se puso como `PUBLIC_UMAMI_TABLERO` en Vercel (solo Production). Falta crear la regla `privacidad@` en Cloudflare Email Routing (revisando que los correos del panel por Resend sigan saliendo). Los criterios que dependen de producción siguen sin marcar.
-- **Paso 11 (rendimiento).** Lighthouse 13 móvil (simulado, con la limitación por omisión) sobre `astro preview` local: `/` LCP 1.7 s, `/colabora` 1.5 s y `/colabora/cafe-del-jardin` 1.7 s (CLS 0, 0 y 0.036; puntuación 100 en las tres). No hubo nada que corregir; falta repetir la medición en producción después de publicar.
+- **Paso 10 (manual), completo.** El 2026-10-02 se creó el sitio en Umami (ID `772ee111-…`) y su enlace compartido, `PUBLIC_UMAMI_TABLERO` quedó en Vercel (solo Production) y se creó la regla `privacidad@` en Cloudflare Email Routing. La vista previa en WhatsApp y la llegada del correo de privacidad las confirmó el desarrollador.
+- **Dominio de producción.** Después del merge, el sitio se servía en `https://www.ladridosdeesperanza.org` (el dominio sin `www` redirige con 308), pero `PUBLIC_URL_SITIO` seguía en `https://ladridos-esperanza.vercel.app`. El script llevaba ese host en `data-domains` y no mandaba ninguna visita, y la URL canónica, el mapa del sitio, `robots.txt` y los QR apuntaban a Vercel. Se cambió `PUBLIC_URL_SITIO` a `https://www.ladridosdeesperanza.org` en Production y Preview y se volvió a desplegar.
+- **Producción (2026-10-02).** `data-domains="www.ladridosdeesperanza.org"`; la URL canónica, el `Sitemap:` de `robots.txt` y el mapa del sitio usan el dominio propio. Con un navegador normal, `/colabora` mandó la visita y `busqueda` (`catalogo`, `chilaquiles`); cambiar una categoría y una pestaña del menú del café (`#menu-de-antojo`) no mandó nada; en `/adopta`, el botón de Luna mandó `whatsapp` con `motivo: adopcion` y `peludo: Luna`. El enlace compartido mostró, sin iniciar sesión, 1 visitante y 2 eventos. Las pruebas automáticas con Chromium sin interfaz no cuentan: Umami las toma por bots y responde `{"beep":"boop"}`. Sin cookies del sitio; solo aparecen las de `whatsapp.com` al abrir su enlace.
+- **Lighthouse en producción.** Móvil, en `https://www.ladridosdeesperanza.org`: `/` LCP 2.1 s (98), `/colabora` 1.9 s (99) y `/colabora/cafe-del-jardin` 1.9 s (99), CLS 0 en las tres.
+- **Paso 11 (rendimiento).** Lighthouse 13 móvil (simulado, con la limitación por omisión) sobre `astro preview` local: `/` LCP 1.7 s, `/colabora` 1.5 s y `/colabora/cafe-del-jardin` 1.7 s (CLS 0, 0 y 0.036; puntuación 100 en las tres). No hubo nada que corregir; en producción también quedó debajo de 2.5 s (ver abajo).
 - **Prop `textoImagen`.** `Layout` y `LayoutColabora` reciben además `textoImagen` para el `og:image:alt` ("Logo de {negocio}"); la imagen sola no trae el nombre del negocio.
 - **Favicons.** `favicon.ico` es un contenedor ICO con un PNG de 32 × 32; `icono.png` (192 × 192) y `apple-touch-icon.png` (180 × 180) salen del mismo `logo.jpg`. Las 14 páginas públicas y las de `/admin` enlazan los tres archivos.
 - **Etiquetas para compartir.** La semilla no trae logos de negocio: el criterio del logo se probó poniendo en local el `logo.jpg` del refugio como logo del Café del Jardín (`og:image` del logo, 225 × 225, `twitter:card` `summary`, alt "Logo de Café del Jardín") y se revirtió. Sin logo, el café usa la foto del patio y `summary_large_image`. La URL canónica lleva la diagonal final, igual que el mapa del sitio.
