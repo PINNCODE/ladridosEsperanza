@@ -426,3 +426,147 @@ $$;
 
 revoke execute on function public.guardar_campana(jsonb) from public, anon;
 grant execute on function public.guardar_campana(jsonb) to authenticated;
+
+-- Reemplaza las fotos de un peludo (fotos_peludo) o de un bloque (imagenes_bloque) por las de `fotos`,
+-- en ese orden, y devuelve las rutas de las imágenes que dejaron de usarse.
+create function public.reemplazar_fotos(tabla text, id text, fotos jsonb) returns text[]
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+	anteriores uuid[];
+	foto jsonb;
+	orden int := 0;
+begin
+	if jsonb_array_length(fotos) > 4 then
+		raise exception 'demasiadas_fotos';
+	end if;
+
+	if tabla = 'fotos_peludo' then
+		anteriores := array(select f.imagen_id from public.fotos_peludo f where f.peludo_id = reemplazar_fotos.id);
+		delete from public.fotos_peludo f where f.peludo_id = reemplazar_fotos.id;
+	else
+		anteriores := array(select b.imagen_id from public.imagenes_bloque b where b.bloque_id = reemplazar_fotos.id);
+		delete from public.imagenes_bloque b where b.bloque_id = reemplazar_fotos.id;
+	end if;
+
+	for foto in select * from jsonb_array_elements(fotos) loop
+		orden := orden + 1;
+		if tabla = 'fotos_peludo' then
+			insert into public.fotos_peludo (peludo_id, imagen_id, orden)
+			values (reemplazar_fotos.id, public.guardar_imagen(foto), orden);
+		else
+			insert into public.imagenes_bloque (bloque_id, imagen_id, orden)
+			values (reemplazar_fotos.id, public.guardar_imagen(foto), orden);
+		end if;
+	end loop;
+
+	return public.limpiar_imagenes(anteriores);
+end;
+$$;
+
+revoke execute on function public.reemplazar_fotos(text, text, jsonb) from public, anon, authenticated;
+
+-- Peludo en adopción (RF-11, RF-30). Sin "id" crea uno con el slug del nombre (luna, luna-2…) al final
+-- del orden; con "id" lo actualiza. "rasgos" lleva exactamente 2 y "fotos" hasta 4.
+create function public.guardar_peludo(datos jsonb) returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+	fila public.peludos;
+	fotos jsonb := coalesce(datos -> 'fotos', '[]'::jsonb);
+begin
+	perform public.exigir_panel();
+
+	fila.id := datos ->> 'id';
+	fila.nombre := public.campo_texto(datos, 'nombre');
+	fila.especie := public.campo_texto(datos, 'especie');
+	fila.descripcion_especie := public.campo_texto(datos, 'descripcion_especie');
+	fila.edad := public.campo_texto(datos, 'edad');
+	fila.tamano := public.campo_texto(datos, 'tamano');
+	fila.descripcion := public.campo_texto(datos, 'descripcion', false);
+	fila.estado := public.campo_texto(datos, 'estado');
+	fila.rasgos := array(
+		select nullif(btrim(rasgo), '') from jsonb_array_elements_text(coalesce(datos -> 'rasgos', '[]'::jsonb)) rasgo
+	);
+	if cardinality(fila.rasgos) <> 2 or array_position(fila.rasgos, null) is not null then
+		raise exception 'datos_invalidos' using detail = 'rasgos';
+	end if;
+
+	if fila.id is null then
+		fila.id := public.id_libre(public.slug(fila.nombre), 'peludos');
+		fila.orden := (select coalesce(max(p.orden), 0) + 1 from public.peludos p);
+		fila.es_ejemplo := false;
+		insert into public.peludos values (fila.*);
+	else
+		update public.peludos p
+		set nombre = fila.nombre, especie = fila.especie, descripcion_especie = fila.descripcion_especie,
+			edad = fila.edad, tamano = fila.tamano, descripcion = fila.descripcion, rasgos = fila.rasgos,
+			estado = fila.estado
+		where p.id = fila.id;
+		if not found then
+			raise exception 'no_encontrado';
+		end if;
+	end if;
+
+	return jsonb_build_object(
+		'id', fila.id,
+		'rutas_borradas', to_jsonb(public.reemplazar_fotos('fotos_peludo', fila.id, fotos))
+	);
+end;
+$$;
+
+-- Sube (-1) o baja (1) un peludo, o un bloque dentro de su sección, un lugar en el orden.
+-- Renumera 1, 2, 3… para que dos filas con el mismo `orden` también se puedan intercambiar.
+create function public.mover_contenido(tabla text, id text, direccion int) returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+	seccion_bloque text;
+	ids text[];
+	posicion int;
+	destino int;
+begin
+	perform public.exigir_panel();
+
+	if tabla not in ('peludos', 'bloques_contenido') or direccion not in (-1, 1) then
+		raise exception 'sin_permiso';
+	end if;
+
+	if tabla = 'bloques_contenido' then
+		select b.seccion into seccion_bloque from public.bloques_contenido b where b.id = mover_contenido.id;
+		ids := array(
+			select b.id from public.bloques_contenido b where b.seccion = seccion_bloque order by b.orden, b.id
+		);
+	else
+		ids := array(select p.id from public.peludos p order by p.orden, p.id);
+	end if;
+
+	posicion := array_position(ids, mover_contenido.id);
+	if posicion is null then
+		raise exception 'no_encontrado';
+	end if;
+	destino := posicion + direccion;
+	if destino < 1 or destino > cardinality(ids) then
+		return;
+	end if;
+	ids[posicion] := ids[destino];
+	ids[destino] := mover_contenido.id;
+
+	execute format(
+		'update public.%I t set orden = n.orden from unnest($1::text[]) with ordinality as n(id, orden) '
+		'where t.id = n.id and t.orden is distinct from n.orden',
+		tabla
+	) using ids;
+end;
+$$;
+
+revoke execute on function public.guardar_peludo(jsonb) from public, anon;
+revoke execute on function public.mover_contenido(text, text, int) from public, anon;
+grant execute on function public.guardar_peludo(jsonb) to authenticated;
+grant execute on function public.mover_contenido(text, text, int) to authenticated;
