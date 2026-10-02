@@ -1,6 +1,6 @@
 ---
 // Encabezado común: logo, nombre, botón "Dona" siempre visible y navegación
-// en una fila que se desliza horizontalmente en teléfono.
+// en una fila que se desliza horizontalmente en teléfono, en el orden de prioridades de la SPEC 12.
 import { Image } from 'astro:assets';
 import Icono from './Icono.astro';
 import { obtenerRefugio } from '../lib/datos';
@@ -8,10 +8,10 @@ import { obtenerRefugio } from '../lib/datos';
 const refugio = await obtenerRefugio();
 
 const enlaces = [
+	{ texto: 'Quiénes somos', href: '/#quienes' },
 	{ texto: 'Adopta', href: '/adopta' },
-	{ texto: 'Lo que enfrenta un refugio', href: '/#problematica' },
-	{ texto: 'Esterilización', href: '/esterilizacion' },
 	{ texto: 'Donar', href: '/donar' },
+	{ texto: 'Esterilización', href: '/esterilizacion' },
 	{ texto: 'Negocios que ayudan', href: '/colabora' },
 ];
 
