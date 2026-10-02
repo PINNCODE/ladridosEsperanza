@@ -1,6 +1,6 @@
 # SPEC 13 — Adopciones: galería con "me gusta" y ficha de cada peludo
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 03, SPEC 06, SPEC 08, SPEC 11, SPEC 12
 > **Fecha:** 2026-10-02
 > **Objetivo:** Cambiar las tarjetas de `/adopta` por una galería de fotos con filtro perros/gatos y un "me gusta" animado con contador público, y dar a cada peludo una ficha propia `/adopta/{id}` con sus fotos, su historia, su convivencia, una línea de tiempo con el padrino de su esterilización y un botón directo de WhatsApp para adoptarlo.
