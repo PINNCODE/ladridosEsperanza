@@ -1,0 +1,137 @@
+---
+// Galería de peludos disponibles (SPEC 13, RF-11): tarjetas de foto con "me gusta" y chips
+// Todos · Perros · Gatos · Mis favoritos. El filtro vive en la URL (?ver=perros|gatos|favoritos).
+// Sin JS se ven todos y los chips quedan ocultos. Sin peludos, el mismo aviso y WhatsApp de la portada.
+import TarjetaPeludo from '../TarjetaPeludo.astro';
+import { obtenerRefugio, peludosDisponibles } from '../../lib/datos';
+import { enlaceWhatsApp } from '../../lib/whatsapp';
+
+const refugio = await obtenerRefugio();
+const peludos = await peludosDisponibles();
+const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
+
+const perros = peludos.filter(({ data }) => data.especie === 'perro').length;
+const gatos = peludos.length - perros;
+const porEspecie = perros > 0 && gatos > 0;
+
+const chip =
+	'flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-lineas bg-superficie px-4 whitespace-nowrap aria-pressed:border-acento aria-pressed:bg-acento aria-pressed:font-bold aria-pressed:text-sobre-acento';
+---
+
+<section aria-label="Peludos en adopción" class="mt-6">
+	{
+		peludos.length > 0 ? (
+			<div data-galeria>
+				<div
+					data-chips
+					hidden
+					role="group"
+					aria-label="Filtrar peludos"
+					class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]"
+				>
+					<button type="button" data-ver="" aria-pressed="true" class={chip}>
+						Todos
+					</button>
+					{porEspecie && (
+						<button type="button" data-ver="perros" aria-pressed="false" class={chip}>
+							Perros <span class="tabular-nums">{perros}</span>
+						</button>
+					)}
+					{porEspecie && (
+						<button type="button" data-ver="gatos" aria-pressed="false" class={chip}>
+							Gatos <span class="tabular-nums">{gatos}</span>
+						</button>
+					)}
+					<button type="button" data-ver="favoritos" aria-pressed="false" class={chip}>
+						Mis favoritos <span data-cuenta-favoritos class="tabular-nums" />
+					</button>
+				</div>
+				<ul class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+					{peludos.map((peludo) => (
+						<li data-peludo={peludo.id} data-especie={peludo.data.especie}>
+							<TarjetaPeludo peludo={peludo} origen="galeria" />
+						</li>
+					))}
+				</ul>
+				<p data-vacio="perros" hidden class="mt-4 rounded-2xl bg-suave p-5 text-sobre-suave">
+					No hay perros en adopción por ahora.
+				</p>
+				<p data-vacio="gatos" hidden class="mt-4 rounded-2xl bg-suave p-5 text-sobre-suave">
+					No hay gatos en adopción por ahora.
+				</p>
+				<p data-vacio="favoritos" hidden class="mt-4 rounded-2xl bg-suave p-5 text-sobre-suave">
+					Todavía no tienes favoritos. Toca el corazón de un peludo para guardarlo aquí.
+				</p>
+			</div>
+		) : (
+			<div class="rounded-2xl bg-suave p-5">
+				<p>Por ahora no hay peludos en adopción. Escríbenos para saber cuándo llegan nuevos.</p>
+				<a
+					href={whatsapp}
+					target="_blank"
+					rel="noopener"
+					class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+				>
+					Escríbenos por WhatsApp
+				</a>
+			</div>
+		)
+	}
+</section>
+
+<script>
+	import { EVENTO_FAVORITOS, leerFavoritos } from '../../lib/meGusta';
+
+	type Vista = '' | 'perros' | 'gatos' | 'favoritos';
+
+	const galeria = document.querySelector<HTMLElement>('[data-galeria]');
+
+	if (galeria) {
+		const chips = [...galeria.querySelectorAll<HTMLButtonElement>('[data-ver]')];
+		const elementos = [...galeria.querySelectorAll<HTMLElement>('[data-peludo]')];
+		const vistas = new Set(chips.map((chip) => chip.dataset.ver as Vista));
+		const especie: Record<string, string> = { perros: 'perro', gatos: 'gato' };
+
+		// Un valor que no tiene chip (?ver=gatos sin gatos, o cualquier otro) se trata como "Todos".
+		const pedida = new URLSearchParams(location.search).get('ver') as Vista | null;
+		let vista: Vista = pedida && vistas.has(pedida) ? pedida : '';
+
+		function pintar() {
+			const favoritos = leerFavoritos();
+			let visibles = 0;
+			for (const elemento of elementos) {
+				const visible =
+					vista === ''
+						? true
+						: vista === 'favoritos'
+							? favoritos.has(elemento.dataset.peludo!)
+							: elemento.dataset.especie === especie[vista];
+				elemento.hidden = !visible;
+				if (visible) visibles++;
+			}
+			for (const chip of chips) chip.setAttribute('aria-pressed', String(chip.dataset.ver === vista));
+			for (const aviso of galeria!.querySelectorAll<HTMLElement>('[data-vacio]')) {
+				aviso.hidden = visibles > 0 || aviso.dataset.vacio !== vista;
+			}
+			const enPagina = elementos.filter((elemento) => favoritos.has(elemento.dataset.peludo!)).length;
+			galeria!.querySelector('[data-cuenta-favoritos]')!.textContent = enPagina > 0 ? String(enPagina) : '';
+		}
+
+		for (const chip of chips) {
+			chip.addEventListener('click', () => {
+				vista = chip.dataset.ver as Vista;
+				const parametros = new URLSearchParams(location.search);
+				if (vista) parametros.set('ver', vista);
+				else parametros.delete('ver');
+				const busqueda = parametros.toString();
+				history.replaceState(history.state, '', `${location.pathname}${busqueda ? `?${busqueda}` : ''}${location.hash}`);
+				pintar();
+			});
+		}
+
+		// Quitar un favorito en "Mis favoritos" lo saca de la vista al momento.
+		document.addEventListener(EVENTO_FAVORITOS, pintar);
+		galeria.querySelector<HTMLElement>('[data-chips]')!.hidden = false;
+		pintar();
+	}
+</script>

@@ -9,7 +9,7 @@ const [bloque] = await bloquesDeSeccion('proceso_adopcion');
 
 {
 	bloque && (
-		<section aria-labelledby="proceso-titulo" class="mt-10 rounded-3xl bg-suave p-5 md:p-8">
+		<section id="proceso" aria-labelledby="proceso-titulo" class="mt-10 scroll-mt-4 rounded-3xl bg-suave p-5 md:p-8">
 			<h2 id="proceso-titulo" class="text-2xl font-bold md:text-3xl">
 				{bloque.data.titulo}
 			</h2>
