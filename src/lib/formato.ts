@@ -55,3 +55,10 @@ export function parrafos(texto: string): string[] {
 		.map((parrafo) => parrafo.trim())
 		.filter(Boolean);
 }
+
+const tallas = { pequeño: 'Talla pequeña', mediano: 'Talla mediana', grande: 'Talla grande' } as const;
+
+/** "mediano" → "Talla mediana" (SPEC 13). */
+export function textoTalla(tamano: keyof typeof tallas): string {
+	return tallas[tamano];
+}

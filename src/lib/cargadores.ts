@@ -98,10 +98,11 @@ export const cargadorBloquesContenido = () =>
 export const cargadorPeludos = () =>
 	cargador(
 		'peludos',
-		`*, fotos_peludo(orden, imagen:imagenes(${columnasImagen}))`,
-		({ fotos_peludo, ...resto }) => ({
+		`*, fotos_peludo(orden, imagen:imagenes(${columnasImagen})), hitos_peludo(orden, fecha, tipo, texto, padrino)`,
+		({ fotos_peludo, hitos_peludo, ...resto }) => ({
 			...resto,
 			fotos: enOrden(fotos_peludo).map((fila: Fila) => imagen(fila.imagen)),
+			hitos: enOrden(hitos_peludo),
 		}),
 	);
 
