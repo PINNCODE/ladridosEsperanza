@@ -280,8 +280,8 @@ Si `menuDisponible(negocio)` no tiene grupos, `MenuNegocio` conserva el título 
 
 ### Nube (después del paso 9)
 
-- [ ] La cuenta administradora cambia el horario de un negocio y el cambio se ve en `/colabora/{id}` de Vercel; se anota el tiempo medido contra RF-16.
-- [ ] Ese guardado inicia un solo despliegue en Vercel.
+- [x] La cuenta administradora cambia el horario de un negocio y el cambio se ve en `/colabora/{id}` de Vercel; se anota el tiempo medido contra RF-16.
+- [x] Ese guardado inicia un solo despliegue en Vercel.
 
 ### Observaciones de la validación
 
@@ -289,7 +289,7 @@ Validado el 2026-10-02 en local, con Supabase en Docker (Colima), `astro dev`, `
 Las sesiones `aal2` se abrieron con un script de Node que calcula los códigos TOTP a partir del secreto del alta.
 Las llamadas al deploy hook se contaron con un secreto `deploy_hook_vercel` que apuntaba a un receptor HTTP local (`http://host.docker.internal:8787`).
 
-- **Paso 9 (nube), pendiente.** `npx supabase db push --dry-run` muestra que solo falta `20261002065214_panel_negocios.sql`, sin semilla. El `db push` no se corrió desde la sesión de implementación: queda como paso manual, igual que la prueba con la cuenta administradora de la nube y la medición de RF-16. Los dos criterios de la nube siguen sin marcar.
+- **Paso 9 (nube), validado el 2026-10-02** en `https://www.ladridosdeesperanza.org` y el proyecto "Refugio animales" (`oszxkkjnwxuztmbrmvja`), con la migración `panel_negocios` ya aplicada. La cuenta administradora cambió el horario de un negocio desde `/admin/negocios/editar` y el equipo vio el cambio en `/colabora/{id}` en **menos de 1 minuto** (RF-16). El guardado hizo una sola llamada al hook (10:37:06, hora de Ciudad de México) y Vercel hizo un solo despliegue desde el deploy hook, creado a las 10:37:15 y listo a las 10:37:26. Como en la SPEC 06, la llamada quedó con `timed_out` a los 5 s de `pg_net` y aun así desplegó.
 - **Orden del plan.** La migración se escribió completa (pasos 1, 2, 5 y 7) y se probó por PostgREST antes de las páginas; la interfaz siguió el orden del plan.
 - **Seguridad.** Con la llave publicable, con `aal1` (admin) y con la cuenta `refugio` en `aal2`, `categorias`, `promociones`, `horarios` y `turnos` devuelven `[]`, y las 5 RPC responden 401 (`anon`) o `sin_permiso` sin cambiar nada. La cuenta `refugio` no sube `negocios/x.png` (403); la administradora sí, y puede borrarlo. `guardar_peludo` con una ruta en `negocios/` responde `datos_invalidos` (`ruta`) y con `peludos/` sigue funcionando. `borrar_contenido('negocios', …)` responde `sin_permiso` también para el administrador.
 - **`guardar_imagen()`.** Ahora es `guardar_imagen(foto, carpetas text[] default array['peludos', 'campanas', 'bloques'])`. Las RPC de la SPEC 08 la llaman con un solo argumento y no cambiaron; `guardar_negocio` pasa `array['negocios']`.
