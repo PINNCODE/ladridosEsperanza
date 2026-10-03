@@ -3,7 +3,7 @@
 // cada foto se ve completa sobre una versión difuminada de sí misma, sea vertical u horizontal.
 // Si la próxima campaña de esterilización tiene cartel, el cartel va primero y lleva a
 // /esterilizacion (SPEC 20). Se desliza con el dedo gracias a scroll-snap; lo demás lo agrega
-// `iniciarCarrusel`.
+// `iniciarCarrusel`, que también actualiza el contador.
 import { Image } from 'astro:assets';
 import Icono from '../Icono.astro';
 import { proximaCampana } from '../../lib/datos';
@@ -101,35 +101,10 @@ const total = fotosPortada.length + conCartel;
 		>
 			<Icono nombre="chevron-left" size={22} />
 		</button>
-		{/* Puntos de 24 px de ancho y 44 de alto: los diez (con cartel) caben junto a las flechas a 360 px. */}
-		<div class="flex">
-			{
-				cartel && (
-					<button
-						type="button"
-						data-punto="0"
-						aria-label="Ver cartel de la campaña"
-						aria-current="true"
-						class="group grid h-11 w-6 place-items-center rounded-full"
-					>
-						<span class="block h-2.5 w-2.5 rounded-full bg-lineas group-aria-[current=true]:w-5 group-aria-[current=true]:bg-acento" />
-					</button>
-				)
-			}
-			{
-				fotosPortada.map((_, indice) => (
-					<button
-						type="button"
-						data-punto={indice + conCartel}
-						aria-label={`Ver foto ${indice + 1}`}
-						aria-current={indice + conCartel === 0 ? 'true' : undefined}
-						class="group grid h-11 w-6 place-items-center rounded-full"
-					>
-						<span class="block h-2.5 w-2.5 rounded-full bg-lineas group-aria-[current=true]:w-5 group-aria-[current=true]:bg-acento" />
-					</button>
-				))
-			}
-		</div>
+		{/* Contador en lugar de puntos: veinte puntos no caben junto a las flechas a 360 px. */}
+		<p data-contador class="min-w-16 text-center text-sm font-semibold tabular-nums text-texto-secundario">
+			1 / {total}
+		</p>
 		<button
 			type="button"
 			data-siguiente

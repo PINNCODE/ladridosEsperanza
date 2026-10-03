@@ -344,17 +344,22 @@ function decidir(clasificacion, post) {
 	const enPost = `${post.texto}\n${valor(c.texto_en_foto) ?? ''}`;
 
 	if (c.categoria === 'adopcion') {
-		const nombre = valor(c.nombre);
-		if (!nombre || !nombreEnTexto(nombre, enPost)) return incompleto('sin_nombre');
 		if (!c.especie) return incompleto('sin_especie');
+		// Sin nombre escrito en el post, o con varios peludos, entra como "Gatita sin nombre" o "Gatitos sin
+		// nombre": el refugio le pone el nombre (o lo separa) desde el panel, con el enlace al post.
+		const escrito = valor(c.nombre);
+		const conNombre = escrito && nombreEnTexto(escrito, enPost) && !c.varios_peludos;
+		const especie = valor(c.descripcion_especie) ?? (c.especie === 'gato' ? 'Gato' : 'Perro');
+		const nombre = conNombre ? escrito : `${especie[0].toLocaleUpperCase('es-MX')}${especie.slice(1)} sin nombre`;
+		const motivo = conNombre ? null : c.varios_peludos ? 'varios_peludos' : 'sin_nombre';
 		// Sin foto (solo video o solo texto) también entra: el refugio la agrega antes de publicar (SPEC 16).
-		if (c.varios_peludos) return incompleto('varios_peludos');
 		const rasgos = (c.rasgos ?? [])
 			.map(valor)
 			.filter(Boolean)
 			.map((rasgo) => rasgo[0].toLocaleUpperCase('es-MX') + rasgo.slice(1));
 		return {
 			resultado: 'peludo',
+			...(motivo && { motivo }),
 			peludo: {
 				nombre,
 				especie: c.especie,
@@ -491,12 +496,16 @@ async function procesar(post) {
 		if (error) throw new Error(`importar_post_facebook: ${error.message}${error.details ? ` (${error.details})` : ''}`);
 		return 'duplicado';
 	}
+	// Peludo ya registrado: las fotos que no entraron a su borrador (o a uno ya publicado) sobran.
+	const sobrantes = new Set(resultado.fotos_sin_usar ?? []);
+	await borrar(subidas.filter(({ ruta }) => sobrantes.has(ruta)));
 	// Para que otro post de esta ejecución no las repita.
 	for (const [indice, id] of (resultado.necesidad_ids ?? []).entries()) {
 		registradas.push({ id, ...datos.necesidades[indice] });
 	}
 	const creado = resultado.peludo_id ?? resultado.campana_id ?? resultado.necesidad_ids?.join(', ');
-	console.log(`  Registrado: ${resultado.resultado}${creado ? ` → ${creado}` : ''}${datos.motivo ? ` (${datos.motivo})` : ''}`);
+	const motivo = resultado.motivo ?? datos.motivo;
+	console.log(`  Registrado: ${resultado.resultado}${creado ? ` → ${creado}` : ''}${motivo ? ` (${motivo})` : ''}`);
 	return resultado.resultado;
 }
 
