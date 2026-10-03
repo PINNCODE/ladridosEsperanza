@@ -3,7 +3,7 @@
 // CarruselRefugio, cada uno sobre su propio `data-carrusel`. Sin imports de Astro.
 //
 // Dentro de `raiz`: `[data-pista]` (sus hijos son las diapositivas), `[data-anterior]`,
-// `[data-siguiente]` y un `[data-punto]` por diapositiva.
+// `[data-siguiente]` y un `[data-punto]` por diapositiva, o un `[data-contador]` ("3 / 20") en su lugar.
 //
 // `barajarCarrusel` (SPEC 19) pone las diapositivas en orden aleatorio en cada visita; solo la usa
 // CarruselPeludos, para que ningún peludo salga siempre primero. Va antes de `iniciarCarrusel`.
@@ -37,6 +37,7 @@ export function iniciarCarrusel(raiz: HTMLElement) {
 	const pista = raiz.querySelector<HTMLElement>('[data-pista]')!;
 	const tarjetas = [...pista.children] as HTMLElement[];
 	const puntos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-punto]')];
+	const contador = raiz.querySelector<HTMLElement>('[data-contador]');
 	const ultimo = tarjetas.length - 1;
 
 	const posicion = (indice: number) => tarjetas[indice].offsetLeft - tarjetas[0].offsetLeft;
@@ -59,6 +60,7 @@ export function iniciarCarrusel(raiz: HTMLElement) {
 			if (i === indice) punto.setAttribute('aria-current', 'true');
 			else punto.removeAttribute('aria-current');
 		});
+		if (contador) contador.textContent = `${indice + 1} / ${tarjetas.length}`;
 	};
 
 	let cuadro = 0;

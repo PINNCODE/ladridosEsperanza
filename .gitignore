@@ -32,3 +32,5 @@ pnpm-debug.log*
 !.env.example
 
 imagenes-refugio/*
+# Carga del historial de Facebook (scripts/sincronizar-facebook.mjs --guardar)
+.historial-facebook/

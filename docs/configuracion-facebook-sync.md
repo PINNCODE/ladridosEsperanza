@@ -7,7 +7,11 @@ Cada día, a medianoche de Ciudad de México, un workflow de GitHub Actions lee 
 
 Nada se publica solo. Un peludo en adopción, una campaña de esterilización o una necesidad (lo que pide el refugio: alimento, arena, medicinas…) aparecen arriba en `/admin/peludos`, `/admin/campanas` o `/admin/necesidades` con la etiqueta **Por revisar** y el enlace **Ver en Facebook**. Al abrirlos y **Guardar** se publican; **Borrar** los descarta. Un post de "¡ya fue adoptado!" solo muestra el aviso "Facebook dice que fue adoptado" junto al peludo; el estado se cambia a mano.
 
-Si a un post le falta un dato obligatorio (el nombre o la especie del peludo; la fecha, el lugar o el costo de la campaña), no se crea nada: queda en la tabla `publicaciones_facebook` como `incompleto` con su motivo y el refugio lo captura a mano. El script nunca inventa un dato.
+Si a un post le falta un dato obligatorio (la especie del peludo; la fecha, el lugar o el costo de la campaña), no se crea nada: queda en la tabla `publicaciones_facebook` como `incompleto` con su motivo y el refugio lo captura a mano. El script nunca inventa un dato.
+
+Un post de adopción que no dice el nombre, o que ofrece a varios peludos, sí crea el borrador, con un nombre provisional hecho con la especie: "Gatita sin nombre", "Gatitos sin nombre". En el panel se le pone el nombre (o se separa en un borrador por peludo) con ayuda de **Ver en Facebook**.
+
+El refugio publica al mismo peludo varias veces. Si un post de adopción trae el mismo nombre y especie que un peludo sin adoptar (borrador o publicado), no se crea otro: el post queda ligado a ese peludo con el motivo `ya_registrado`. Si ese peludo todavía es borrador, se le suman las fotos nuevas hasta 8; si ya está publicado, no se cambia nada y las fotos subidas se borran. Los "… sin nombre" nunca se juntan, porque pueden ser animales distintos.
 
 Un post de adopción sin fotos (solo video o solo texto) sí crea el borrador, con la etiqueta **Sin foto**. Los videos no se leen: ni el video ni su miniatura se descargan ni van a Gemini. El panel no deja guardar un peludo sin al menos una foto, así que el refugio la agrega antes de publicarlo.
 
@@ -58,6 +62,30 @@ SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SECRET_KEY=… APIFY_TOKEN=… GEMI
 ```
 
 Una segunda ejecución seguida debe decir "Ya registrado" en todos los posts.
+
+## Cargar el historial
+
+La sincronización diaria solo ve los últimos 10 posts de cada página. Para traer peludos de posts más viejos se corre a mano, en dos pasos, cuidando dos límites: Apify cobra unos US$0.005 por post leído (con tope de US$5 al mes en la cuenta, y la sincronización diaria ya gasta unos US$3), y la capa gratis de Gemini da 20 peticiones al día, compartidas con la sincronización diaria.
+
+1. Leer Apify una sola vez y guardar los posts con sus fotos, sin usar Gemini. Las URL de las fotos de Facebook caducan, por eso se descargan. La carpeta `.historial-facebook/` está en `.gitignore`.
+
+   ```bash
+   APIFY_TOKEN=… SUPABASE_URL=… SUPABASE_SECRET_KEY=… \
+     node scripts/sincronizar-facebook.mjs --limite 50 --guardar .historial-facebook
+   ```
+
+   Dice cuántos posts sin registrar parecen de adopción. Con la llave secreta salta los ya registrados.
+
+2. Procesar esa carpeta, solo los posts que parecen de adopción, con las mismas reglas de siempre (borradores **Por revisar**):
+
+   ```bash
+   SUPABASE_URL=… SUPABASE_SECRET_KEY=… GEMINI_API_KEY=… \
+     node scripts/sincronizar-facebook.mjs --desde .historial-facebook --solo-adopcion
+   ```
+
+   Si se acaba la cuota de Gemini se detiene; al día siguiente se repite el mismo comando y continúa con los que faltan. Los demás posts quedan sin registrar.
+
+Los posts viejos traen peludos que quizá ya fueron adoptados: antes de guardar un borrador, confirmarlo con el refugio; si ya no está, **Borrar**.
 
 ## Problemas comunes
 
