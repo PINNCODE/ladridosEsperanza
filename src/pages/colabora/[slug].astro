@@ -10,11 +10,13 @@ import MasNegocios from '../../components/colabora/MasNegocios.astro';
 import MenuNegocio from '../../components/colabora/MenuNegocio.astro';
 import NotaRefugio from '../../components/colabora/NotaRefugio.astro';
 import LayoutColabora from '../../layouts/LayoutColabora.astro';
-import { categoriasConNegocios, negociosPublicados, obtenerRefugio, type Negocio } from '../../lib/datos';
+import { categoriasConNegocios, mostrarNegocios, negociosPublicados, obtenerRefugio, type Negocio } from '../../lib/datos';
 import { enlaceMapa } from '../../lib/mapas';
 import { datosNegocio } from '../../lib/seo';
 
 export async function getStaticPaths() {
+	// Sin negocios (SPEC 17) no hay páginas: esas URL dan la 404.
+	if (!mostrarNegocios) return [];
 	const negocios = await negociosPublicados();
 	const categorias = await categoriasConNegocios(negocios);
 	const nombreCategoria = new Map(categorias.map(({ id, data }) => [id, data.nombre]));

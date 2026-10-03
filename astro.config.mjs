@@ -9,6 +9,8 @@ import { loadEnv } from 'vite';
 // Con prefijo vacío, loadEnv lee .env y también las variables del entorno (Vercel).
 const env = loadEnv('production', '.', '');
 const { SUPABASE_URL } = env;
+// Interruptor de los negocios (SPEC 17), igual que mostrarNegocios de src/lib/datos.ts.
+const mostrarNegocios = env.PUBLIC_MOSTRAR_NEGOCIOS === 'true';
 const supabase = SUPABASE_URL ? new URL(SUPABASE_URL) : null;
 
 // El formulario Súmate y el panel /admin (SPEC 07) usan estas variables en el navegador,
@@ -53,11 +55,13 @@ export default defineConfig({
       fallbacks: ['system-ui', 'sans-serif'],
     },
   ],
-  // Mapa del sitio (SPEC 11): todas las páginas públicas, sin el panel ni la 404.
+  // Mapa del sitio (SPEC 11): todas las páginas públicas, sin el panel ni la 404,
+  // y sin /colabora mientras los negocios estén ocultos (SPEC 17).
   integrations: [
     sitemap({
       filter: (pagina) => {
         const { pathname } = new URL(pagina);
+        if (!mostrarNegocios && pathname.startsWith('/colabora')) return false;
         return !pathname.startsWith('/admin') && !pathname.startsWith('/404');
       },
     }),

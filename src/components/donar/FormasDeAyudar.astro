@@ -1,11 +1,11 @@
 ---
-// Formas de ayudar (RF-25): 6 tarjetas con texto fijo. Ningún dato bancario se publica:
+// Formas de ayudar (RF-25): 6 tarjetas con texto fijo (5 mientras los negocios estén ocultos, SPEC 17). Ningún dato bancario se publica:
 // los datos para donar se piden por WhatsApp al número oficial del refugio. La foto de "Donar en
 // especie" es de la SPEC 14.
 import { Image } from 'astro:assets';
 import Icono from '../Icono.astro';
 import ListaNecesidades from '../ListaNecesidades.astro';
-import { bloquesDeSeccion, obtener, obtenerRefugio } from '../../lib/datos';
+import { bloquesDeSeccion, mostrarNegocios, obtener, obtenerRefugio } from '../../lib/datos';
 import { parrafos } from '../../lib/formato';
 import { fotosRefugio } from '../../lib/fotosRefugio';
 import { enlaceWhatsApp } from '../../lib/whatsapp';
@@ -123,13 +123,17 @@ const botonSecundario =
 			</ul>
 		</article>
 
-		<article class={tarjeta}>
-			<Icono nombre="store" />
-			<h3 class="mt-3 text-lg font-bold">Come en negocios que ayudan</h3>
-			<p class="mt-1 text-texto-secundario">
-				Negocios locales aportan al refugio cuando publican su menú con nosotros.
-			</p>
-			<a href="/colabora" class={`mt-4 self-start ${botonSecundario}`}>Ver negocios</a>
-		</article>
+		{
+			mostrarNegocios && (
+				<article class={tarjeta}>
+					<Icono nombre="store" />
+					<h3 class="mt-3 text-lg font-bold">Come en negocios que ayudan</h3>
+					<p class="mt-1 text-texto-secundario">
+						Negocios locales aportan al refugio cuando publican su menú con nosotros.
+					</p>
+					<a href="/colabora" class={`mt-4 self-start ${botonSecundario}`}>Ver negocios</a>
+				</article>
+			)
+		}
 	</div>
 </section>

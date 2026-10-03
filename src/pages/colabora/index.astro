@@ -5,7 +5,11 @@ import EncabezadoPagina from '../../components/EncabezadoPagina.astro';
 import CatalogoNegocios from '../../components/colabora/CatalogoNegocios.astro';
 import SumaTuNegocio from '../../components/colabora/SumaTuNegocio.astro';
 import LayoutColabora from '../../layouts/LayoutColabora.astro';
-import { obtenerRefugio } from '../../lib/datos';
+import { mostrarNegocios, obtenerRefugio } from '../../lib/datos';
+
+// Sin negocios (SPEC 17) la página es una redirección a la portada. En un sitio estático es un
+// meta refresh sin código de estado; con 301 Astro lo hace inmediato (con 302 espera 2 s).
+if (!mostrarNegocios) return Astro.redirect('/', 301);
 
 const refugio = await obtenerRefugio();
 const titulo = 'Come por los Peludos';
