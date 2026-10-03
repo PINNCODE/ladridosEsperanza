@@ -1,9 +1,8 @@
 ---
-// Lo que enfrenta un refugio (RF-23). Una cifra solo se muestra con su fecha y su fuente;
-// sin las tres, la tarjeta queda con su título y su texto explicativo.
+// Lo que enfrenta un refugio (RF-23). Las tarjetas muestran título, texto y enlace, nunca cifras:
+// no se pueden verificar (SPEC 19). Las columnas de cifra siguen en la tabla, sin mostrarse.
 import Icono from '../Icono.astro';
-import { cifraVisible, problematicasPublicadas } from '../../lib/datos';
-import { formatearMes } from '../../lib/formato';
+import { problematicasPublicadas } from '../../lib/datos';
 
 const problematicas = await problematicasPublicadas();
 ---
@@ -18,8 +17,7 @@ const problematicas = await problematicasPublicadas();
 	</p>
 	<div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		{
-			problematicas.map((problematica) => {
-				const { data } = problematica;
+			problematicas.map(({ data }) => {
 				return (
 					<article class="aparecer flex flex-col gap-2 rounded-2xl border border-lineas bg-superficie p-4">
 						<span class="grid size-11 place-items-center rounded-xl bg-suave">
@@ -43,16 +41,6 @@ const problematicas = await problematicasPublicadas();
 									{data.enlace.texto}
 								</a>
 							</p>
-						)}
-						{cifraVisible(problematica) && (
-							<div class="mt-auto border-t border-lineas pt-3">
-								<p>
-									{data.etiqueta_cifra}: <strong class="font-titulos text-lg">{data.cifra}</strong>
-								</p>
-								<p class="text-sm text-texto-secundario">
-									Dato de {formatearMes(data.fecha_cifra!)}. Fuente: {data.fuente}.
-								</p>
-							</div>
 						)}
 					</article>
 				);

@@ -4,6 +4,34 @@
 //
 // Dentro de `raiz`: `[data-pista]` (sus hijos son las diapositivas), `[data-anterior]`,
 // `[data-siguiente]` y un `[data-punto]` por diapositiva.
+//
+// `barajarCarrusel` (SPEC 19) pone las diapositivas en orden aleatorio en cada visita; solo la usa
+// CarruselPeludos, para que ningún peludo salga siempre primero. Va antes de `iniciarCarrusel`.
+
+/** Reordena diapositivas y puntos con la misma permutación (Fisher-Yates) y deja marcado el primero. */
+export function barajarCarrusel(raiz: HTMLElement) {
+	const pista = raiz.querySelector<HTMLElement>('[data-pista]')!;
+	const tarjetas = [...pista.children] as HTMLElement[];
+	const puntos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-punto]')];
+	const orden = tarjetas.map((_, i) => i);
+	for (let i = orden.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[orden[i], orden[j]] = [orden[j], orden[i]];
+	}
+	const contenedorPuntos = puntos[0]?.parentElement;
+	orden.forEach((original, i) => {
+		pista.append(tarjetas[original]);
+		const punto = puntos[original];
+		if (!punto || !contenedorPuntos) return;
+		contenedorPuntos.append(punto);
+		punto.dataset.punto = String(i);
+		if (i === 0) punto.setAttribute('aria-current', 'true');
+		else punto.removeAttribute('aria-current');
+	});
+	// El navegador vuelve a ajustar el scroll-snap a la diapositiva que estaba primera; se regresa al inicio.
+	pista.scrollLeft = 0;
+}
+
 export function iniciarCarrusel(raiz: HTMLElement) {
 	const reducirMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const pista = raiz.querySelector<HTMLElement>('[data-pista]')!;

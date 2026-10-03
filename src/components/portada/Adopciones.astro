@@ -32,12 +32,15 @@ const mensaje = `Hola, les escribo desde la página de ${refugio.nombre}.`;
 				peludos.length > 0 ? (
 					<>
 						<CarruselPeludos peludos={peludos} />
-						<a
-							href="/adopta"
-							class="mt-4 inline-flex min-h-11 items-center px-1 text-acento underline underline-offset-4"
-						>
-							Ver a todos
-						</a>
+						<div class="mt-4 flex justify-center">
+							<a
+								href="/adopta"
+								class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-acento px-5 font-bold text-sobre-acento"
+							>
+								Ver a todos los peludos
+								<Icono nombre="arrow-right" tono="heredado" size={20} />
+							</a>
+						</div>
 					</>
 				) : (
 					<div class="rounded-2xl bg-superficie p-5">

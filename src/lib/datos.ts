@@ -72,11 +72,6 @@ export async function problematicasPublicadas(): Promise<Problematica[]> {
 		.sort((a, b) => a.data.orden - b.data.orden);
 }
 
-/** Una cifra solo se publica con su fecha y su fuente (RF-23, RF-29). */
-export function cifraVisible({ data }: Problematica): boolean {
-	return data.cifra !== null && data.fecha_cifra !== null && data.fuente !== null;
-}
-
 export async function proximaCampana(hoy: Date): Promise<Campana | null> {
 	const dia = soloFecha(hoy);
 	const proximas = (await obtener('campanas'))

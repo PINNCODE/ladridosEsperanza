@@ -1,6 +1,7 @@
 ---
 // Carrusel de peludos en adopción (RF-30). Se desliza con el dedo gracias a
-// scroll-snap; flechas, puntos, teclado y avance automático los agrega `iniciarCarrusel` (SPEC 14).
+// scroll-snap; flechas, puntos, teclado y avance automático los agrega `iniciarCarrusel` (SPEC 14),
+// y `barajarCarrusel` lo pone en orden aleatorio en cada visita (SPEC 19).
 // Cada tarjeta trae su corazón de "me gusta" (SPEC 13).
 import Icono from './Icono.astro';
 import TarjetaPeludo from './TarjetaPeludo.astro';
@@ -65,7 +66,11 @@ const { peludos } = Astro.props;
 </div>
 
 <script>
-	import { iniciarCarrusel } from '../lib/carrusel';
+	import { barajarCarrusel, iniciarCarrusel } from '../lib/carrusel';
 
-	document.querySelectorAll<HTMLElement>('[data-carrusel="peludos"]').forEach(iniciarCarrusel);
+	// Orden aleatorio en cada visita (SPEC 19); sin JS queda el orden del panel.
+	document.querySelectorAll<HTMLElement>('[data-carrusel="peludos"]').forEach((carrusel) => {
+		barajarCarrusel(carrusel);
+		iniciarCarrusel(carrusel);
+	});
 </script>
