@@ -1,9 +1,11 @@
 ---
-// /adopta (SPEC 03, RF-11): galería de los peludos disponibles (SPEC 13), cómo es el proceso y contacto.
+// /adopta (SPEC 03, RF-11): galería de los peludos disponibles (SPEC 13), requisitos (SPEC 20), cómo es el
+// proceso y contacto.
 import EnlaceMessenger from '../components/EnlaceMessenger.astro';
 import EncabezadoPagina from '../components/EncabezadoPagina.astro';
 import GaleriaPeludos from '../components/adopta/GaleriaPeludos.astro';
 import ProcesoAdopcion from '../components/adopta/ProcesoAdopcion.astro';
+import RequisitosAdopcion from '../components/adopta/RequisitosAdopcion.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtenerRefugio } from '../lib/datos';
 import { fotosRefugio } from '../lib/fotosRefugio';
@@ -17,6 +19,7 @@ const mensaje = `Hola, les escribo desde la página de ${refugio.nombre}.`;
 <Layout titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
 	<EncabezadoPagina titulo={titulo} frase={frase} icono="house-heart" foto={fotosRefugio.perrosEnElPatio} />
 	<GaleriaPeludos />
+	<RequisitosAdopcion />
 	<ProcesoAdopcion />
 	<section aria-labelledby="dudas-titulo" class="mt-10 mb-4">
 		<h2 id="dudas-titulo" class="text-2xl font-bold">¿Tienes dudas? Escríbenos.</h2>
