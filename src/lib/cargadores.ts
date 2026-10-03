@@ -24,16 +24,24 @@ function enOrden<T extends { orden: number }>(filas: T[]): Omit<T, 'orden'>[] {
 	return [...filas].sort((a, b) => a.orden - b.orden).map(({ orden: _, ...resto }) => resto);
 }
 
-async function consultar(tabla: string, columnas: string, orden: string): Promise<Fila[]> {
-	const { data, error } = await clienteSupabase().from(tabla).select(columnas).order(orden);
+async function consultar(tabla: string, columnas: string, orden: string, filtro: Fila): Promise<Fila[]> {
+	const { data, error } = await clienteSupabase().from(tabla).select(columnas).match(filtro).order(orden);
 	if (error) {
 		throw new Error(`No se pudo leer la tabla "${tabla}" de Supabase: ${error.message}`);
 	}
 	return data as Fila[];
 }
 
-/** Loader de una tabla: `mapear` convierte cada fila en los datos que valida el esquema. */
-function cargador(tabla: string, columnas = '*', mapear: (fila: Fila) => Fila = (fila) => fila): Loader {
+/**
+ * Loader de una tabla: `mapear` convierte cada fila en los datos que valida el esquema y `filtro`
+ * deja fuera las filas que no deben llegar al sitio (columna → valor exigido).
+ */
+function cargador(
+	tabla: string,
+	columnas = '*',
+	mapear: (fila: Fila) => Fila = (fila) => fila,
+	filtro: Fila = {},
+): Loader {
 	return {
 		name: `supabase-${tabla}`,
 		async load({ store, parseData }) {
@@ -41,7 +49,7 @@ function cargador(tabla: string, columnas = '*', mapear: (fila: Fila) => Fila = 
 			clienteSupabase();
 			let filas: Fila[];
 			try {
-				filas = await consultar(tabla, columnas, 'id');
+				filas = await consultar(tabla, columnas, 'id', filtro);
 			} catch (error) {
 				// supabase-js responde "fetch failed" sin decir a dónde; se agrega la URL.
 				const mensaje = error instanceof Error ? error.message : String(error);
@@ -98,18 +106,25 @@ export const cargadorPeludos = () =>
 	cargador(
 		'peludos',
 		`*, fotos_peludo(orden, imagen:imagenes(${columnasImagen})), hitos_peludo(orden, fecha, tipo, texto, padrino)`,
-		({ fotos_peludo, hitos_peludo, ...resto }) => ({
+		({ fotos_peludo, hitos_peludo, por_revisar: _, ...resto }) => ({
 			...resto,
 			fotos: enOrden(fotos_peludo).map((fila: Fila) => imagen(fila.imagen)),
 			hitos: enOrden(hitos_peludo),
 		}),
+		// Los borradores de la sincronización con Facebook (SPEC 15) no salen hasta guardarlos en el panel.
+		{ por_revisar: false },
 	);
 
 export const cargadorCampanas = () =>
-	cargador('campanas', `*, cartel:imagenes(${columnasImagen})`, ({ cartel_id: _, cartel, ...resto }) => ({
-		...resto,
-		cartel: imagen(cartel),
-	}));
+	cargador(
+		'campanas',
+		`*, cartel:imagenes(${columnasImagen})`,
+		({ cartel_id: _c, cartel, por_revisar: _r, ...resto }) => ({
+			...resto,
+			cartel: imagen(cartel),
+		}),
+		{ por_revisar: false },
+	);
 
 const dias = ['lun', 'mar', 'mie', 'jue', 'vie', 'sab', 'dom'] as const;
 
