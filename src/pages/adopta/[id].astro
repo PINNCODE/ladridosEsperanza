@@ -1,6 +1,7 @@
 ---
 // /adopta/{id} (SPEC 13): ficha de cada peludo disponible con sus fotos, su "me gusta", sus datos,
-// su convivencia, su historia, "Su camino en el refugio" y la barra para adoptarlo o compartirlo.
+// su convivencia, su historia, "Su camino en el refugio", los requisitos (SPEC 20) y la barra para
+// adoptarlo o compartirlo.
 // Un peludo en proceso o adoptado no tiene ficha.
 import BotonMeGusta from '../../components/BotonMeGusta.astro';
 import Icono from '../../components/Icono.astro';
@@ -8,6 +9,7 @@ import BarraPeludo from '../../components/adopta/BarraPeludo.astro';
 import CaminoPeludo from '../../components/adopta/CaminoPeludo.astro';
 import ConvivenciaPeludo from '../../components/adopta/ConvivenciaPeludo.astro';
 import FotosPeludo from '../../components/adopta/FotosPeludo.astro';
+import RequisitosAdopcion from '../../components/adopta/RequisitosAdopcion.astro';
 import Layout from '../../layouts/Layout.astro';
 import { bloquesDeSeccion, obtenerRefugio, peludosDisponibles, type Peludo } from '../../lib/datos';
 import { parrafos, textoTalla } from '../../lib/formato';
@@ -85,6 +87,8 @@ const descripcion = [`${data.descripcion_especie}, ${data.edad}.`, historia[0] &
 			}
 
 			<CaminoPeludo peludo={peludo} />
+
+			<RequisitosAdopcion compacto />
 
 			{
 				proceso && (

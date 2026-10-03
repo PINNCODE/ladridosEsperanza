@@ -27,7 +27,8 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 17 | [Datos reales y negocios ocultos](17-datos-reales-y-negocios-ocultos.md) | Implementado | Sitio sin datos de ejemplo ni listón; todo lo de negocios oculto tras `PUBLIC_MOSTRAR_NEGOCIOS` (`docs/mostrar-negocios.md`) |
 | 18 | [Contacto por Messenger](18-contacto-por-messenger.md) | Implementado | El refugio no tiene WhatsApp: todo botón de contacto abre Messenger con la página SOS Ladridos de Esperanza Tenancingo y copia el mensaje; `refugio.messenger` reemplaza a `refugio.whatsapp` |
 | 19 | [Ajustes de portada: ubicación en Maps, "Ver a todos", carrusel aleatorio y sin cifras](19-ajustes-de-portada.md) | Implementado | Ajustes de RF-21, RF-23 y RF-30: la ubicación abre Google Maps, botón "Ver a todos los peludos", carrusel de peludos en orden aleatorio por visita y problemáticas sin cifras |
-| 20 | Anuncios | Por escribir | RF-18 |
+| 20 | [Requisitos de adopción, cartel en la portada y donativos del refugio](20-requisitos-cartel-y-donativos.md) | Implementado | Ajustes de RF-11, RF-21 y RF-25: requisitos de adopción en `/adopta` y en la ficha, cartel de la próxima campaña en el carrusel de la portada, "Siempre recibimos" en especie y "Apadrina una esterilización" |
+| 21 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs
 
@@ -48,9 +49,9 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 ## Pendiente de decidir antes de escribir cada spec
 
-- **20:** anuncios (RF-18), por escribir.
+- **21:** anuncios (RF-18), por escribir.
 
 ## Antes de publicar
 
 - Pedirle al refugio el logo y las fotos de los peludos en resolución original. Las del prototipo vienen en baja resolución (Luna y Canelo miden menos de 200 px de ancho y el logo 225 px) y se ven borrosas en pantallas de alta densidad. Las fotos del refugio ya son las originales (SPEC 14).
-- Confirmar con el refugio cómo funcionan el apadrinamiento y el voluntariado (requisitos y condiciones) antes de publicar las tarjetas de `/donar`.
+- Confirmar con el refugio cómo funciona el voluntariado (requisitos y condiciones) antes de publicar su tarjeta de `/donar`. El apadrinamiento ya está confirmado: se apadrina una esterilización (SPEC 20).

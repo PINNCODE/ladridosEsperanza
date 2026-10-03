@@ -1,0 +1,56 @@
+---
+// Requisitos para adoptar (SPEC 20), tal como los publica el refugio en su cartel. Texto fijo:
+// cambiarlo es un commit. Completo en /adopta (con `id="requisitos"` y el enlace a /donar) y
+// compacto en la ficha de cada peludo, antes de "¿Cómo es adoptar?".
+import Icono from '../Icono.astro';
+
+interface Props {
+	compacto?: boolean;
+}
+
+const { compacto = false } = Astro.props;
+
+const requisitos = [
+	{ icono: 'house', texto: 'Copia de comprobante de domicilio' },
+	{ icono: 'id-card', texto: 'Copia de INE/IFE' },
+	{ icono: 'clipboard-pen', texto: 'Llenar el formato de adopción' },
+	{ icono: 'hand-heart', texto: 'Donativo en especie o económico' },
+];
+---
+
+<section
+	id={compacto ? undefined : 'requisitos'}
+	aria-labelledby="requisitos-titulo"
+	class={compacto ? 'mt-8' : 'mt-10 scroll-mt-4 rounded-3xl bg-suave p-5 md:p-8'}
+>
+	<h2 id="requisitos-titulo" class={compacto ? 'text-2xl font-bold' : 'text-2xl font-bold md:text-3xl'}>
+		Requisitos para adoptar
+	</h2>
+	{!compacto && <p class="mt-2 text-sobre-suave">Ten listo esto para tu visita al refugio.</p>}
+	<ul class="mt-4 space-y-3">
+		{
+			requisitos.map(({ icono, texto }) => (
+				<li class="flex items-center gap-3">
+					<span
+						aria-hidden="true"
+						class={`grid size-10 shrink-0 place-items-center rounded-xl ${compacto ? 'bg-suave' : 'bg-superficie'}`}
+					>
+						<Icono nombre={icono} size={20} />
+					</span>
+					<span class={compacto ? '' : 'text-sobre-suave'}>{texto}</span>
+				</li>
+			))
+		}
+	</ul>
+	{
+		!compacto && (
+			<a
+				href="/donar"
+				class="mt-4 inline-flex min-h-11 items-center gap-2 font-bold text-acento underline underline-offset-4"
+			>
+				Ve qué le hace falta al refugio
+				<Icono nombre="arrow-right" size={20} />
+			</a>
+		)
+	}
+</section>
