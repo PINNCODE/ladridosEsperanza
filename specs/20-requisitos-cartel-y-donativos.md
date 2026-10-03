@@ -137,7 +137,7 @@ Línea "Siempre recibimos" (igual en las dos tarjetas de especie):
 - **Sí:** "Siempre recibimos" fijo y visible siempre. Son cosas que el refugio necesita todo el año y no deben vencer como una necesidad.
 - **No:** dar esos artículos de alta como necesidades. Vencen con su fecha y competirían con las que llegan de Facebook (SPEC 16).
 - **Sí:** reemplazar el apadrinamiento mensual. El refugio dijo que lo que se apadrina es la esterilización, y mantener las dos ofrecería algo que el refugio no confirmó.
-- **Sí:** el monto es el costo de la próxima campaña. Es una cifra que el refugio publica y se actualiza sola con cada campaña.
+- **Sí:** el monto es el costo de la próxima campaña. Es una cifra que el refugio publica y se actualiza sola con cada campaña. El refugio confirmó que apadrinar cuesta lo mismo que esterilizar una mascota propia.
 - **No:** monto fijo en código. Se desactualizaría sin que nadie lo note.
 - **Sí:** efectivo "en el refugio" y depósito con los datos por Messenger. Sigue la regla de no publicar cuentas bancarias (SPEC 03 y 18).
 - **Sí:** se conserva el `motivo` `apadrinar`. El historial de Umami sigue comparable.
@@ -146,7 +146,6 @@ Línea "Siempre recibimos" (igual en las dos tarjetas de especie):
 
 | Riesgo | Mitigación |
 | --- | --- |
-| El costo de la campaña (para mascotas con dueño) no es lo que le cuesta al refugio esterilizar a un peludo suyo. | El texto dice "en la próxima campaña" y el botón lleva a Messenger, donde el refugio confirma el monto. Si el refugio pide otro monto, se cambia el texto en otra spec. |
 | El cartel de la campaña sigue en la portada después de su fecha si el deploy diario falla. | `proximaCampana` filtra por fecha al compilar y el cron de las 00:05 compila cada día. El mismo riesgo ya existe en la sección de esterilización. |
 | Un cartel vertical se ve chico dentro del marco cuadrado. | Va completo con `object-contain` sobre su fondo difuminado, igual que las fotos verticales del refugio. Tocarlo lleva al cartel ampliable de `/esterilizacion`. |
 | 10 puntos más las flechas no caben a 360 px. | El paso 3 lo prueba. Si no caben, los puntos pasan a `w-5`. |
