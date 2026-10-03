@@ -24,7 +24,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 14 | [Fotos del refugio: carrusel en la portada y fotos en las páginas](14-fotos-del-refugio-y-carrusel-de-portada.md) | Implementado | Carrusel de 9 fotos reales en la presentación (RF-21), fotos en esterilización, donativos en especie y los encabezados, e imagen para compartir; las fotos viven en el repo y `refugio.foto_principal_id` ya no existe |
 | 15 | [Sincronización desde Facebook: borradores de peludos y campañas para revisar](15-sincronizacion-facebook.md) | Implementado | Requisito nuevo (no RF-19, que es Transparencia); lectura diaria con Apify y Gemini, borradores `por_revisar` que se publican al guardarlos en el panel y avisos de adopción |
 | 16 | [Necesidades y adopciones sin foto desde Facebook](16-necesidades-y-adopciones-sin-foto.md) | Implementado | Requisito nuevo; borradores de necesidad sin repetir lo ya registrado, imagen genérica por tipo en "Necesidades del mes", adopciones sin foto (los videos no se leen) y foto obligatoria para publicar un peludo |
-| 17 | [Datos reales y negocios ocultos](17-datos-reales-y-negocios-ocultos.md) | Aprobado (código listo; faltan los pasos de datos 7 a 10) | Sitio sin datos de ejemplo ni listón; todo lo de negocios oculto tras `PUBLIC_MOSTRAR_NEGOCIOS` (`docs/mostrar-negocios.md`) |
+| 17 | [Datos reales y negocios ocultos](17-datos-reales-y-negocios-ocultos.md) | Implementado | Sitio sin datos de ejemplo ni listón; todo lo de negocios oculto tras `PUBLIC_MOSTRAR_NEGOCIOS` (`docs/mostrar-negocios.md`) |
 | 18 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs
@@ -33,7 +33,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 - Ninguna página llama a `getCollection` directamente: siempre pasa por `src/lib/datos.ts`.
 - La interactividad del sitio público se hace con `<script>` nativos de Astro, sin Svelte ni React.
 - Campos de datos en español y `snake_case`.
-- Los registros `es_ejemplo` solo se muestran con `PUBLIC_MOSTRAR_EJEMPLOS=true`; Vercel no la tiene una vez hechos los pasos de datos de la SPEC 17.
+- Los registros `es_ejemplo` solo se muestran con `PUBLIC_MOSTRAR_EJEMPLOS=true`; Vercel ya no la tiene (SPEC 17).
 - Lo de negocios solo se ve con `PUBLIC_MOSTRAR_NEGOCIOS=true` (SPEC 17).
 - La calculadora de aportes del prototipo no forma parte del sitio.
 - El formulario Súmate y el panel `/admin` son páginas estáticas que hablan con Supabase desde el navegador con la llave publicable; los protegen las políticas RLS, que exigen sesión `aal2` (TOTP) y el rol de `usuarios_panel` (SPEC 07).
