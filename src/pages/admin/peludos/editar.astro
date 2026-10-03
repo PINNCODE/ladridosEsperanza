@@ -1,5 +1,5 @@
 ---
-// /admin/peludos/editar (SPEC 08, RF-11 y RF-30): crea (sin ?id=) o edita un peludo con hasta 8 fotos,
+// /admin/peludos/editar (SPEC 08, RF-11 y RF-30): crea (sin ?id=) o edita un peludo con 1 a 8 fotos,
 // su convivencia y los hitos de su ficha (SPEC 13). Guarda con la RPC guardar_peludo; un peludo nuevo
 // va al final del carrusel.
 import AvisoBorrador from '../../../components/admin/AvisoBorrador.astro';
@@ -170,6 +170,8 @@ const convivencias = [
 				mostrarAvisoBorrador(peludo.por_revisar, peludo.publicaciones_facebook);
 			},
 			guardar: async (formulario, id) => {
+				// Ningún peludo se publica sin foto (SPEC 16); guardar_peludo también lo revisa.
+				if (fotos.cantidad() === 0) throw { message: 'datos_invalidos', details: 'fotos' };
 				const datos = new FormData(formulario);
 				await guardarConFotos([fotos], ([lista]) =>
 					supabase.rpc('guardar_peludo', {

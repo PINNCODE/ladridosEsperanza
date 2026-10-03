@@ -1,8 +1,9 @@
 ---
 // /admin/necesidades (SPEC 08, RF-26): necesidades del mes, de la vigencia más próxima a la más lejana.
 // Las vencidas siguen en la lista con la etiqueta "Vencida"; el sitio ya no las muestra.
+// Arriba van los borradores que trajo Facebook (SPEC 16).
 import CabeceraLista from '../../components/admin/CabeceraLista.astro';
-import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import { boton, etiquetaEjemplo, etiquetaRevisar, tarjeta } from '../../components/admin/estilos';
 import LayoutPanel from '../../layouts/LayoutPanel.astro';
 ---
 
@@ -18,11 +19,13 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 				<span data-vencida hidden class="rounded-full bg-texto px-3 py-0.5 text-sm font-bold text-superficie"
 					>Vencida</span
 				>
+				<span data-revisar hidden class={etiquetaRevisar}>Por revisar</span>
 				<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
 			</div>
 			<p data-detalle class="mt-1 text-texto-secundario"></p>
 			<div class="mt-3 flex flex-wrap gap-2">
 				<a data-editar class={boton}>Editar</a>
+				<a data-facebook hidden target="_blank" rel="noopener noreferrer" class={boton}>Ver en Facebook</a>
 				<button type="button" data-borrar class={boton}>Borrar</button>
 			</div>
 		</li>
@@ -30,7 +33,14 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 </LayoutPanel>
 
 <script>
-	import { confirmarBorrado, hoyEnMexico, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import {
+		confirmarBorrado,
+		hoyEnMexico,
+		mensajeError,
+		mostrarAviso,
+		postDelBorrador,
+		type PostFacebook,
+	} from '../../lib/formularioPanel';
 	import { formatearFecha } from '../../lib/formato';
 	import { prepararPanel } from '../../lib/panel';
 	import { supabaseNavegador } from '../../lib/supabaseNavegador';
@@ -42,6 +52,8 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 		urgencia: string;
 		fecha_vigencia: string;
 		es_ejemplo: boolean;
+		por_revisar: boolean;
+		publicacion: PostFacebook | null;
 	};
 
 	const tipos: Record<string, string> = {
@@ -59,7 +71,11 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 
 		const { data, error } = await supabase
 			.from('necesidades')
-			.select('id, tipo, descripcion, urgencia, fecha_vigencia, es_ejemplo')
+			.select(
+				'id, tipo, descripcion, urgencia, fecha_vigencia, es_ejemplo, por_revisar, ' +
+					'publicacion:publicaciones_facebook(url_post, resultado)',
+			)
+			.order('por_revisar', { ascending: false })
 			.order('fecha_vigencia')
 			.order('descripcion')
 			.overrideTypes<Necesidad[], { merge: false }>();
@@ -84,6 +100,16 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 					`${tipos[necesidad.tipo] ?? necesidad.tipo} · ${urgencia} · Vigente hasta el ${vigencia}`;
 				fila.querySelector<HTMLElement>('[data-vencida]')!.hidden = necesidad.fecha_vigencia >= hoy;
 				fila.querySelector<HTMLElement>('[data-ejemplo]')!.hidden = !necesidad.es_ejemplo;
+				fila.querySelector<HTMLElement>('[data-revisar]')!.hidden = !necesidad.por_revisar;
+				const borrador = necesidad.por_revisar
+					? postDelBorrador(necesidad.publicacion && [necesidad.publicacion])
+					: undefined;
+				if (borrador) {
+					const verPost = fila.querySelector<HTMLAnchorElement>('[data-facebook]')!;
+					verPost.href = borrador.url_post;
+					verPost.setAttribute('aria-label', `Ver en Facebook el post de ${necesidad.descripcion}`);
+					verPost.hidden = false;
+				}
 				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
 					`/admin/necesidades/editar?id=${encodeURIComponent(necesidad.id)}`;
 

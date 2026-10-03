@@ -78,6 +78,8 @@ type Elemento =
 export type CampoFotos = {
 	/** Pone las fotos que el registro ya tiene, en orden. */
 	cargar: (fotos: FotoGuardada[]) => void;
+	/** Cuántas fotos tiene el campo ahora, guardadas y nuevas. */
+	cantidad: () => number;
 	/** Sube las fotos nuevas y devuelve los datos para la RPC y las rutas que subió. */
 	subirNuevas: () => Promise<{ fotos: FotoDatos[]; subidas: string[] }>;
 };
@@ -167,6 +169,7 @@ export function campoFotos(raiz: HTMLElement, alCambiar: () => void): CampoFotos
 	pintar();
 
 	return {
+		cantidad: () => elementos.length,
 		cargar(fotos) {
 			elementos.splice(0, elementos.length, ...fotos.map(({ id, ruta }) => ({
 				tipo: 'guardada' as const,
