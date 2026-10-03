@@ -9,8 +9,8 @@ insert into imagenes (ruta, ancho, alto) values
 	('peludos/canelo.jpg', 194, 259),
 	('campanas/cartel-2026-09-26.jpg', 820, 820);
 
-insert into refugio (id, nombre, frase, ubicacion, direccion, latitud, longitud, enlace_mapa, whatsapp, logo_id, es_ejemplo) values
-	('refugio', 'Ladridos de Esperanza', 'Un refugio que sale adelante gracias a personas como tú. Ayúdanos a esterilizar, dar en adopción y cuidar a los peludos que más lo necesitan.', 'Tenancingo, Estado de México', 'Calle de ejemplo 1, col. Centro', 18.9568545, -99.6010805, 'https://www.google.com/maps/place/Ladridos+Esperanza+Tenancingo/@18.9568545,-99.6036554,17z/data=!3m1!4b1!4m6!3m5!1s0x85cd9582bfab708f:0x1677173226f55379!8m2!3d18.9568545!4d-99.6010805!16s%2Fg%2F11g2yy8f2k', '5215500000000', (select id from imagenes where ruta = 'refugio/logo.jpg'), true);
+insert into refugio (id, nombre, frase, ubicacion, direccion, latitud, longitud, enlace_mapa, messenger, logo_id, es_ejemplo) values
+	('refugio', 'Ladridos de Esperanza', 'Un refugio que sale adelante gracias a personas como tú. Ayúdanos a esterilizar, dar en adopción y cuidar a los peludos que más lo necesitan.', 'Tenancingo, Estado de México', 'Calle de ejemplo 1, col. Centro', 18.9568545, -99.6010805, 'https://www.google.com/maps/place/Ladridos+Esperanza+Tenancingo/@18.9568545,-99.6036554,17z/data=!3m1!4b1!4m6!3m5!1s0x85cd9582bfab708f:0x1677173226f55379!8m2!3d18.9568545!4d-99.6010805!16s%2Fg%2F11g2yy8f2k', '100067644922613', (select id from imagenes where ruta = 'refugio/logo.jpg'), true);
 
 insert into redes (id, red, etiqueta, url, orden, es_ejemplo) values
 	('facebook', 'facebook', 'Facebook', 'https://www.facebook.com/ladridos.esperanza.5/', 1, false),
@@ -27,7 +27,7 @@ insert into categorias (id, nombre, orden, es_ejemplo) values
 
 insert into bloques_contenido (id, seccion, titulo, texto, orden, publicado, es_ejemplo) values
 	('quienes-somos', 'quienes_somos', 'Quiénes somos', 'Somos el refugio Ladridos de Esperanza, en Tenancingo. Rescatamos perros y gatos, los cuidamos, los esterilizamos y les buscamos una familia. Aquí irá la historia real del refugio.', 1, true, true),
-	('proceso-adopcion', 'proceso_adopcion', 'Cómo es el proceso de adopción', 'Escríbenos por WhatsApp con el nombre del peludo que te interesa.
+	('proceso-adopcion', 'proceso_adopcion', 'Cómo es el proceso de adopción', 'Escríbenos por Messenger con el nombre del peludo que te interesa.
 
 Te contamos su historia y agendamos una visita al refugio.
 
@@ -41,7 +41,7 @@ Ayudas a toda la comunidad.', 1, true, true),
 	('despues-de-la-cirugia', 'esterilizacion_cuidados', 'Después de la cirugía', 'Texto de ejemplo. El veterinario del refugio indicará los cuidados de la herida y cuándo puede volver a comer y jugar.', 2, true, true),
 	('pregunta-edad', 'esterilizacion_preguntas', '¿Desde qué edad se puede esterilizar?', 'Respuesta de ejemplo. La confirma el veterinario del refugio.', 1, true, true),
 	('pregunta-recuperacion', 'esterilizacion_preguntas', '¿Cuánto tarda en recuperarse?', 'Respuesta de ejemplo. La confirma el veterinario del refugio.', 2, true, true),
-	('pregunta-reservar', 'esterilizacion_preguntas', '¿Necesito reservar mi lugar?', 'Sí. Los lugares son limitados y se apartan con el pago. Escríbenos por WhatsApp para reservar.', 3, true, true),
+	('pregunta-reservar', 'esterilizacion_preguntas', '¿Necesito reservar mi lugar?', 'Sí. Los lugares son limitados y se apartan con el pago. Escríbenos por Messenger para reservar.', 3, true, true),
 	('voluntariado', 'voluntariado', 'Voluntariado y hogar temporal', 'Mayores de 18 años, un sábado al mes.', 1, true, true);
 
 insert into problematicas (id, titulo, texto, icono, etiqueta_cifra, cifra, fecha_cifra, fuente, orden, publicada, es_ejemplo, enlace_texto, enlace_url, enlace_sensible) values

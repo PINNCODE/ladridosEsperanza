@@ -1,23 +1,22 @@
 ---
 // Formas de ayudar (RF-25): 6 tarjetas con texto fijo (5 mientras los negocios estén ocultos, SPEC 17). Ningún dato bancario se publica:
-// los datos para donar se piden por WhatsApp al número oficial del refugio. La foto de "Donar en
+// los datos para donar se piden por Messenger a la página oficial del refugio (SPEC 18). La foto de "Donar en
 // especie" es de la SPEC 14.
 import { Image } from 'astro:assets';
+import EnlaceMessenger from '../EnlaceMessenger.astro';
 import Icono from '../Icono.astro';
 import ListaNecesidades from '../ListaNecesidades.astro';
 import { bloquesDeSeccion, mostrarNegocios, obtener, obtenerRefugio } from '../../lib/datos';
 import { parrafos } from '../../lib/formato';
 import { fotosRefugio } from '../../lib/fotosRefugio';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden);
 const [voluntariado] = await bloquesDeSeccion('voluntariado');
 
-const whatsapp = (mensaje: string) => enlaceWhatsApp(refugio.whatsapp, mensaje);
-const pedirDatos = whatsapp(`Hola, quiero los datos para donar a ${refugio.nombre}.`);
-const apadrinar = whatsapp(`Hola, quiero apadrinar a un peludo de ${refugio.nombre}.`);
-const serVoluntario = whatsapp(`Hola, quiero ser voluntario o dar hogar temporal en ${refugio.nombre}.`);
+const pedirDatos = `Hola, quiero los datos para donar a ${refugio.nombre}.`;
+const apadrinar = `Hola, quiero apadrinar a un peludo de ${refugio.nombre}.`;
+const serVoluntario = `Hola, quiero ser voluntario o dar hogar temporal en ${refugio.nombre}.`;
 
 const tarjeta = 'flex flex-col rounded-2xl border border-lineas bg-superficie p-5';
 const botonPrincipal =
@@ -32,21 +31,14 @@ const botonSecundario =
 		<article class={tarjeta}>
 			<Icono nombre="landmark" />
 			<h3 class="mt-3 text-lg font-bold">Transferencia o depósito</h3>
-			<p class="mt-1 text-texto-secundario">Pide los datos oficiales por WhatsApp para donar con seguridad.</p>
-			<a
-				href={pedirDatos}
-				target="_blank"
-				rel="noopener"
-				class={botonPrincipal}
-				data-umami-event="whatsapp"
-				data-umami-event-motivo="donativo"
-			>
+			<p class="mt-1 text-texto-secundario">Pide los datos oficiales por Messenger para donar con seguridad.</p>
+			<EnlaceMessenger mensaje={pedirDatos} motivo="donativo" class={botonPrincipal}>
 				Pedir datos para donar
-			</a>
+			</EnlaceMessenger>
 			<p class="mt-3 flex gap-2 rounded-xl bg-suave p-3 text-sm text-sobre-suave">
 				<Icono nombre="shield-check" size={20} />
-				El único canal oficial para donar es el WhatsApp del refugio. No publicamos cuentas bancarias en
-				esta página.
+				El único canal oficial para donar es el Messenger al que lleva este botón. No publicamos cuentas
+				bancarias en esta página. Desconfía de perfiles que te escriban primero pidiendo dinero.
 			</p>
 		</article>
 
@@ -75,16 +67,9 @@ const botonSecundario =
 				Con un aporte cada mes ayudas a cubrir la comida y la atención de un peludo mientras encuentra
 				familia. Escríbenos y te contamos cómo funciona.
 			</p>
-			<a
-				href={apadrinar}
-				target="_blank"
-				rel="noopener"
-				class={botonPrincipal}
-				data-umami-event="whatsapp"
-				data-umami-event-motivo="apadrinar"
-			>
+			<EnlaceMessenger mensaje={apadrinar} motivo="apadrinar" class={botonPrincipal}>
 				Quiero apadrinar
-			</a>
+			</EnlaceMessenger>
 		</article>
 
 		<article class={tarjeta}>
@@ -92,16 +77,9 @@ const botonSecundario =
 			<h3 class="mt-3 text-lg font-bold">Voluntariado y hogar temporal</h3>
 			<p class="mt-1 text-texto-secundario">Tu tiempo y tu casa también salvan vidas.</p>
 			{voluntariado && parrafos(voluntariado.data.texto).map((parrafo) => <p class="mt-2">{parrafo}</p>)}
-			<a
-				href={serVoluntario}
-				target="_blank"
-				rel="noopener"
-				class={botonPrincipal}
-				data-umami-event="whatsapp"
-				data-umami-event-motivo="voluntariado"
-			>
+			<EnlaceMessenger mensaje={serVoluntario} motivo="voluntariado" class={botonPrincipal}>
 				Quiero ser voluntario
-			</a>
+			</EnlaceMessenger>
 		</article>
 
 		<article class={tarjeta}>

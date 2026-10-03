@@ -1,17 +1,17 @@
 ---
 // /adopta (SPEC 03, RF-11): galería de los peludos disponibles (SPEC 13), cómo es el proceso y contacto.
+import EnlaceMessenger from '../components/EnlaceMessenger.astro';
 import EncabezadoPagina from '../components/EncabezadoPagina.astro';
 import GaleriaPeludos from '../components/adopta/GaleriaPeludos.astro';
 import ProcesoAdopcion from '../components/adopta/ProcesoAdopcion.astro';
 import Layout from '../layouts/Layout.astro';
 import { obtenerRefugio } from '../lib/datos';
 import { fotosRefugio } from '../lib/fotosRefugio';
-import { enlaceWhatsApp } from '../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const titulo = 'Adopta a un peludo';
 const frase = 'Conócelos, dales un corazón y abre su ficha para leer su historia.';
-const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
+const mensaje = `Hola, les escribo desde la página de ${refugio.nombre}.`;
 ---
 
 <Layout titulo={`${titulo} · ${refugio.nombre}`} descripcion={frase}>
@@ -20,13 +20,12 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la p�
 	<ProcesoAdopcion />
 	<section aria-labelledby="dudas-titulo" class="mt-10 mb-4">
 		<h2 id="dudas-titulo" class="text-2xl font-bold">¿Tienes dudas? Escríbenos.</h2>
-		<a
-			href={whatsapp}
-			target="_blank"
-			rel="noopener"
+		<EnlaceMessenger
+			mensaje={mensaje}
+			motivo="contacto"
 			class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
 		>
-			Escríbenos por WhatsApp
-		</a>
+			Escríbenos por Messenger
+		</EnlaceMessenger>
 	</section>
 </Layout>

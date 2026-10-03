@@ -1,11 +1,11 @@
 ---
-// Redes y contacto: las cuatro redes del refugio (enlazadas, no incrustadas) y su WhatsApp.
+// Redes y contacto: las cuatro redes del refugio (enlazadas, no incrustadas) y su Messenger (SPEC 18).
+import EnlaceMessenger from '../EnlaceMessenger.astro';
 import { obtener, obtenerRefugio } from '../../lib/datos';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden);
-const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
+const mensaje = `Hola, les escribo desde la página de ${refugio.nombre}.`;
 ---
 
 <section id="redes" aria-labelledby="redes-titulo" class="aparecer">
@@ -15,16 +15,13 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la p�
 	</p>
 	<ul class="mt-5 flex flex-wrap gap-2">
 		<li>
-			<a
-				href={whatsapp}
-				data-umami-event="whatsapp"
-				data-umami-event-motivo="contacto"
-				target="_blank"
-				rel="noopener"
+			<EnlaceMessenger
+				mensaje={mensaje}
+				motivo="contacto"
 				class="inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
 			>
-				Escríbenos por WhatsApp
-			</a>
+				Escríbenos por Messenger
+			</EnlaceMessenger>
 		</li>
 		{
 			redes.map(({ data }) => (

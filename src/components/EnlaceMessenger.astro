@@ -1,0 +1,36 @@
+---
+// Enlace de todo contacto con el refugio (SPEC 18): abre el chat de Messenger de su página de Facebook.
+// Meta no garantiza el mensaje prellenado, así que el mensaje va en data-mensaje y AvisoMensaje lo copia
+// al tocar el enlace. Cada clave de `extra` se vuelve data-umami-event-{clave}.
+import { obtenerRefugio } from '../lib/datos';
+import { enlaceMessenger } from '../lib/messenger';
+
+interface Props {
+	/** Lo que la persona pega en Messenger: "Hola, quiero adoptar a Rocky…". */
+	mensaje: string;
+	/** `motivo` del evento `mensaje` de Umami: adopcion, contacto, donativo… */
+	motivo: string;
+	/** Otros datos del evento, como `{ peludo: nombre }`. */
+	extra?: Record<string, string>;
+	class?: string;
+}
+
+const { mensaje, motivo, extra = {}, class: clases } = Astro.props;
+const refugio = await obtenerRefugio();
+const datosEvento = Object.fromEntries(
+	Object.entries(extra).map(([clave, valor]) => [`data-umami-event-${clave}`, valor]),
+);
+---
+
+<a
+	href={enlaceMessenger(refugio.messenger)}
+	target="_blank"
+	rel="noopener"
+	data-mensaje={mensaje}
+	data-umami-event="mensaje"
+	data-umami-event-motivo={motivo}
+	{...datosEvento}
+	class={clases}
+>
+	<slot />
+</a>

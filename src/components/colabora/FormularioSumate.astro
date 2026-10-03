@@ -1,16 +1,15 @@
 ---
 // Formulario Súmate (SPEC 07, RF-15): un negocio pide sumarse a Come por los Peludos.
 // El script inserta en solicitudes_negocio con la llave publicable; RLS, los check y un disparador
-// validan en Postgres. Sin JavaScript el formulario no puede enviar, así que se ofrece WhatsApp.
+// validan en Postgres. Sin JavaScript el formulario no puede enviar, así que se ofrece el Messenger
+// del refugio (SPEC 18), con el mensaje en data-mensaje para que AvisoMensaje lo copie.
 import { categoriasOrdenadas, obtenerRefugio } from '../../lib/datos';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
+import { enlaceMessenger } from '../../lib/messenger';
 
 const refugio = await obtenerRefugio();
 const categorias = await categoriasOrdenadas();
-const whatsapp = enlaceWhatsApp(
-	refugio.whatsapp,
-	'Hola, tengo un negocio y quiero sumarme a Come por los Peludos.',
-);
+const messenger = enlaceMessenger(refugio.messenger);
+const mensaje = 'Hola, tengo un negocio y quiero sumarme a Come por los Peludos.';
 
 const etiqueta = 'block font-bold';
 const campo = 'mt-1 min-h-12 w-full rounded-xl border border-lineas bg-superficie px-4 py-2 text-base';
@@ -24,11 +23,11 @@ const enlace = 'text-acento underline underline-offset-4';
 	<noscript>
 		<p class="mt-3">
 			Para enviar el formulario necesitas JavaScript. También puedes
-			<a href={whatsapp} target="_blank" rel="noopener" class={enlace}>escribirnos por WhatsApp</a>.
+			<a href={messenger} target="_blank" rel="noopener" class={enlace}>escribirnos por Messenger</a>.
 		</p>
 	</noscript>
 
-	<form data-sumate data-whatsapp={whatsapp} hidden class="mt-4 space-y-5">
+	<form data-sumate data-messenger={messenger} data-mensaje-messenger={mensaje} hidden class="mt-4 space-y-5">
 		<div>
 			<label for="sumate-nombre" class={etiqueta}>Nombre del negocio</label>
 			<input
@@ -135,7 +134,8 @@ const enlace = 'text-acento underline underline-offset-4';
 		const error = formulario.querySelector<HTMLElement>('[data-error]')!;
 		const enviar = formulario.querySelector<HTMLButtonElement>('[data-enviar]')!;
 		const gracias = document.querySelector<HTMLElement>('[data-gracias]')!;
-		const enlaceWhatsApp = formulario.dataset.whatsapp!;
+		const enlaceMessenger = formulario.dataset.messenger!;
+		const mensajeMessenger = formulario.dataset.mensajeMessenger!;
 
 		formulario.hidden = false;
 
@@ -169,11 +169,12 @@ const enlace = 'text-acento underline underline-offset-4';
 				return;
 			}
 			const enlace = document.createElement('a');
-			enlace.href = enlaceWhatsApp;
+			enlace.href = enlaceMessenger;
+			enlace.dataset.mensaje = mensajeMessenger;
 			enlace.target = '_blank';
 			enlace.rel = 'noopener';
 			enlace.className = 'text-acento underline underline-offset-4';
-			enlace.textContent = 'Escríbenos por WhatsApp';
+			enlace.textContent = 'Escríbenos por Messenger';
 			error.append('No pudimos enviar tu solicitud. ', enlace, '.');
 		};
 
