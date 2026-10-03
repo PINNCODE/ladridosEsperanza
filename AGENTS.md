@@ -4,11 +4,10 @@ This file provides guidance to coding agents working with code in this repositor
 
 ## Status
 
-The site is live at https://www.ladridosdeesperanza.org (Vercel, from `main`; the bare domain redirects there). Specs 01 to 17 are implemented and the code of SPEC 18 too (its cloud steps 6 and 7 are pending, see below), which covers the MVP of the parent spec except ads (RF-18, SPEC 19, not written yet). The shelter has no WhatsApp: every shelter contact button opens Messenger with its Facebook page (SPEC 18); only businesses keep WhatsApp. Still open before treating it as final:
+The site is live at https://www.ladridosdeesperanza.org (Vercel, from `main`; the bare domain redirects there). Specs 01 to 18 are implemented, which covers the MVP of the parent spec except ads (RF-18, SPEC 19, not written yet). The shelter has no WhatsApp: every shelter contact button opens Messenger with its Facebook page (SPEC 18); only businesses keep WhatsApp. Still open before treating it as final:
 
 - Since SPEC 17, Production and Preview build without `PUBLIC_MOSTRAR_EJEMPLOS` (no ribbon, no sample data). The cloud records were marked real as they were, so the panel texts that say "Texto de ejemplo" or "Respuesta de ejemplo", the `problematicas` figures and the `destinos_donativo` amounts still need the shelter's real content.
 - Businesses ("Come por los Peludos") are hidden: Vercel has no `PUBLIC_MOSTRAR_NEGOCIOS`. `docs/mostrar-negocios.md` says how to show them again.
-- The SPEC 18 migration (`refugio.messenger`, no `refugio.whatsapp`) reaches the cloud only with `npx supabase db push`; until then the site build fails because `messenger` is missing. Two cloud texts (`proceso-adopcion`, `pregunta-reservar`) still say WhatsApp until they are edited in `/admin/textos`.
 - The privacy notice still says it is pending legal review.
 - The Facebook sync (SPEC 15) runs only after `npx supabase db push` and the four GitHub secrets (`SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `GEMINI_API_KEY`, `APIFY_TOKEN`); see `docs/configuracion-facebook-sync.md`. The SPEC 16 migration (need drafts, pets without photos) also reaches the cloud only with `npx supabase db push`; until then the site build fails on the new `necesidades.por_revisar` filter.
 - The shelter's original-resolution logo and pet photos (the shelter photos are already the originals, SPEC 14), and the conditions of sponsorship and volunteering (see "Antes de publicar" in `specs/README.md`).
