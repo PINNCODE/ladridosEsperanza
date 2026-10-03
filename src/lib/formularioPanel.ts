@@ -19,6 +19,7 @@ const camposInvalidos: Record<string, string> = {
 	nombre: 'Revisa los nombres: cada grupo, sección y platillo necesita uno.',
 	precios: 'Revisa los precios: cada platillo lleva de 1 a 4, con monto o texto alterno.',
 	monto: 'Revisa los precios: el monto no puede ser negativo y lleva a lo más 2 decimales.',
+	fotos: 'Agrega al menos una foto.',
 	hitos: 'Revisa los hitos: cada uno necesita una fecha de hoy o antes, y los de tipo "Otro", un texto.',
 };
 
@@ -104,9 +105,9 @@ export function mostrarAviso(elemento: HTMLElement): void {
 /** Post de Facebook de un registro (SPEC 15), como lo trae `publicaciones_facebook(url_post, resultado)`. */
 export type PostFacebook = { url_post: string; resultado: string };
 
-/** El post del que salió un borrador: el de resultado `peludo` o `campana`. */
+/** El post del que salió un borrador: el de resultado `peludo`, `campana` o `necesidad` (SPEC 16). */
 export function postDelBorrador(posts: PostFacebook[] | null | undefined): PostFacebook | undefined {
-	return posts?.find(({ resultado }) => resultado === 'peludo' || resultado === 'campana');
+	return posts?.find(({ resultado }) => ['peludo', 'campana', 'necesidad'].includes(resultado));
 }
 
 /** Muestra el aviso de `AvisoBorrador` si el registro está por revisar, con el enlace a su post. */

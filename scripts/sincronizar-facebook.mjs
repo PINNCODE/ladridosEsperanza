@@ -2,6 +2,8 @@
 // con Apify, clasifica cada uno con Gemini y lo registra con la RPC importar_post_facebook: un peludo o una
 // campaña entran como borrador (`por_revisar`), que el refugio revisa y publica desde el panel.
 // Nunca inventa un dato obligatorio: si falta, el post queda `incompleto` con su motivo.
+// SPEC 16: también reúne lo que pide el refugio como borradores de necesidad, sin repetir lo ya registrado,
+// y guarda todo post de adopción aunque no traiga foto (el refugio la agrega). Los videos no se leen.
 //
 // Uso: node scripts/sincronizar-facebook.mjs [--dry-run]
 // Variables: SUPABASE_URL, SUPABASE_SECRET_KEY, GEMINI_API_KEY y APIFY_TOKEN (GEMINI_MODELO, opcional).
@@ -23,6 +25,11 @@ const LADO_FOTO = 1600;
 const LADO_CARTEL = 2400;
 const CALIDAD = 85;
 const POR_CONFIRMAR = 'Por confirmar';
+const MAXIMO_NECESIDADES = 6;
+// Vigencia de una necesidad cuando el post no dice hasta cuándo aplica.
+const DIAS_VIGENCIA = 30;
+// Un donativo en dinero no es una necesidad (SPEC 16), aunque Gemini lo liste.
+const DINERO = /\b(dinero|economic[oa]s?|efectivo|transferencias?|depositos?|monetari[oa]s?|donativos?)\b/;
 
 const simulacion = process.argv.includes('--dry-run');
 
@@ -84,8 +91,10 @@ async function leerPosts() {
 
 /** Lo que el script usa de un elemento de Apify. */
 function post(elemento) {
+	// Solo fotos: los videos (y su miniatura) no se leen (SPEC 16).
 	const fotos = (elemento.media ?? [])
 		.filter((medio) => !medio.__typename || medio.__typename === 'Photo')
+		.filter((medio) => !medio.videoId && !medio.playable_url && !medio.is_playable)
 		.map((medio) => medio.photo_image?.uri ?? medio.image?.uri ?? medio.thumbnail)
 		.filter(Boolean);
 	return {
@@ -106,7 +115,7 @@ const convivencia = { type: 'STRING', enum: ['si', 'no', 'no_sabemos'] };
 const ESQUEMA = {
 	type: 'OBJECT',
 	properties: {
-		categoria: { type: 'STRING', enum: ['adopcion', 'campana', 'adoptado', 'otro'] },
+		categoria: { type: 'STRING', enum: ['adopcion', 'campana', 'necesidad', 'adoptado', 'otro'] },
 		motivo: { type: 'STRING' },
 		varios_peludos: { type: 'BOOLEAN' },
 		nombre: texto,
@@ -126,18 +135,40 @@ const ESQUEMA = {
 		forma_pago: texto,
 		cupo: { type: 'INTEGER', nullable: true },
 		nombre_adoptado: texto,
+		necesidades: {
+			type: 'ARRAY',
+			nullable: true,
+			items: {
+				type: 'OBJECT',
+				properties: {
+					tipo: { type: 'STRING', enum: ['alimento', 'medicina', 'cobijas', 'limpieza', 'otro'] },
+					descripcion: { type: 'STRING' },
+					ya_registrada: texto,
+				},
+				required: ['tipo', 'descripcion', 'ya_registrada'],
+			},
+		},
+		vigencia: texto,
 		texto_en_foto: texto,
 	},
 	required: ['categoria', 'motivo', 'varios_peludos', 'tamano', 'convive_perros', 'convive_gatos', 'convive_ninos'],
 };
 
-const instrucciones = (fecha) => `Clasificas publicaciones de Facebook del refugio de animales "Ladridos de Esperanza" en Tenancingo, Estado de México. Hoy es ${fecha}.
+/** Necesidades ya registradas, una por línea, para que Gemini marque las que se repiten. */
+const listaRegistradas = (registradas) =>
+	registradas.length === 0
+		? '(ninguna)'
+		: registradas.map(({ id, tipo, descripcion }) => `- ${id} | ${tipo} | ${descripcion}`).join('\n');
+
+const instrucciones = (fecha, registradas) => `Clasificas publicaciones de Facebook del refugio de animales "Ladridos de Esperanza" en Tenancingo, Estado de México. Hoy es ${fecha}.
 
 Categorías:
 - "adopcion": un perro o gato rescatado que busca hogar (adopción o casa temporal).
 - "campana": una campaña de esterilización con fecha.
+- "necesidad": el refugio pide cosas en especie (alimento, croquetas, sobres, latas, medicinas, cobijas, artículos de limpieza, arena…).
 - "adoptado": celebra que un peludo con nombre ya fue adoptado.
-- "otro": cualquier otra cosa (agradecimientos, donativos, rifas, extravíos, reflexiones).
+- "otro": cualquier otra cosa (agradecimientos, donativos en dinero, rifas, eventos, carreras, extravíos, reflexiones).
+Si una publicación es "adopcion" o "campana" y además pide cosas, es "adopcion" o "campana".
 
 Reglas:
 - Nunca inventes un dato. Si el texto no lo dice, deja el campo en null. No pongas un nombre que no esté escrito en el texto.
@@ -151,11 +182,17 @@ Reglas:
 - "costo" y "cupo" solo como números escritos en el texto.
 - "texto_en_foto": copia literal del texto que se lee en la foto (un cartel, por ejemplo), o null si no tiene texto.
 - Los datos pueden venir del texto o de la foto (la fecha y el costo de una campaña suelen estar en el cartel).
-- "motivo": una frase corta que explique la categoría.`;
+- "necesidades": solo con categoría "necesidad"; una por cada cosa distinta que se pide, con su "tipo" y una "descripcion" corta en español con las palabras del texto ("Sobres o latas para gatos", "Arena para gatos"). Nunca incluyas dinero (apoyo económico, donativos, transferencias) ni voluntarios ("manos"): no son cosas. Con otra categoría, null.
+- "ya_registrada": el id de la necesidad ya registrada (lista de abajo) que pide lo mismo aunque esté escrita distinto ("arenita para los michis" es lo mismo que "Arena para gatos"); null si es nueva.
+- "vigencia": la fecha AAAA-MM-DD hasta la que aplica la necesidad, solo si el texto la escribe; si no, null.
+- "motivo": una frase corta que explique la categoría.
+
+Necesidades ya registradas (id | tipo | descripción):
+${listaRegistradas(registradas)}`;
 
 /** Clasifica un post con su texto y, si tiene, su primera foto ya reducida. */
 async function clasificar(textoPost, primeraFoto) {
-	const partes = [{ text: instrucciones(hoy) }, { text: `Publicación:\n"""\n${textoPost}\n"""` }];
+	const partes = [{ text: instrucciones(hoy, registradas) }, { text: `Publicación:\n"""\n${textoPost}\n"""` }];
 	if (primeraFoto) {
 		partes.push({ inline_data: { mime_type: 'image/jpeg', data: primeraFoto.toString('base64') } });
 	}
@@ -259,6 +296,19 @@ const nombreEnTexto = (nombre, textoPost) => normalizar(textoPost).includes(norm
 
 const valor = (dato) => (typeof dato === 'string' && dato.trim() ? dato.trim() : null);
 
+/** "2026-10-24" de un instante en Ciudad de México (hoy si no hay instante). */
+const fechaEnMexico = (instante) =>
+	instante
+		? new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City' }).format(new Date(instante))
+		: hoy;
+
+/** "AAAA-MM-DD" más `dias` días. */
+const sumarDias = (fecha, dias) => {
+	const resultado = new Date(`${fecha}T00:00:00Z`);
+	resultado.setUTCDate(resultado.getUTCDate() + dias);
+	return resultado.toISOString().slice(0, 10);
+};
+
 /**
  * Convierte la clasificación en los `datos` de importar_post_facebook (sin fotos) o en un post
  * `ignorado` / `incompleto` con el motivo del primer dato obligatorio que falte. Cada dato obligatorio
@@ -273,7 +323,7 @@ function decidir(clasificacion, post) {
 		const nombre = valor(c.nombre);
 		if (!nombre || !nombreEnTexto(nombre, enPost)) return incompleto('sin_nombre');
 		if (!c.especie) return incompleto('sin_especie');
-		if (post.fotos.length === 0) return incompleto('sin_foto');
+		// Sin foto (solo video o solo texto) también entra: el refugio la agrega antes de publicar (SPEC 16).
 		if (c.varios_peludos) return incompleto('varios_peludos');
 		const rasgos = (c.rasgos ?? [])
 			.map(valor)
@@ -320,6 +370,45 @@ function decidir(clasificacion, post) {
 		};
 	}
 
+	if (c.categoria === 'necesidad') {
+		const vigencia = valor(c.vigencia);
+		const fechaVigencia =
+			vigencia && /^\d{4}-\d{2}-\d{2}$/.test(vigencia) && vigencia > hoy && numeroEnTexto(Number(vigencia.slice(8)), enPost)
+				? vigencia
+				: sumarDias(fechaEnMexico(post.publicadoEn), DIAS_VIGENCIA);
+		if (fechaVigencia < hoy) return incompleto('fecha_pasada');
+
+		// Nada inventado: alguna palabra de 4 letras o más de la descripción está en el post. Y nada de dinero.
+		const textoNormalizado = normalizar(enPost);
+		const escritas = (c.necesidades ?? []).filter(
+			({ descripcion }) =>
+				valor(descripcion) &&
+				!DINERO.test(normalizar(descripcion)) &&
+				normalizar(descripcion)
+					.split(/[^a-z0-9ñ]+/)
+					.some((palabra) => palabra.length >= 4 && textoNormalizado.includes(palabra)),
+		);
+		if (escritas.length === 0) return incompleto('sin_necesidades');
+
+		const urgencia = /\b(urgente|urge|urgencia|emergencia)\b/.test(textoNormalizado) ? 'urgente' : 'necesaria';
+		const vistas = new Set(registradas.map(({ tipo, descripcion }) => `${tipo}|${normalizar(descripcion)}`));
+		const nuevas = [];
+		for (const { tipo, descripcion, ya_registrada } of escritas) {
+			const clave = `${tipo}|${normalizar(descripcion)}`;
+			if (registradas.some(({ id }) => id === ya_registrada) || vistas.has(clave)) continue;
+			vistas.add(clave);
+			const texto = valor(descripcion);
+			nuevas.push({
+				tipo,
+				descripcion: texto[0].toLocaleUpperCase('es-MX') + texto.slice(1),
+				urgencia,
+				fecha_vigencia: fechaVigencia,
+			});
+		}
+		if (nuevas.length === 0) return { resultado: 'ignorado', motivo: 'ya_registradas' };
+		return { resultado: 'necesidad', necesidades: nuevas.slice(0, MAXIMO_NECESIDADES) };
+	}
+
 	if (c.categoria === 'adoptado') {
 		const nombre = valor(c.nombre_adoptado);
 		if (!nombre || !nombreEnTexto(nombre, enPost)) return incompleto('sin_nombre');
@@ -356,8 +445,14 @@ async function procesar(post) {
 
 	if (simulacion) {
 		const medidas = fotos.map(({ ancho, alto }) => `${ancho}×${alto}`).join(', ');
-		console.log(`  Haría: ${JSON.stringify(datos.peludo ?? datos.campana ?? datos.adoptado ?? { motivo: datos.motivo })}`);
+		const haria = datos.peludo ?? datos.campana ?? datos.necesidades ?? datos.adoptado ?? { motivo: datos.motivo };
+		console.log(`  Haría: ${JSON.stringify(haria)}`);
 		if (medidas) console.log(`  Fotos: ${medidas}`);
+		if (decision.resultado === 'peludo' && fotos.length === 0) console.log('  Sin foto: el refugio la agrega.');
+		// Para que otro post de esta ejecución no las repita.
+		for (const [indice, necesidad] of (datos.necesidades ?? []).entries()) {
+			registradas.push({ id: `simulada-${post.id}-${indice}`, ...necesidad });
+		}
 		return decision.resultado;
 	}
 
@@ -372,7 +467,11 @@ async function procesar(post) {
 		if (error) throw new Error(`importar_post_facebook: ${error.message}${error.details ? ` (${error.details})` : ''}`);
 		return 'duplicado';
 	}
-	const creado = resultado.peludo_id ?? resultado.campana_id;
+	// Para que otro post de esta ejecución no las repita.
+	for (const [indice, id] of (resultado.necesidad_ids ?? []).entries()) {
+		registradas.push({ id, ...datos.necesidades[indice] });
+	}
+	const creado = resultado.peludo_id ?? resultado.campana_id ?? resultado.necesidad_ids?.join(', ');
 	console.log(`  Registrado: ${resultado.resultado}${creado ? ` → ${creado}` : ''}${datos.motivo ? ` (${datos.motivo})` : ''}`);
 	return resultado.resultado;
 }
@@ -386,7 +485,15 @@ async function yaRegistrados(ids) {
 	return new Set(data.map(({ post_id }) => post_id));
 }
 
-const conteo = { peludo: 0, campana: 0, adoptado: 0, ignorado: 0, incompleto: 0, duplicado: 0, error: 0 };
+/** Necesidades reales ya registradas (borradores y publicadas), para no repetirlas (SPEC 16). */
+async function necesidadesRegistradas() {
+	if (!supabase) return [];
+	const { data, error } = await supabase.from('necesidades').select('id, tipo, descripcion').eq('es_ejemplo', false);
+	if (error) throw new Error(`No se pudieron leer las necesidades: ${error.message}`);
+	return data;
+}
+
+const conteo = { peludo: 0, campana: 0, necesidad: 0, adoptado: 0, ignorado: 0, incompleto: 0, duplicado: 0, error: 0 };
 
 console.log(`Sincronización desde Facebook${simulacion ? ' (simulación: no se sube ni se escribe nada)' : ''}.`);
 let posts;
@@ -399,6 +506,7 @@ try {
 console.log(`${posts.length} posts leídos de Apify.`);
 
 const registrados = await yaRegistrados(posts.map(({ id }) => id));
+const registradas = await necesidadesRegistradas();
 for (const post of posts) {
 	console.log(`\nPost ${post.id} · ${post.url}`);
 	if (registrados.has(post.id)) {
@@ -420,7 +528,8 @@ for (const post of posts) {
 }
 
 console.log(
-	`\nResumen: ${conteo.peludo} peludos, ${conteo.campana} campañas, ${conteo.adoptado} avisos de adopción, ` +
+	`\nResumen: ${conteo.peludo} peludos, ${conteo.campana} campañas, ${conteo.necesidad} posts con necesidades, ` +
+		`${conteo.adoptado} avisos de adopción, ` +
 		`${conteo.ignorado} ignorados, ${conteo.incompleto} incompletos, ${conteo.duplicado} duplicados, ` +
 		`${conteo.error} errores.`,
 );

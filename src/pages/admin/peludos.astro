@@ -4,6 +4,7 @@
 // Junto a cada disponible, sus "me gusta" (SPEC 13) de la RPC conteos_me_gusta.
 // Arriba van los borradores que trajo Facebook (SPEC 15), sin "Subir" ni "Bajar" hasta publicarlos,
 // y un peludo con aviso de adopción de Facebook lo muestra hasta que su estado sea "Adoptado".
+// Un borrador sin fotos lleva también "Sin foto" (SPEC 16): no se publica hasta agregarle una.
 import CabeceraLista from '../../components/admin/CabeceraLista.astro';
 import { boton, enlace, etiquetaEjemplo, etiquetaRevisar, tarjeta } from '../../components/admin/estilos';
 import Icono from '../../components/Icono.astro';
@@ -28,6 +29,7 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 				<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
 					<h2 data-nombre class="text-lg font-bold break-words"></h2>
 					<span data-revisar hidden class={etiquetaRevisar}>Por revisar</span>
+					<span data-sin-foto hidden class={etiquetaEjemplo}>Sin foto</span>
 					<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
 				</div>
 				<p data-detalle class="text-texto-secundario"></p>
@@ -133,6 +135,7 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 
 				const borrador = peludo.por_revisar ? postDelBorrador(peludo.publicaciones_facebook) : undefined;
 				fila.querySelector<HTMLElement>('[data-revisar]')!.hidden = !peludo.por_revisar;
+				fila.querySelector<HTMLElement>('[data-sin-foto]')!.hidden = !peludo.por_revisar || Boolean(principal);
 				if (borrador) {
 					const verPost = fila.querySelector<HTMLAnchorElement>('[data-facebook]')!;
 					verPost.href = borrador.url_post;

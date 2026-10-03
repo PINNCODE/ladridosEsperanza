@@ -64,7 +64,9 @@ insert into peludos (id, nombre, especie, descripcion_especie, edad, tamano, des
 
 -- Borrador que trajo la sincronización de Facebook (SPEC 15): no sale en el sitio hasta guardarlo en el panel.
 insert into peludos (id, nombre, especie, descripcion_especie, edad, tamano, descripcion, rasgos, orden, estado, convive_perros, convive_gatos, convive_ninos, por_revisar, es_ejemplo) values
-	('pelusa', 'Pelusa', 'perro', 'Por confirmar', 'Por confirmar', 'pequeño', 'Buscamos hogar para Pelusa, la rescatamos ayer en la carretera a Tenancingo. Es muy dulce y se deja cargar.', array['Por confirmar', 'Por confirmar']::text[], 7, 'disponible', 'no_sabemos', 'no_sabemos', 'no_sabemos', true, true);
+	('pelusa', 'Pelusa', 'perro', 'Por confirmar', 'Por confirmar', 'pequeño', 'Buscamos hogar para Pelusa, la rescatamos ayer en la carretera a Tenancingo. Es muy dulce y se deja cargar.', array['Por confirmar', 'Por confirmar']::text[], 7, 'disponible', 'no_sabemos', 'no_sabemos', 'no_sabemos', true, true),
+	-- Borrador sin foto (SPEC 16): el post solo traía video; el panel no deja publicarlo hasta agregarle una.
+	('bombon', 'Bombón', 'perro', 'Perrita chihuahua', 'Por confirmar', 'pequeño', 'Les presentamos a Bombón, una chihuahua que llegó muy asustada. Ya está mejor y busca un hogar paciente.', array['Por confirmar', 'Por confirmar']::text[], 8, 'disponible', 'no_sabemos', 'no_sabemos', 'no_sabemos', true, true);
 
 insert into fotos_peludo (peludo_id, imagen_id, orden) values
 	('luna', (select id from imagenes where ruta = 'peludos/luna.jpg'), 1),
@@ -100,12 +102,19 @@ insert into publicaciones_facebook (post_id, url_post, pagina, resultado, peludo
 	('ejemplo-pelusa', 'https://www.facebook.com/ladridos.esperanza.5/posts/ejemplo-pelusa', 'https://www.facebook.com/ladridos.esperanza.5/', 'peludo', 'pelusa', null, null, 'Buscamos hogar para Pelusa, la rescatamos ayer en la carretera a Tenancingo. Es muy dulce y se deja cargar.', '2026-10-01 18:20:00+00', true),
 	('ejemplo-campana', 'https://www.facebook.com/ladridos.esperanza.5/posts/ejemplo-campana', 'https://www.facebook.com/ladridos.esperanza.5/', 'campana', null, '2026-11-21', null, 'Campaña de esterilización el sábado 21 de noviembre en la explanada de Tenancingo. Cuota de recuperación $350.', '2026-10-01 20:00:00+00', true),
 	('ejemplo-rocky', 'https://www.facebook.com/ladridos.esperanza.5/posts/ejemplo-rocky', 'https://www.facebook.com/ladridos.esperanza.5/', 'adoptado', 'rocky', null, null, '¡Rocky ya tiene familia! Gracias a todos los que compartieron.', '2026-10-02 01:00:00+00', true),
-	('ejemplo-incompleto', 'https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/posts/ejemplo-incompleto', 'https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/', 'incompleto', null, null, 'sin_nombre', 'Esta bebé necesita hogar urgente, se entrega desparasitada.', '2026-10-02 02:00:00+00', true);
+	('ejemplo-incompleto', 'https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/posts/ejemplo-incompleto', 'https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/', 'incompleto', null, null, 'sin_nombre', 'Esta bebé necesita hogar urgente, se entrega desparasitada.', '2026-10-02 02:00:00+00', true),
+	('ejemplo-bombon', 'https://www.facebook.com/reel/ejemplo-bombon/', 'https://www.facebook.com/ladridos.esperanza.5/', 'peludo', 'bombon', null, null, 'Les presentamos a Bombón, una chihuahua que llegó muy asustada. Ya está mejor y busca un hogar paciente.', '2026-10-02 03:00:00+00', true),
+	('ejemplo-necesidad', 'https://www.facebook.com/ladridos.esperanza.5/posts/ejemplo-necesidad', 'https://www.facebook.com/ladridos.esperanza.5/', 'necesidad', null, null, null, 'Buenas noches, amigos: necesitamos sobres o latas para los michis y también arena. ¡Gracias!', '2026-10-02 04:00:00+00', true);
 
 insert into necesidades (id, tipo, descripcion, urgencia, fecha_vigencia, es_ejemplo) values
 	('croquetas', 'alimento', 'Croquetas', 'urgente', '2026-11-30', true),
 	('medicinas', 'medicina', 'Medicinas', 'necesaria', '2026-11-30', true),
 	('cobijas', 'cobijas', 'Cobijas', 'necesaria', '2026-11-30', true);
+
+-- Borradores de necesidad que trajo un post de Facebook (SPEC 16).
+insert into necesidades (id, tipo, descripcion, urgencia, fecha_vigencia, por_revisar, publicacion_id, es_ejemplo) values
+	('alimento-2026-11-01', 'alimento', 'Sobres o latas para gatos', 'necesaria', '2026-11-01', true, (select id from publicaciones_facebook where post_id = 'ejemplo-necesidad'), true),
+	('limpieza-2026-11-01', 'limpieza', 'Arena para gatos', 'necesaria', '2026-11-01', true, (select id from publicaciones_facebook where post_id = 'ejemplo-necesidad'), true);
 
 insert into destinos_donativo (id, destino, cubre, monto, equivalencia, orden, es_ejemplo) values
 	('alimento', 'Alimento', 'Comida diaria de los animales', 200, 'un día de comida para 10 perros', 1, true),

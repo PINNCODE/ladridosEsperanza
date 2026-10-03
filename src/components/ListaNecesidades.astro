@@ -1,8 +1,11 @@
 ---
 // "Necesidades del mes" (RF-26): necesidades vigentes con su etiqueta de urgencia.
 // La usan la portada y /donar, para que el orden y las etiquetas sean siempre los mismos.
-// Sin necesidades vigentes, no se muestra.
+// Sin necesidades vigentes, no se muestra. Cada fila lleva la imagen genérica de su tipo (SPEC 16).
+import { Image } from 'astro:assets';
+import Icono from './Icono.astro';
 import { necesidadesVigentes } from '../lib/datos';
+import { imagenNecesidad } from '../lib/necesidades';
 
 interface Props {
 	/** Nivel del título según dónde vive la lista: "h3" en la portada, "h4" dentro de una tarjeta. */
@@ -19,18 +22,38 @@ const necesidades = await necesidadesVigentes(new Date());
 		<div class:list={['rounded-2xl border border-lineas bg-superficie p-5', clase]}>
 			<Titulo class="text-lg font-bold">Necesidades del mes</Titulo>
 			<ul class="mt-2 divide-y divide-lineas">
-				{necesidades.map(({ data }) => (
-					<li class="flex items-center justify-between gap-4 py-2">
-						<span>{data.descripcion}</span>
-						{data.urgencia === 'urgente' ? (
-							<span class="rounded-full bg-acento px-3 py-1 text-sm font-bold text-sobre-acento">
-								Urgente
+				{necesidades.map(({ data }) => {
+					const { imagen, icono } = imagenNecesidad(data.tipo);
+					return (
+						<li class="flex items-center justify-between gap-4 py-2">
+							<span class="flex items-center gap-3">
+								{imagen ? (
+									<Image
+										src={imagen}
+										alt=""
+										width={48}
+										height={48}
+										widths={[48, 96]}
+										sizes="48px"
+										class="size-12 shrink-0 rounded-xl object-cover"
+									/>
+								) : (
+									<span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-suave">
+										<Icono nombre={icono} />
+									</span>
+								)}
+								<span>{data.descripcion}</span>
 							</span>
-						) : (
-							<span class="rounded-full bg-suave px-3 py-1 text-sm text-sobre-suave">Necesaria</span>
-						)}
-					</li>
-				))}
+							{data.urgencia === 'urgente' ? (
+								<span class="rounded-full bg-acento px-3 py-1 text-sm font-bold text-sobre-acento">
+									Urgente
+								</span>
+							) : (
+								<span class="rounded-full bg-suave px-3 py-1 text-sm text-sobre-suave">Necesaria</span>
+							)}
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	)
