@@ -1,7 +1,8 @@
 ---
 // Portada del refugio (SPEC 02): 8 secciones (la SPEC 03 retiró Transparencia) con un caminito de huellas
 // entre cada par que alterna su dirección (RF-31). La SPEC 12 cambió el orden de RF-30: primero qué es y
-// dónde está el refugio, luego adopciones, donativos y esterilización.
+// dónde está el refugio, luego adopciones, donativos y esterilización. La SPEC 17 quita Colaboración mientras
+// los negocios estén ocultos y Problemáticas si no hay ninguna publicada; las huellas siguen alternando.
 import CaminoHuellas from '../components/CaminoHuellas.astro';
 import Adopciones from '../components/portada/Adopciones.astro';
 import Colaboracion from '../components/portada/Colaboracion.astro';
@@ -12,7 +13,7 @@ import Problematicas from '../components/portada/Problematicas.astro';
 import QuienesSomos from '../components/portada/QuienesSomos.astro';
 import RedesContacto from '../components/portada/RedesContacto.astro';
 import Layout from '../layouts/Layout.astro';
-import { obtener, obtenerRefugio } from '../lib/datos';
+import { mostrarNegocios, obtener, obtenerRefugio, problematicasPublicadas } from '../lib/datos';
 import { imagenCompartir } from '../lib/fotosRefugio';
 import { datosRefugio } from '../lib/seo';
 
@@ -20,22 +21,27 @@ const refugio = await obtenerRefugio();
 const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden).map(({ data }) => data.url);
 const { url: imagen } = await imagenCompartir(Astro.site!);
 const estructurados = datosRefugio(refugio, redes, Astro.site!, imagen);
+const hayProblematicas = (await problematicasPublicadas()).length > 0;
+
+const secciones = [
+	Presentacion,
+	QuienesSomos,
+	Adopciones,
+	Donativos,
+	Esterilizacion,
+	...(hayProblematicas ? [Problematicas] : []),
+	...(mostrarNegocios ? [Colaboracion] : []),
+	RedesContacto,
+];
 ---
 
 <Layout titulo={refugio.nombre} descripcion={refugio.frase} estructurados={estructurados}>
-	<Presentacion />
-	<CaminoHuellas />
-	<QuienesSomos />
-	<CaminoHuellas invertido />
-	<Adopciones />
-	<CaminoHuellas />
-	<Donativos />
-	<CaminoHuellas invertido />
-	<Esterilizacion />
-	<CaminoHuellas />
-	<Problematicas />
-	<CaminoHuellas invertido />
-	<Colaboracion />
-	<CaminoHuellas />
-	<RedesContacto />
+	{
+		secciones.map((Seccion, indice) => (
+			<>
+				{indice > 0 && <CaminoHuellas invertido={indice % 2 === 0} />}
+				<Seccion />
+			</>
+		))
+	}
 </Layout>
