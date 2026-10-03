@@ -5,10 +5,18 @@
 // SPEC 16: también reúne lo que pide el refugio como borradores de necesidad, sin repetir lo ya registrado,
 // y guarda todo post de adopción aunque no traiga foto (el refugio la agrega). Los videos no se leen.
 //
-// Uso: node scripts/sincronizar-facebook.mjs [--dry-run]
+// Uso: node scripts/sincronizar-facebook.mjs [--dry-run] [--limite N] [--guardar carpeta | --desde carpeta] [--solo-adopcion]
 // Variables: SUPABASE_URL, SUPABASE_SECRET_KEY, GEMINI_API_KEY y APIFY_TOKEN (GEMINI_MODELO, opcional).
 // Con --dry-run lee Apify y Gemini, reduce las fotos e imprime lo que haría, sin subir ni escribir nada;
 // no pide las de Supabase (si están, solo las usa para saltar los posts ya registrados).
+//
+// Carga del historial, a mano (docs/configuracion-facebook-sync.md): --limite cambia los posts por página;
+// --guardar lee Apify una sola vez, descarga las fotos de los posts sin registrar a la carpeta y termina
+// sin usar Gemini; --desde procesa esa carpeta en lugar de Apify, en varios días si se acaba la cuota de
+// Gemini (las URL firmadas de las fotos caducan, por eso se guardan los archivos); --solo-adopcion manda
+// a Gemini solo los posts que parecen de adopción y deja los demás sin registrar.
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 
@@ -16,7 +24,19 @@ const PAGINAS = [
 	'https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/',
 	'https://www.facebook.com/ladridos.esperanza.5/',
 ];
-const POSTS_POR_PAGINA = 10;
+/** Valor de una opción `--nombre valor`, o null. */
+const opcion = (nombre) => {
+	const indice = process.argv.indexOf(nombre);
+	return indice === -1 ? null : (process.argv[indice + 1] ?? null);
+};
+const POSTS_POR_PAGINA = Number(opcion('--limite') ?? 10);
+const carpetaGuardar = opcion('--guardar');
+const carpetaDesde = opcion('--desde');
+const soloAdopcion = process.argv.includes('--solo-adopcion');
+if (!Number.isInteger(POSTS_POR_PAGINA) || POSTS_POR_PAGINA < 1 || (carpetaGuardar && carpetaDesde)) {
+	console.error('Uso: --limite N (entero de 1 o más) y solo una de --guardar o --desde.');
+	process.exit(1);
+}
 // GEMINI_MODELO (opcional) cambia el modelo sin tocar el código, por ejemplo si uno deja de estar disponible.
 const MODELO = process.env.GEMINI_MODELO || 'gemini-flash-lite-latest';
 const MAXIMO_FOTOS = 8;
@@ -33,9 +53,11 @@ const DINERO = /\b(dinero|economic[oa]s?|efectivo|transferencias?|depositos?|mon
 
 const simulacion = process.argv.includes('--dry-run');
 
-const requeridas = simulacion
-	? ['GEMINI_API_KEY', 'APIFY_TOKEN']
-	: ['SUPABASE_URL', 'SUPABASE_SECRET_KEY', 'GEMINI_API_KEY', 'APIFY_TOKEN'];
+const requeridas = [
+	...(simulacion || carpetaGuardar ? [] : ['SUPABASE_URL', 'SUPABASE_SECRET_KEY']),
+	...(carpetaGuardar ? [] : ['GEMINI_API_KEY']),
+	...(carpetaDesde ? [] : ['APIFY_TOKEN']),
+];
 const faltan = requeridas.filter((nombre) => !process.env[nombre]);
 if (faltan.length > 0) {
 	console.error(`Faltan variables de entorno: ${faltan.join(', ')}.`);
@@ -239,6 +261,8 @@ async function clasificar(textoPost, primeraFoto) {
  * firmada entrega la foto al tamaño que permite `cstp` (hasta 1600 px); si falla, la vista previa.
  */
 async function descargar(url) {
+	// Foto ya descargada por --guardar.
+	if (!/^https?:/.test(url)) return readFile(path.join(carpetaDesde, url));
 	const grande = new URL(url);
 	grande.searchParams.delete('ctp');
 	for (const intento of [grande, url]) {
@@ -493,17 +517,65 @@ async function necesidadesRegistradas() {
 	return data;
 }
 
-const conteo = { peludo: 0, campana: 0, necesidad: 0, adoptado: 0, ignorado: 0, incompleto: 0, duplicado: 0, error: 0 };
+/** ¿El texto parece de adopción? Filtro barato antes de gastar cuota de Gemini (--solo-adopcion). */
+const ADOPCION = /\b(adop\w*|hogar|casa temporal|familia responsable|en busca de casa)\b/;
+const pareceAdopcion = (post) => ADOPCION.test(normalizar(post.texto));
+
+/** Lee Apify, descarga las fotos de los posts sin registrar y guarda todo en la carpeta (--guardar). */
+async function guardar(posts, carpeta) {
+	const registrados = await yaRegistrados(posts.map(({ id }) => id));
+	await mkdir(path.join(carpeta, 'fotos'), { recursive: true });
+	let fallidas = 0;
+	for (const post of posts) {
+		if (registrados.has(post.id)) continue;
+		const locales = [];
+		for (const [indice, url] of post.fotos.entries()) {
+			const destino = path.join(carpeta, 'fotos', `${post.id.replace(/[^A-Za-z0-9_-]/g, '-')}-${indice + 1}.jpg`);
+			try {
+				await writeFile(destino, await descargar(url));
+				locales.push(path.relative(carpeta, destino));
+			} catch {
+				fallidas++;
+			}
+		}
+		post.fotos = locales;
+	}
+	await writeFile(path.join(carpeta, 'posts.json'), JSON.stringify(posts, null, '\t'));
+	const pendientes = posts.filter(({ id }) => !registrados.has(id));
+	console.log(
+		`${posts.length} posts guardados en ${carpeta} (${registrados.size} ya registrados, ` +
+			`${pendientes.filter(pareceAdopcion).length} de los pendientes parecen de adopción)` +
+			`${fallidas ? `; ${fallidas} fotos no se pudieron descargar` : ''}.`,
+	);
+}
+
+const conteo = {
+	peludo: 0,
+	campana: 0,
+	necesidad: 0,
+	adoptado: 0,
+	ignorado: 0,
+	incompleto: 0,
+	duplicado: 0,
+	saltado: 0,
+	error: 0,
+};
 
 console.log(`Sincronización desde Facebook${simulacion ? ' (simulación: no se sube ni se escribe nada)' : ''}.`);
 let posts;
 try {
-	posts = await leerPosts();
+	posts = carpetaDesde
+		? JSON.parse(await readFile(path.join(carpetaDesde, 'posts.json'), 'utf8'))
+		: await leerPosts();
 } catch (error) {
 	console.error(`No se pudieron leer los posts: ${error.message}`);
 	process.exit(1);
 }
-console.log(`${posts.length} posts leídos de Apify.`);
+console.log(`${posts.length} posts leídos de ${carpetaDesde ?? 'Apify'}.`);
+if (carpetaGuardar) {
+	await guardar(posts, carpetaGuardar);
+	process.exit(0);
+}
 
 const registrados = await yaRegistrados(posts.map(({ id }) => id));
 const registradas = await necesidadesRegistradas();
@@ -512,6 +584,11 @@ for (const post of posts) {
 	if (registrados.has(post.id)) {
 		console.log('  Ya registrado.');
 		conteo.duplicado++;
+		continue;
+	}
+	if (soloAdopcion && !pareceAdopcion(post)) {
+		console.log('  Saltado: no parece de adopción (queda sin registrar).');
+		conteo.saltado++;
 		continue;
 	}
 	try {
@@ -531,6 +608,7 @@ console.log(
 	`\nResumen: ${conteo.peludo} peludos, ${conteo.campana} campañas, ${conteo.necesidad} posts con necesidades, ` +
 		`${conteo.adoptado} avisos de adopción, ` +
 		`${conteo.ignorado} ignorados, ${conteo.incompleto} incompletos, ${conteo.duplicado} duplicados, ` +
+		(conteo.saltado ? `${conteo.saltado} saltados, ` : '') +
 		`${conteo.error} errores.`,
 );
 if (conteo.error > 0) process.exit(1);

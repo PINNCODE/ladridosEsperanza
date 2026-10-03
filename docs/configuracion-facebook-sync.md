@@ -59,6 +59,30 @@ SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SECRET_KEY=… APIFY_TOKEN=… GEMI
 
 Una segunda ejecución seguida debe decir "Ya registrado" en todos los posts.
 
+## Cargar el historial
+
+La sincronización diaria solo ve los últimos 10 posts de cada página. Para traer peludos de posts más viejos se corre a mano, en dos pasos, cuidando dos límites: Apify cobra unos US$0.005 por post leído (con tope de US$5 al mes en la cuenta, y la sincronización diaria ya gasta unos US$3), y la capa gratis de Gemini da 20 peticiones al día, compartidas con la sincronización diaria.
+
+1. Leer Apify una sola vez y guardar los posts con sus fotos, sin usar Gemini. Las URL de las fotos de Facebook caducan, por eso se descargan. La carpeta `.historial-facebook/` está en `.gitignore`.
+
+   ```bash
+   APIFY_TOKEN=… SUPABASE_URL=… SUPABASE_SECRET_KEY=… \
+     node scripts/sincronizar-facebook.mjs --limite 50 --guardar .historial-facebook
+   ```
+
+   Dice cuántos posts sin registrar parecen de adopción. Con la llave secreta salta los ya registrados.
+
+2. Procesar esa carpeta, solo los posts que parecen de adopción, con las mismas reglas de siempre (borradores **Por revisar**):
+
+   ```bash
+   SUPABASE_URL=… SUPABASE_SECRET_KEY=… GEMINI_API_KEY=… \
+     node scripts/sincronizar-facebook.mjs --desde .historial-facebook --solo-adopcion
+   ```
+
+   Si se acaba la cuota de Gemini se detiene; al día siguiente se repite el mismo comando y continúa con los que faltan. Los demás posts quedan sin registrar.
+
+Los posts viejos traen peludos que quizá ya fueron adoptados: antes de guardar un borrador, confirmarlo con el refugio; si ya no está, **Borrar**.
+
 ## Problemas comunes
 
 - **La ejecución sale en rojo.** El script termina con código 1 si Apify falla o si algún post dio error; el log dice cuál. Los posts con error se reintentan al día siguiente.
