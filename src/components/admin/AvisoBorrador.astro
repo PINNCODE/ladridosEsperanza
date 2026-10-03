@@ -1,0 +1,14 @@
+---
+// Aviso arriba del formulario de un peludo o una campaña que trajo la sincronización con Facebook
+// (SPEC 15). Oculto hasta que mostrarAvisoBorrador() lo llena con el enlace al post.
+import { enlace } from './estilos';
+---
+
+<div data-aviso-borrador hidden class="rounded-2xl border border-acento bg-superficie p-4">
+	<p class="font-bold">
+		Este registro vino de Facebook. Revisa los datos y las fotos: al guardar se publica en el sitio.
+	</p>
+	<a data-enlace-facebook hidden target="_blank" rel="noopener noreferrer" class:list={[enlace, 'mt-2 inline-block']}>
+		Ver en Facebook
+	</a>
+</div>

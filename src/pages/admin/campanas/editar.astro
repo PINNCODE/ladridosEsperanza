@@ -1,6 +1,7 @@
 ---
 // /admin/campanas/editar (SPEC 08, RF-12 y RF-24): crea (sin ?id=) o edita una campaña con su cartel.
 // Guarda con la RPC guardar_campana; el id es la fecha con la que se creó.
+import AvisoBorrador from '../../../components/admin/AvisoBorrador.astro';
 import CampoFotos from '../../../components/admin/CampoFotos.astro';
 import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
 import { ayuda, campo, etiqueta } from '../../../components/admin/estilos';
@@ -9,6 +10,7 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 
 <LayoutPanel titulo="Campaña">
 	<FormularioPanel lista="/admin/campanas">
+		<AvisoBorrador />
 		<div class="grid gap-5 sm:grid-cols-2">
 			<div>
 				<label for="campana-fecha" class={etiqueta}>Fecha</label>
@@ -59,14 +61,24 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 </LayoutPanel>
 
 <script>
-	import { avisoSitio, iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import {
+		avisoSitio,
+		iniciarFormulario,
+		mostrarAvisoBorrador,
+		texto,
+		type PostFacebook,
+	} from '../../../lib/formularioPanel';
 	import { campoFotos, guardarConFotos, type FotoGuardada } from '../../../lib/imagenesPanel';
 	import { prepararPanel } from '../../../lib/panel';
 	import { supabaseNavegador } from '../../../lib/supabaseNavegador';
 
 	const campos = ['fecha', 'estado', 'costo', 'cupo', 'lugar', 'horario', 'forma_pago'] as const;
 
-	type Campana = Record<(typeof campos)[number], string | number | null> & { cartel: FotoGuardada | null };
+	type Campana = Record<(typeof campos)[number], string | number | null> & {
+		cartel: FotoGuardada | null;
+		por_revisar: boolean;
+		publicaciones_facebook: PostFacebook[];
+	};
 
 	let marcar = () => {};
 	const cartel = campoFotos(document.querySelector('[data-campo-fotos]')!, () => marcar());
@@ -79,7 +91,9 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 			cargar: (id) =>
 				supabase
 					.from('campanas')
-					.select(`${campos.join(', ')}, cartel:imagenes(id, ruta)`)
+					.select(
+						`${campos.join(', ')}, cartel:imagenes(id, ruta), por_revisar, publicaciones_facebook(url_post, resultado)`,
+					)
 					.eq('id', id)
 					.maybeSingle<Campana>(),
 			llenar: (campana, formulario) => {
@@ -87,6 +101,7 @@ import LayoutPanel from '../../../layouts/LayoutPanel.astro';
 					(formulario.elements.namedItem(nombre) as HTMLInputElement).value = String(campana[nombre] ?? '');
 				}
 				if (campana.cartel) cartel.cargar([campana.cartel]);
+				mostrarAvisoBorrador(campana.por_revisar, campana.publicaciones_facebook);
 			},
 			guardar: async (formulario, id) => {
 				const datos = new FormData(formulario);

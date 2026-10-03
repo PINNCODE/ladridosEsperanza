@@ -62,10 +62,15 @@ insert into peludos (id, nombre, especie, descripcion_especie, edad, tamano, des
 	('nube', 'Nube', 'gato', 'Gatita', '6 meses', 'pequeño', null, array['Juguetona', 'Tierna']::text[], 5, 'disponible', 'no_sabemos', 'si', 'si', true),
 	('toby', 'Toby', 'perro', 'Perro', '2 años', 'mediano', null, array['Energético', 'Leal']::text[], 6, 'disponible', 'si', 'no_sabemos', 'no_sabemos', true);
 
+-- Borrador que trajo la sincronización de Facebook (SPEC 15): no sale en el sitio hasta guardarlo en el panel.
+insert into peludos (id, nombre, especie, descripcion_especie, edad, tamano, descripcion, rasgos, orden, estado, convive_perros, convive_gatos, convive_ninos, por_revisar, es_ejemplo) values
+	('pelusa', 'Pelusa', 'perro', 'Por confirmar', 'Por confirmar', 'pequeño', 'Buscamos hogar para Pelusa, la rescatamos ayer en la carretera a Tenancingo. Es muy dulce y se deja cargar.', array['Por confirmar', 'Por confirmar']::text[], 7, 'disponible', 'no_sabemos', 'no_sabemos', 'no_sabemos', true, true);
+
 insert into fotos_peludo (peludo_id, imagen_id, orden) values
 	('luna', (select id from imagenes where ruta = 'peludos/luna.jpg'), 1),
 	('luna', (select id from imagenes where ruta = 'refugio/patio.jpg'), 2),
-	('canelo', (select id from imagenes where ruta = 'peludos/canelo.jpg'), 1);
+	('canelo', (select id from imagenes where ruta = 'peludos/canelo.jpg'), 1),
+	('pelusa', (select id from imagenes where ruta = 'peludos/canelo.jpg'), 1);
 
 -- "Su camino en el refugio" (SPEC 13): uno con padrino y otro sin padrino.
 insert into hitos_peludo (peludo_id, orden, fecha, tipo, texto, padrino) values
@@ -85,6 +90,17 @@ insert into me_gusta (peludo_id, dispositivo) values
 insert into campanas (id, fecha, costo, lugar, horario, forma_pago, cupo, estado, es_ejemplo, cartel_id) values
 	('2026-09-26', '2026-09-26', 380, 'Refugio Ladridos de Esperanza', 'Desde las 9:30 am aprox.', 'Se paga en el refugio de 11:30 am a 1:30 pm o por transferencia; las cuentas se piden por mensaje. Los lugares no son reembolsables en caso de inasistencia.', null, 'pasada', true, (select id from imagenes where ruta = 'campanas/cartel-2026-09-26.jpg')),
 	('2026-10-24', '2026-10-24', 380, 'Refugio Ladridos de Esperanza', 'Desde las 9:30 am aprox.', 'Se paga en el refugio de 11:30 am a 1:30 pm o por transferencia; las cuentas se piden por mensaje. Los lugares no son reembolsables en caso de inasistencia.', 20, 'proxima', true, null);
+
+-- Campaña por revisar (SPEC 15).
+insert into campanas (id, fecha, costo, lugar, horario, forma_pago, cupo, estado, por_revisar, es_ejemplo, cartel_id) values
+	('2026-11-21', '2026-11-21', 350, 'Explanada de Tenancingo', 'Por confirmar', 'Por confirmar', null, 'proxima', true, true, null);
+
+-- Posts de Facebook ya procesados (SPEC 15): los dos borradores, un aviso de adopción para Rocky y un post incompleto.
+insert into publicaciones_facebook (post_id, url_post, pagina, resultado, peludo_id, campana_id, motivo, texto, publicado_en, es_ejemplo) values
+	('ejemplo-pelusa', 'https://www.facebook.com/ladridos.esperanza.5/posts/ejemplo-pelusa', 'https://www.facebook.com/ladridos.esperanza.5/', 'peludo', 'pelusa', null, null, 'Buscamos hogar para Pelusa, la rescatamos ayer en la carretera a Tenancingo. Es muy dulce y se deja cargar.', '2026-10-01 18:20:00+00', true),
+	('ejemplo-campana', 'https://www.facebook.com/ladridos.esperanza.5/posts/ejemplo-campana', 'https://www.facebook.com/ladridos.esperanza.5/', 'campana', null, '2026-11-21', null, 'Campaña de esterilización el sábado 21 de noviembre en la explanada de Tenancingo. Cuota de recuperación $350.', '2026-10-01 20:00:00+00', true),
+	('ejemplo-rocky', 'https://www.facebook.com/ladridos.esperanza.5/posts/ejemplo-rocky', 'https://www.facebook.com/ladridos.esperanza.5/', 'adoptado', 'rocky', null, null, '¡Rocky ya tiene familia! Gracias a todos los que compartieron.', '2026-10-02 01:00:00+00', true),
+	('ejemplo-incompleto', 'https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/posts/ejemplo-incompleto', 'https://www.facebook.com/p/Sos-Ladridos-de-Esperanza-Tenancingo-100067644922613/', 'incompleto', null, null, 'sin_nombre', 'Esta bebé necesita hogar urgente, se entrega desparasitada.', '2026-10-02 02:00:00+00', true);
 
 insert into necesidades (id, tipo, descripcion, urgencia, fecha_vigencia, es_ejemplo) values
 	('croquetas', 'alimento', 'Croquetas', 'urgente', '2026-11-30', true),

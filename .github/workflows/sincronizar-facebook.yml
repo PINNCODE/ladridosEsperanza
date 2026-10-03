@@ -1,0 +1,41 @@
+# Sincronización desde Facebook (SPEC 15): lee los posts recientes de las dos páginas del refugio y deja
+# los peludos y las campañas como borradores que el refugio revisa en /admin. Ver docs/configuracion-facebook-sync.md.
+name: Sincronizar Facebook
+
+on:
+  schedule:
+    # 06:00 UTC es medianoche en Ciudad de México (sin horario de verano desde 2022).
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Dos ejecuciones a la vez leerían los mismos posts.
+concurrency:
+  group: sincronizar-facebook
+  cancel-in-progress: false
+
+jobs:
+  sincronizar:
+    name: Leer posts y crear borradores
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Sincronizar
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: node scripts/sincronizar-facebook.mjs
