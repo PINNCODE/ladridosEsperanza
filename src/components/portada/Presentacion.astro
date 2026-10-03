@@ -1,12 +1,24 @@
 ---
 // Presentación de la portada (RF-21): nombre, frase, ubicación (SPEC 12), los dos llamados y el
-// carrusel de fotos del refugio (SPEC 14).
+// carrusel de fotos del refugio (SPEC 14). La ubicación abre la ficha del refugio en Google Maps
+// (SPEC 19); sin enlace ni coordenadas baja a Quiénes somos.
 import CarruselRefugio from './CarruselRefugio.astro';
 import FigurasFlotantes from '../FigurasFlotantes.astro';
 import Icono from '../Icono.astro';
 import { obtenerRefugio } from '../../lib/datos';
+import { enlaceMapaRefugio } from '../../lib/mapas';
 
 const refugio = await obtenerRefugio();
+const mapa = enlaceMapaRefugio(refugio);
+const enlaceUbicacion = mapa
+	? {
+			href: mapa,
+			target: '_blank',
+			rel: 'noopener',
+			'data-umami-event': 'como_llegar',
+			'data-umami-event-origen': 'presentacion',
+		}
+	: { href: '#quienes' };
 ---
 
 <section aria-label="Presentación" class="aparecer relative grid items-center gap-6 md:grid-cols-2">
@@ -15,11 +27,12 @@ const refugio = await obtenerRefugio();
 		<h1 class="text-4xl leading-tight font-extrabold md:text-5xl">{refugio.nombre}</h1>
 		<p class="mt-4 text-lg text-texto-secundario">{refugio.frase}</p>
 		<a
-			href="#quienes"
+			{...enlaceUbicacion}
 			class="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg font-bold underline-offset-4 hover:underline"
 		>
 			<Icono nombre="map-pin" size={20} />
 			{refugio.ubicacion}
+			{mapa && <span class="sr-only"> (abre Google Maps)</span>}
 		</a>
 		<div class="mt-4 flex flex-wrap gap-3">
 			<a
