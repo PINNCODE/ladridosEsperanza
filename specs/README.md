@@ -26,7 +26,8 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 16 | [Necesidades y adopciones sin foto desde Facebook](16-necesidades-y-adopciones-sin-foto.md) | Implementado | Requisito nuevo; borradores de necesidad sin repetir lo ya registrado, imagen genérica por tipo en "Necesidades del mes", adopciones sin foto (los videos no se leen) y foto obligatoria para publicar un peludo |
 | 17 | [Datos reales y negocios ocultos](17-datos-reales-y-negocios-ocultos.md) | Implementado | Sitio sin datos de ejemplo ni listón; todo lo de negocios oculto tras `PUBLIC_MOSTRAR_NEGOCIOS` (`docs/mostrar-negocios.md`) |
 | 18 | [Contacto por Messenger](18-contacto-por-messenger.md) | Implementado | El refugio no tiene WhatsApp: todo botón de contacto abre Messenger con la página SOS Ladridos de Esperanza Tenancingo y copia el mensaje; `refugio.messenger` reemplaza a `refugio.whatsapp` |
-| 19 | Anuncios | Por escribir | RF-18 |
+| 19 | [Ajustes de portada: ubicación en Maps, "Ver a todos", carrusel aleatorio y sin cifras](19-ajustes-de-portada.md) | Implementado | Ajustes de RF-21, RF-23 y RF-30: la ubicación abre Google Maps, botón "Ver a todos los peludos", carrusel de peludos en orden aleatorio por visita y problemáticas sin cifras |
+| 20 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs
 
@@ -47,7 +48,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 ## Pendiente de decidir antes de escribir cada spec
 
-- **19:** anuncios (RF-18), por escribir.
+- **20:** anuncios (RF-18), por escribir.
 
 ## Antes de publicar
 
