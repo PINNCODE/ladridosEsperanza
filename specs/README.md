@@ -25,7 +25,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 15 | [Sincronización desde Facebook: borradores de peludos y campañas para revisar](15-sincronizacion-facebook.md) | Implementado | Requisito nuevo (no RF-19, que es Transparencia); lectura diaria con Apify y Gemini, borradores `por_revisar` que se publican al guardarlos en el panel y avisos de adopción |
 | 16 | [Necesidades y adopciones sin foto desde Facebook](16-necesidades-y-adopciones-sin-foto.md) | Implementado | Requisito nuevo; borradores de necesidad sin repetir lo ya registrado, imagen genérica por tipo en "Necesidades del mes", adopciones sin foto (los videos no se leen) y foto obligatoria para publicar un peludo |
 | 17 | [Datos reales y negocios ocultos](17-datos-reales-y-negocios-ocultos.md) | Implementado | Sitio sin datos de ejemplo ni listón; todo lo de negocios oculto tras `PUBLIC_MOSTRAR_NEGOCIOS` (`docs/mostrar-negocios.md`) |
-| 18 | [Contacto por Messenger](18-contacto-por-messenger.md) | Aprobado (código listo; faltan `npx supabase db push` y corregir 2 textos en `/admin/textos`, pasos 6 y 7) | El refugio no tiene WhatsApp: todo botón de contacto abre Messenger con la página SOS Ladridos de Esperanza Tenancingo y copia el mensaje; `refugio.messenger` reemplaza a `refugio.whatsapp` |
+| 18 | [Contacto por Messenger](18-contacto-por-messenger.md) | Implementado | El refugio no tiene WhatsApp: todo botón de contacto abre Messenger con la página SOS Ladridos de Esperanza Tenancingo y copia el mensaje; `refugio.messenger` reemplaza a `refugio.whatsapp` |
 | 19 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs

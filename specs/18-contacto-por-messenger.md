@@ -1,6 +1,6 @@
 # SPEC 18 — Contacto por Messenger
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 02, SPEC 03, SPEC 06, SPEC 11, SPEC 13, SPEC 17
 > **Fecha:** 2026-10-03
 > **Objetivo:** Que todos los botones de contacto del refugio abran un chat de Messenger con la página SOS Ladridos de Esperanza Tenancingo en lugar de WhatsApp, y que copien el mensaje para que el refugio sepa de qué le escriben.
@@ -146,10 +146,10 @@ Umami: los clics de contacto con el refugio usan el evento `mensaje` con los mis
 - [x] `/donar` dice "Desconfía de perfiles que te escriban primero pidiendo dinero."
 - [x] El aviso de privacidad tiene la sección "Messenger" y no menciona WhatsApp sin negocios visibles.
 - [x] El JSON-LD de la portada no tiene `telephone` y sigue teniendo `sameAs` con las 4 redes.
-- [ ] En la nube, `select messenger from refugio` da `100067644922613` y la columna `whatsapp` no existe.
-- [ ] El deploy de Producción después de `npx supabase db push` termina en verde.
-- [ ] Desde un teléfono, "Escríbenos por Messenger" en https://www.ladridosdeesperanza.org abre el chat con SOS Ladridos de Esperanza Tenancingo.
-- [ ] En la nube, ningún `bloques_contenido` contiene "WhatsApp".
+- [x] En la nube, `select messenger from refugio` da `100067644922613` y la columna `whatsapp` no existe.
+- [x] El deploy de Producción después de `npx supabase db push` termina en verde.
+- [x] Desde un teléfono, "Escríbenos por Messenger" en https://www.ladridosdeesperanza.org abre el chat con SOS Ladridos de Esperanza Tenancingo.
+- [x] En la nube, ningún `bloques_contenido` contiene "WhatsApp".
 
 ## Decisiones
 
@@ -184,7 +184,7 @@ Umami: los clics de contacto con el refugio usan el evento `mensaje` con los mis
 - `FormularioSumate` también usaba `refugio.whatsapp` para su enlace de respaldo (sin JS o si falla el envío). Ahora lleva al Messenger del refugio; el enlace del error lleva `data-mensaje`, así que también copia el mensaje. El campo WhatsApp del negocio no cambia.
 - `AvisoMensaje` no usa la clase `aparecer`: es una animación ligada al scroll (`animation-timeline: view()`) y no sirve para un elemento fijo. El aviso queda en el DOM vacío y transparente (`empty:opacity-0`), así el lector de pantalla anuncia el texto al llenarlo; al volver a tocar se vacía y se vuelve a llenar.
 - `FichaCampana` y `portada/Esterilizacion` ya no leen `refugio`.
-- Los criterios marcados se verificaron en local (Supabase local, `astro build` con y sin `PUBLIC_MOSTRAR_NEGOCIOS`, Chromium sin interfaz con portapapeles en 390 × 844). Los de la nube y el teléfono quedan para los pasos 6 y 7.
+- Los criterios marcados se verificaron en local (Supabase local, `astro build` con y sin `PUBLIC_MOSTRAR_NEGOCIOS`, Chromium sin interfaz con portapapeles en 390 × 844). Los de la nube se verificaron el 2026-10-03 después de `npx supabase db push` y de corregir los dos textos en `/admin/textos`; la prueba en teléfono la hizo el usuario.
 
 ## Lo que **no** entra en esta spec
 
