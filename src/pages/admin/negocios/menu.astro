@@ -7,6 +7,10 @@ import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
 import { boton, campo } from '../../../components/admin/estilos';
 import Icono from '../../../components/Icono.astro';
 import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+import { mostrarNegocios } from '../../../lib/datos';
+
+// Sin negocios (SPEC 17) la página es una redirección inmediata al inicio del panel.
+if (!mostrarNegocios) return Astro.redirect('/admin', 301);
 
 const flecha = `${boton} min-w-11 px-0`;
 const agregar = `${boton} border-dashed`;

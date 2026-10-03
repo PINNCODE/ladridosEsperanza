@@ -8,7 +8,10 @@ import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
 import { ayuda, campo, etiqueta } from '../../../components/admin/estilos';
 import Icono from '../../../components/Icono.astro';
 import LayoutPanel from '../../../layouts/LayoutPanel.astro';
-import { obtenerRefugio } from '../../../lib/datos';
+import { mostrarNegocios, obtenerRefugio } from '../../../lib/datos';
+
+// Sin negocios (SPEC 17) la página es una redirección inmediata al inicio del panel.
+if (!mostrarNegocios) return Astro.redirect('/admin', 301);
 
 // "Probar en el mapa" busca igual que "Cómo llegar" de la página del negocio.
 const { ubicacion } = await obtenerRefugio();

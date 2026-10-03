@@ -4,6 +4,10 @@
 import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
 import { ayuda, campo, etiqueta } from '../../../components/admin/estilos';
 import LayoutPanel from '../../../layouts/LayoutPanel.astro';
+import { mostrarNegocios } from '../../../lib/datos';
+
+// Sin negocios (SPEC 17) la página es una redirección inmediata al inicio del panel.
+if (!mostrarNegocios) return Astro.redirect('/admin', 301);
 ---
 
 <LayoutPanel titulo="Categoría">

@@ -1,15 +1,15 @@
 ---
 // /aviso-de-privacidad (SPEC 07, 11 y 13): aviso del formulario Súmate (RF-15), de las estadísticas
 // de visitas y del "me gusta" de los peludos, con la estructura de la LFPDPPP. Sigue pendiente de revisión legal; la nota se quita
-// cuando lo revise un profesional.
+// cuando lo revise un profesional. Mientras los negocios estén ocultos (SPEC 17) no habla de Súmate ni de negocios.
 import EncabezadoPagina from '../components/EncabezadoPagina.astro';
 import Layout from '../layouts/Layout.astro';
-import { obtenerRefugio } from '../lib/datos';
+import { mostrarNegocios, obtenerRefugio } from '../lib/datos';
 
 const refugio = await obtenerRefugio();
 const titulo = 'Aviso de privacidad';
 const frase = 'Qué datos guardamos, qué medimos de las visitas y cómo ejercer tus derechos.';
-const actualizacion = '2 de octubre de 2026';
+const actualizacion = '3 de octubre de 2026';
 const correo = 'privacidad@ladridosdeesperanza.org';
 const enlace = 'text-acento underline underline-offset-4';
 ---
@@ -34,20 +34,38 @@ const enlace = 'text-acento underline underline-offset-4';
 
 		<section aria-labelledby="aviso-datos">
 			<h2 id="aviso-datos" class="text-xl font-bold">Qué datos guardamos</h2>
-			<p class="mt-2">
-				Los del formulario "Súmate": el nombre y el tipo de tu negocio, tu número de WhatsApp y, si los
-				escribes, tu nombre y tu mensaje, junto con la fecha del envío y tu aceptación de este aviso.
-				Además, cuando le das "me gusta" a un peludo guardamos un número al azar de tu navegador (lo
-				explicamos abajo). No pedimos ni guardamos ningún dato sensible.
-			</p>
+			{
+				mostrarNegocios ? (
+					<p class="mt-2">
+						Los del formulario "Súmate": el nombre y el tipo de tu negocio, tu número de WhatsApp y, si los
+						escribes, tu nombre y tu mensaje, junto con la fecha del envío y tu aceptación de este aviso.
+						Además, cuando le das "me gusta" a un peludo guardamos un número al azar de tu navegador (lo
+						explicamos abajo). No pedimos ni guardamos ningún dato sensible.
+					</p>
+				) : (
+					<p class="mt-2">
+						Solo cuando le das "me gusta" a un peludo: guardamos un número al azar de tu navegador (lo
+						explicamos abajo). No pedimos ni guardamos ningún dato sensible.
+					</p>
+				)
+			}
 		</section>
 
 		<section aria-labelledby="aviso-uso">
 			<h2 id="aviso-uso" class="text-xl font-bold">Para qué los usamos</h2>
-			<p class="mt-2">
-				Solo para escribirte por WhatsApp y platicar cómo sumar tu negocio a Come por los Peludos. No los
-				usamos para ninguna otra finalidad ni para publicidad.
-			</p>
+			{
+				mostrarNegocios ? (
+					<p class="mt-2">
+						Solo para escribirte por WhatsApp y platicar cómo sumar tu negocio a Come por los Peludos. No los
+						usamos para ninguna otra finalidad ni para publicidad.
+					</p>
+				) : (
+					<p class="mt-2">
+						Solo para contar los "me gusta" de cada peludo. No los usamos para ninguna otra finalidad ni para
+						publicidad.
+					</p>
+				)
+			}
 		</section>
 
 		<section aria-labelledby="aviso-estadisticas">
@@ -57,11 +75,22 @@ const enlace = 'text-acento underline underline-offset-4';
 				cookies, no guarda tu dirección IP y no identifica a nadie. Este sitio no usa cookies propias ni de
 				terceros.
 			</p>
-			<p class="mt-2">
-				Contamos las páginas vistas, las búsquedas en el catálogo y en los menús (el texto buscado, sin
-				acentos), los clics a WhatsApp, a los negocios, a las fichas de los peludos y a "Cómo llegar", los
-				"me gusta" que das, los peludos que compartes y los envíos del formulario "Súmate". Si tu navegador tiene activada la opción "no rastrear", no contamos nada de tu visita.
-			</p>
+			{
+				mostrarNegocios ? (
+					<p class="mt-2">
+						Contamos las páginas vistas, las búsquedas en el catálogo y en los menús (el texto buscado, sin
+						acentos), los clics a WhatsApp, a los negocios, a las fichas de los peludos y a "Cómo llegar", los
+						"me gusta" que das, los peludos que compartes y los envíos del formulario "Súmate". Si tu
+						navegador tiene activada la opción "no rastrear", no contamos nada de tu visita.
+					</p>
+				) : (
+					<p class="mt-2">
+						Contamos las páginas vistas, los clics a WhatsApp, a las fichas de los peludos y a "Cómo llegar",
+						los "me gusta" que das y los peludos que compartes. Si tu navegador tiene activada la opción "no
+						rastrear", no contamos nada de tu visita.
+					</p>
+				)
+			}
 		</section>
 
 		<section aria-labelledby="aviso-me-gusta">
@@ -101,8 +130,10 @@ const enlace = 'text-acento underline underline-offset-4';
 		<section aria-labelledby="aviso-tiempo">
 			<h2 id="aviso-tiempo" class="text-xl font-bold">Cuánto tiempo los guardamos</h2>
 			<p class="mt-2">
-				Mientras platicamos la colaboración o mientras tu negocio colabora con el refugio, o hasta que nos
-				pidas borrarlos.
+				{
+					mostrarNegocios &&
+						'Mientras platicamos la colaboración o mientras tu negocio colabora con el refugio, o hasta que nos pidas borrarlos. '
+				}
 				Los "me gusta", hasta que los quites o hasta que borremos al peludo del sitio.
 			</p>
 		</section>
@@ -112,9 +143,11 @@ const enlace = 'text-acento underline underline-offset-4';
 			<p class="mt-2">
 				Puedes pedir acceder a tus datos, corregirlos, borrarlos u oponerte a que los usemos, y también
 				retirar tu consentimiento. Escríbenos a{' '}
-				<a href={`mailto:${correo}`} class={`${enlace} break-all`}>{correo}</a> con el nombre de tu negocio,
-				el WhatsApp que usaste en el formulario y lo que nos pides. Te respondemos en un máximo de 20 días
-				hábiles.
+				<a href={`mailto:${correo}`} class={`${enlace} break-all`}>{correo}</a>
+				{mostrarNegocios
+					? ' con el nombre de tu negocio, el WhatsApp que usaste en el formulario y lo que nos pides.'
+					: ' con lo que nos pides.'}{' '}
+				Te respondemos en un máximo de 20 días hábiles.
 			</p>
 		</section>
 

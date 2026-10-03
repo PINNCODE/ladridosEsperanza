@@ -5,6 +5,12 @@ import { getCollection, type CollectionEntry, type CollectionKey } from 'astro:c
 
 export const mostrarEjemplos: boolean = import.meta.env.PUBLIC_MOSTRAR_EJEMPLOS === 'true';
 
+/**
+ * Interruptor de "Come por los Peludos" (SPEC 17). Sin PUBLIC_MOSTRAR_NEGOCIOS=true se oculta todo lo de negocios:
+ * menú, portada, /donar, Súmate, aviso de privacidad y panel, y /colabora redirige a /. Ver docs/mostrar-negocios.md.
+ */
+export const mostrarNegocios: boolean = import.meta.env.PUBLIC_MOSTRAR_NEGOCIOS === 'true';
+
 export async function obtener<C extends CollectionKey>(coleccion: C): Promise<CollectionEntry<C>[]> {
 	const entradas = await getCollection(coleccion);
 	return mostrarEjemplos
