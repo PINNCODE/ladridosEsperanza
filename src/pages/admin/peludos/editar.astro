@@ -2,6 +2,7 @@
 // /admin/peludos/editar (SPEC 08, RF-11 y RF-30): crea (sin ?id=) o edita un peludo con hasta 8 fotos,
 // su convivencia y los hitos de su ficha (SPEC 13). Guarda con la RPC guardar_peludo; un peludo nuevo
 // va al final del carrusel.
+import AvisoBorrador from '../../../components/admin/AvisoBorrador.astro';
 import CampoFotos from '../../../components/admin/CampoFotos.astro';
 import CampoHitos from '../../../components/admin/CampoHitos.astro';
 import FormularioPanel from '../../../components/admin/FormularioPanel.astro';
@@ -17,6 +18,7 @@ const convivencias = [
 
 <LayoutPanel titulo="Peludo">
 	<FormularioPanel lista="/admin/peludos">
+		<AvisoBorrador />
 		<div class="grid gap-5 sm:grid-cols-2">
 			<div>
 				<label for="peludo-nombre" class={etiqueta}>Nombre</label>
@@ -107,7 +109,13 @@ const convivencias = [
 </LayoutPanel>
 
 <script>
-	import { avisoSitio, iniciarFormulario, texto } from '../../../lib/formularioPanel';
+	import {
+		avisoSitio,
+		iniciarFormulario,
+		mostrarAvisoBorrador,
+		texto,
+		type PostFacebook,
+	} from '../../../lib/formularioPanel';
 	import { campoHitos, type Hito } from '../../../lib/hitosPanel';
 	import { campoFotos, guardarConFotos, type FotoGuardada } from '../../../lib/imagenesPanel';
 	import { prepararPanel } from '../../../lib/panel';
@@ -130,6 +138,8 @@ const convivencias = [
 		rasgos: string[];
 		fotos_peludo: { orden: number; imagen: FotoGuardada }[];
 		hitos_peludo: (Hito & { orden: number })[];
+		por_revisar: boolean;
+		publicaciones_facebook: PostFacebook[];
 	};
 
 	let marcar = () => {};
@@ -146,7 +156,7 @@ const convivencias = [
 					.from('peludos')
 					.select(
 						`${campos.join(', ')}, rasgos, fotos_peludo(orden, imagen:imagenes(id, ruta)), ` +
-							'hitos_peludo(orden, fecha, tipo, texto, padrino)',
+							'hitos_peludo(orden, fecha, tipo, texto, padrino), por_revisar, publicaciones_facebook(url_post, resultado)',
 					)
 					.eq('id', id)
 					.maybeSingle<Peludo>(),
@@ -157,6 +167,7 @@ const convivencias = [
 				campo('rasgo_2').value = peludo.rasgos[1] ?? '';
 				fotos.cargar(peludo.fotos_peludo.toSorted((a, b) => a.orden - b.orden).map(({ imagen }) => imagen));
 				hitos.cargar(peludo.hitos_peludo.toSorted((a, b) => a.orden - b.orden));
+				mostrarAvisoBorrador(peludo.por_revisar, peludo.publicaciones_facebook);
 			},
 			guardar: async (formulario, id) => {
 				const datos = new FormData(formulario);

@@ -101,6 +101,27 @@ export function mostrarAviso(elemento: HTMLElement): void {
 	}
 }
 
+/** Post de Facebook de un registro (SPEC 15), como lo trae `publicaciones_facebook(url_post, resultado)`. */
+export type PostFacebook = { url_post: string; resultado: string };
+
+/** El post del que salió un borrador: el de resultado `peludo` o `campana`. */
+export function postDelBorrador(posts: PostFacebook[] | null | undefined): PostFacebook | undefined {
+	return posts?.find(({ resultado }) => resultado === 'peludo' || resultado === 'campana');
+}
+
+/** Muestra el aviso de `AvisoBorrador` si el registro está por revisar, con el enlace a su post. */
+export function mostrarAvisoBorrador(porRevisar: boolean, posts: PostFacebook[] | null | undefined): void {
+	const aviso = document.querySelector<HTMLElement>('[data-aviso-borrador]');
+	if (!aviso || !porRevisar) return;
+	const post = postDelBorrador(posts);
+	if (post) {
+		const enlace = aviso.querySelector<HTMLAnchorElement>('[data-enlace-facebook]')!;
+		enlace.href = post.url_post;
+		enlace.hidden = false;
+	}
+	aviso.hidden = false;
+}
+
 /** "2026-10-24" de hoy en Ciudad de México, para comparar con fechas de la base. */
 export function hoyEnMexico(): string {
 	return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City' }).format(new Date());

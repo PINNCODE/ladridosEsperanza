@@ -2,8 +2,10 @@
 // /admin/peludos (SPEC 08, RF-11 y RF-30): peludos en el orden del carrusel, con "Subir" y "Bajar".
 // El sitio solo muestra los disponibles; en proceso y adoptados siguen aquí.
 // Junto a cada disponible, sus "me gusta" (SPEC 13) de la RPC conteos_me_gusta.
+// Arriba van los borradores que trajo Facebook (SPEC 15), sin "Subir" ni "Bajar" hasta publicarlos,
+// y un peludo con aviso de adopción de Facebook lo muestra hasta que su estado sea "Adoptado".
 import CabeceraLista from '../../components/admin/CabeceraLista.astro';
-import { boton, etiquetaEjemplo, tarjeta } from '../../components/admin/estilos';
+import { boton, enlace, etiquetaEjemplo, etiquetaRevisar, tarjeta } from '../../components/admin/estilos';
 import Icono from '../../components/Icono.astro';
 import LayoutPanel from '../../layouts/LayoutPanel.astro';
 ---
@@ -25,12 +27,18 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 			<div class="min-w-0 flex-1">
 				<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
 					<h2 data-nombre class="text-lg font-bold break-words"></h2>
+					<span data-revisar hidden class={etiquetaRevisar}>Por revisar</span>
 					<span data-ejemplo hidden class={etiquetaEjemplo}>Ejemplo</span>
 				</div>
 				<p data-detalle class="text-texto-secundario"></p>
+				<p data-adoptado hidden class="mt-1 font-bold">
+					Facebook dice que fue adoptado ·{' '}
+					<a data-enlace-adoptado target="_blank" rel="noopener noreferrer" class={enlace}>Ver en Facebook</a>
+				</p>
 			</div>
 			<div class="flex flex-wrap gap-2">
 				<a data-editar class={boton}>Editar</a>
+				<a data-facebook hidden target="_blank" rel="noopener noreferrer" class={boton}>Ver en Facebook</a>
 				<button type="button" data-mover="-1" class={boton}>Subir</button>
 				<button type="button" data-mover="1" class={boton}>Bajar</button>
 				<button type="button" data-borrar class={boton}>Borrar</button>
@@ -40,7 +48,13 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 </LayoutPanel>
 
 <script>
-	import { confirmarBorrado, mensajeError, mostrarAviso } from '../../lib/formularioPanel';
+	import {
+		confirmarBorrado,
+		mensajeError,
+		mostrarAviso,
+		postDelBorrador,
+		type PostFacebook,
+	} from '../../lib/formularioPanel';
 	import { borrarRutas, urlPublica } from '../../lib/imagenesPanel';
 	import { prepararPanel } from '../../lib/panel';
 	import { supabaseNavegador } from '../../lib/supabaseNavegador';
@@ -51,7 +65,9 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 		especie: 'perro' | 'gato';
 		estado: string;
 		es_ejemplo: boolean;
+		por_revisar: boolean;
 		fotos_peludo: { orden: number; imagen: { ruta: string } }[];
+		publicaciones_facebook: PostFacebook[];
 	};
 
 	const estados: Record<string, string> = {
@@ -68,7 +84,11 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 		const [{ data, error }, { data: conteos }] = await Promise.all([
 			supabase
 				.from('peludos')
-				.select('id, nombre, especie, estado, es_ejemplo, fotos_peludo(orden, imagen:imagenes(ruta))')
+				.select(
+					'id, nombre, especie, estado, es_ejemplo, por_revisar, fotos_peludo(orden, imagen:imagenes(ruta)), ' +
+						'publicaciones_facebook(url_post, resultado)',
+				)
+				.order('por_revisar', { ascending: false })
 				.order('orden')
 				.order('id')
 				.overrideTypes<Peludo[], { merge: false }>(),
@@ -88,8 +108,10 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 		const errorAccion = document.querySelector<HTMLElement>('[data-error-accion]')!;
 
 		document.querySelector<HTMLElement>('[data-vacio]')!.hidden = data.length > 0;
+		// "Subir" y "Bajar" solo entre los publicados: los borradores van arriba fuera del orden del carrusel.
+		const publicados = data.filter(({ por_revisar }) => !por_revisar);
 		lista.replaceChildren(
-			...data.map((peludo, indice) => {
+			...data.map((peludo) => {
 				const fila = plantilla.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
 				const [principal] = peludo.fotos_peludo.toSorted((a, b) => a.orden - b.orden);
 				if (principal) {
@@ -109,10 +131,30 @@ import LayoutPanel from '../../layouts/LayoutPanel.astro';
 				fila.querySelector<HTMLAnchorElement>('[data-editar]')!.href =
 					`/admin/peludos/editar?id=${encodeURIComponent(peludo.id)}`;
 
+				const borrador = peludo.por_revisar ? postDelBorrador(peludo.publicaciones_facebook) : undefined;
+				fila.querySelector<HTMLElement>('[data-revisar]')!.hidden = !peludo.por_revisar;
+				if (borrador) {
+					const verPost = fila.querySelector<HTMLAnchorElement>('[data-facebook]')!;
+					verPost.href = borrador.url_post;
+					verPost.setAttribute('aria-label', `Ver en Facebook el post de ${peludo.nombre}`);
+					verPost.hidden = false;
+				}
+				const adopcion = peludo.publicaciones_facebook.find(({ resultado }) => resultado === 'adoptado');
+				if (adopcion && peludo.estado !== 'adoptado') {
+					fila.querySelector<HTMLAnchorElement>('[data-enlace-adoptado]')!.href = adopcion.url_post;
+					fila.querySelector<HTMLElement>('[data-adoptado]')!.hidden = false;
+				}
+
+				const indice = publicados.indexOf(peludo);
 				for (const mover of fila.querySelectorAll<HTMLButtonElement>('[data-mover]')) {
 					const direccion = Number(mover.dataset.mover);
+					if (peludo.por_revisar) {
+						mover.hidden = true;
+						continue;
+					}
 					mover.setAttribute('aria-label', `${direccion < 0 ? 'Subir' : 'Bajar'} a ${peludo.nombre}`);
-					mover.disabled = (direccion < 0 && indice === 0) || (direccion > 0 && indice === data.length - 1);
+					mover.disabled =
+						(direccion < 0 && indice === 0) || (direccion > 0 && indice === publicados.length - 1);
 					mover.addEventListener('click', async () => {
 						mover.disabled = true;
 						const { error: fallo } = await supabase.rpc('mover_contenido', {

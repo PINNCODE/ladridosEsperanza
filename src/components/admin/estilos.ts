@@ -10,3 +10,5 @@ export const boton =
 	'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-lineas bg-superficie px-4 font-bold hover:border-acento disabled:opacity-40 disabled:hover:border-lineas';
 export const etiquetaEjemplo = 'rounded-full bg-suave px-3 py-0.5 text-sm font-bold text-sobre-suave';
 export const tarjeta = 'rounded-2xl border border-lineas bg-superficie p-4';
+export const etiquetaRevisar = 'rounded-full bg-acento px-3 py-0.5 text-sm font-bold text-sobre-acento';
+export const enlace = 'font-bold text-acento underline underline-offset-4';
