@@ -1,6 +1,6 @@
 # SPEC 17 — Datos reales y negocios ocultos
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 04, SPEC 05, SPEC 07, SPEC 09, SPEC 11, SPEC 12
 > **Fecha:** 2026-10-03
 > **Objetivo:** Que el sitio publicado muestre solo los datos reales del refugio, sin el listón "Datos de ejemplo", y que todo lo de negocios quede oculto detrás de un interruptor hasta que el refugio tenga esa información.
