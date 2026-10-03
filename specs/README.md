@@ -25,7 +25,8 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 | 15 | [Sincronización desde Facebook: borradores de peludos y campañas para revisar](15-sincronizacion-facebook.md) | Implementado | Requisito nuevo (no RF-19, que es Transparencia); lectura diaria con Apify y Gemini, borradores `por_revisar` que se publican al guardarlos en el panel y avisos de adopción |
 | 16 | [Necesidades y adopciones sin foto desde Facebook](16-necesidades-y-adopciones-sin-foto.md) | Implementado | Requisito nuevo; borradores de necesidad sin repetir lo ya registrado, imagen genérica por tipo en "Necesidades del mes", adopciones sin foto (los videos no se leen) y foto obligatoria para publicar un peludo |
 | 17 | [Datos reales y negocios ocultos](17-datos-reales-y-negocios-ocultos.md) | Aprobado (código listo; faltan los pasos de datos 7 a 10) | Sitio sin datos de ejemplo ni listón; todo lo de negocios oculto tras `PUBLIC_MOSTRAR_NEGOCIOS` (`docs/mostrar-negocios.md`) |
-| 18 | Anuncios | Por escribir | RF-18 |
+| 18 | [Contacto por Messenger](18-contacto-por-messenger.md) | Aprobado (código listo; faltan `npx supabase db push` y corregir 2 textos en `/admin/textos`, pasos 6 y 7) | El refugio no tiene WhatsApp: todo botón de contacto abre Messenger con la página SOS Ladridos de Esperanza Tenancingo y copia el mensaje; `refugio.messenger` reemplaza a `refugio.whatsapp` |
+| 19 | Anuncios | Por escribir | RF-18 |
 
 ## Decisiones que aplican a todas las specs
 
@@ -35,6 +36,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 - Campos de datos en español y `snake_case`.
 - Los registros `es_ejemplo` solo se muestran con `PUBLIC_MOSTRAR_EJEMPLOS=true`; Vercel no la tiene una vez hechos los pasos de datos de la SPEC 17.
 - Lo de negocios solo se ve con `PUBLIC_MOSTRAR_NEGOCIOS=true` (SPEC 17).
+- El refugio se contacta solo por Messenger (`EnlaceMessenger`, evento `mensaje`); WhatsApp queda solo para los negocios (SPEC 18).
 - La calculadora de aportes del prototipo no forma parte del sitio.
 - El formulario Súmate y el panel `/admin` son páginas estáticas que hablan con Supabase desde el navegador con la llave publicable; los protegen las políticas RLS, que exigen sesión `aal2` (TOTP) y el rol de `usuarios_panel` (SPEC 07).
 - No se publica ningún monto de dinero recibido por el refugio, de personas ni de negocios; `/transparencia` y RF-19 salen del MVP (SPEC 03). La portada queda con 8 secciones y la colección `informes_transparencia` ya no existe. Las equivalencias de "En qué se usa un donativo" sí se muestran.
@@ -45,7 +47,7 @@ Cada spec deja el sitio funcionando y se implementa con `/spec-impl NN-slug` una
 
 ## Pendiente de decidir antes de escribir cada spec
 
-- **18:** anuncios (RF-18), por escribir.
+- **19:** anuncios (RF-18), por escribir.
 
 ## Antes de publicar
 

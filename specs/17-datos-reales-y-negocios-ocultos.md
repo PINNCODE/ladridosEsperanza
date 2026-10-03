@@ -59,7 +59,7 @@ El refugio todavía no tiene negocios que colaboren. "Come por los Peludos" sin 
 - Cambiar el mecanismo de `es_ejemplo` o el listón `CintaEjemplo`: siguen igual para desarrollo local.
 - Revisión legal del aviso de privacidad (sigue pendiente).
 - Logo y fotos de peludos en resolución original (siguen en "Antes de publicar").
-- Anuncios (SPEC 18, RF-18).
+- Anuncios (SPEC 19, RF-18).
 
 ## Modelo de datos
 
@@ -107,7 +107,7 @@ En desarrollo local `.env` lleva `PUBLIC_MOSTRAR_EJEMPLOS=true` y `PUBLIC_MOSTRA
    - `/admin/necesidades`: las 3 de ejemplo (croquetas, medicinas, cobijas). Guardar las que sí necesita el refugio con su vigencia real; las demás se dejan para el paso 9.
    - `/admin/peludos`: el peludo de ejemplo se guarda solo si es un peludo real del refugio con sus fotos reales.
 8. **Corrección de datos en Studio** (usuario, proyecto `oszxkkjnwxuztmbrmvja`). Aquí `es_ejemplo` se cambia a `false` a mano en cada fila corregida:
-   - `refugio`: `whatsapp` real (hoy `5215500000000`), `direccion` real (hoy "Calle de ejemplo 1, col. Centro"), `frase`, `ubicacion`. `latitud`, `longitud` y `enlace_mapa` ya son del refugio. Luego `es_ejemplo = false`.
+   - `refugio`: ~~`whatsapp` real (hoy `5215500000000`)~~ (ya no aplica: el refugio no tiene WhatsApp y la SPEC 18 reemplaza la columna por `messenger`), `direccion` real (hoy "Calle de ejemplo 1, col. Centro"), `frase`, `ubicacion`. `latitud`, `longitud` y `enlace_mapa` ya son del refugio. Luego `es_ejemplo = false`.
    - `problematicas`: en cada una, corregir `texto` y, si la cifra no es real, dejar `etiqueta_cifra`, `cifra`, `fecha_cifra` y `fuente` en `null` (la tarjeta queda solo con título y texto). Luego `es_ejemplo = false`. Las que no apliquen se dejan para el paso 9.
    - `destinos_donativo`: corregir `monto` y `equivalencia` con montos que el refugio confirme. Luego `es_ejemplo = false`.
    - `redes` ya son reales; no se tocan.
@@ -132,7 +132,7 @@ En desarrollo local `.env` lleva `PUBLIC_MOSTRAR_EJEMPLOS=true` y `PUBLIC_MOSTRA
 - [ ] Sin problemáticas publicadas, la portada no tiene el título "Lo que enfrenta un refugio todos los días".
 - [ ] `docs/mostrar-negocios.md` existe con los pasos para mostrar y para volver a ocultar los negocios.
 - [ ] En la nube, ninguna tabla con `es_ejemplo` tiene filas con `es_ejemplo = true`.
-- [ ] En la nube, `refugio` tiene exactamente un registro con `es_ejemplo = false` y su `whatsapp` no es `5215500000000`.
+- [ ] En la nube, `refugio` tiene exactamente un registro con `es_ejemplo = false`. ~~y su `whatsapp` no es `5215500000000`~~ (ya no aplica, ver SPEC 18).
 - [ ] Vercel no tiene `PUBLIC_MOSTRAR_EJEMPLOS` en Production ni en Preview.
 - [ ] https://www.ladridosdeesperanza.org no muestra el listón "Datos de ejemplo".
 - [ ] El último deploy de Production después del paso 10 terminó en verde.
@@ -173,6 +173,6 @@ En desarrollo local `.env` lleva `PUBLIC_MOSTRAR_EJEMPLOS=true` y `PUBLIC_MOSTRA
 - Panel para `refugio`, `problematicas` o `destinos_donativo`.
 - Revisión legal del aviso de privacidad.
 - Logo y fotos en resolución original.
-- Anuncios (SPEC 18).
+- Anuncios (SPEC 19).
 
 Cada una, si llega, va en su propia spec.
