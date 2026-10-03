@@ -36,8 +36,8 @@ const refugio = defineCollection({
 		longitud: z.number().nullable(),
 		// Ficha del refugio en Google Maps; si existe, "Cómo llegar" la prefiere a las coordenadas.
 		enlace_mapa: z.string().url().nullable(),
-		// Solo dígitos con lada, listo para wa.me: "5215500000000".
-		whatsapp: z.string().regex(/^\d{10,15}$/),
+		// Usuario o id de la página de Facebook, listo para m.me: "100067644922613" (SPEC 18).
+		messenger: z.string().regex(/^[A-Za-z0-9.]{5,50}$/),
 		logo: imagen,
 		// Las fotos del refugio viven en src/assets/refugio/ (SPEC 14).
 		es_ejemplo,

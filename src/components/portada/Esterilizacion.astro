@@ -2,13 +2,12 @@
 // Resumen de esterilización en la portada: por qué esterilizar y la próxima campaña.
 // La página completa es /esterilizacion (SPEC 03). La foto de la camada es de la SPEC 14.
 import { Image } from 'astro:assets';
+import EnlaceMessenger from '../EnlaceMessenger.astro';
 import Icono from '../Icono.astro';
-import { obtenerRefugio, proximaCampana } from '../../lib/datos';
+import { proximaCampana } from '../../lib/datos';
 import { fotosRefugio } from '../../lib/fotosRefugio';
 import { formatearFecha, formatearPesos } from '../../lib/formato';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
 
-const refugio = await obtenerRefugio();
 const campana = await proximaCampana(new Date());
 
 const datos = campana && [
@@ -20,11 +19,7 @@ const datos = campana && [
 ];
 
 const reservar =
-	campana &&
-	enlaceWhatsApp(
-		refugio.whatsapp,
-		`Hola, quiero reservar un lugar para la campaña de esterilización del ${formatearFecha(campana.data.fecha)}.`,
-	);
+	campana && `Hola, quiero reservar un lugar para la campaña de esterilización del ${formatearFecha(campana.data.fecha)}.`;
 ---
 
 <section id="esterilizacion" aria-labelledby="esterilizacion-titulo" class="aparecer pt-11">
@@ -72,16 +67,13 @@ const reservar =
 			<div class="mt-4 flex flex-wrap items-center gap-3">
 				{
 					reservar && (
-						<a
-							href={reservar}
-							data-umami-event="whatsapp"
-							data-umami-event-motivo="esterilizacion"
-							target="_blank"
-							rel="noopener"
+						<EnlaceMessenger
+							mensaje={reservar}
+							motivo="esterilizacion"
 							class="inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
 						>
 							Reservar mi lugar
-						</a>
+						</EnlaceMessenger>
 					)
 				}
 				<a

@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import AvisoMensaje from '../components/AvisoMensaje.astro';
 import CintaEjemplo from '../components/CintaEjemplo.astro';
 import Encabezado from '../components/Encabezado.astro';
 import Pie from '../components/Pie.astro';
@@ -110,5 +111,6 @@ const conBarra = Astro.slots.has('barra');
 		</main>
 		<Pie />
 		<slot name="barra" />
+		<AvisoMensaje barra={conBarra ? (barraAlta ? 'alta' : 'baja') : 'ninguna'} />
 	</body>
 </html>

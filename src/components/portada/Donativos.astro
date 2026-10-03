@@ -3,19 +3,16 @@
 // La página completa es /donar (SPEC 03); el mensaje para pedir los datos es el mismo que allá.
 // La foto de "Dona en especie" es de la SPEC 14.
 import { Image } from 'astro:assets';
+import EnlaceMessenger from '../EnlaceMessenger.astro';
 import Icono from '../Icono.astro';
 import ListaNecesidades from '../ListaNecesidades.astro';
 import { necesidadesVigentes, obtenerRefugio } from '../../lib/datos';
 import { fotosRefugio } from '../../lib/fotosRefugio';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const hayNecesidades = (await necesidadesVigentes(new Date())).length > 0;
-const pedirDatos = enlaceWhatsApp(refugio.whatsapp, `Hola, quiero los datos para donar a ${refugio.nombre}.`);
-const donarEspecie = enlaceWhatsApp(
-	refugio.whatsapp,
-	`Hola, quiero donar en especie a ${refugio.nombre}. ¿Qué les hace falta?`,
-);
+const pedirDatos = `Hola, quiero los datos para donar a ${refugio.nombre}.`;
+const donarEspecie = `Hola, quiero donar en especie a ${refugio.nombre}. ¿Qué les hace falta?`;
 
 const tarjeta = 'flex flex-col rounded-2xl border border-lineas bg-superficie p-5';
 const boton =
@@ -35,17 +32,10 @@ const boton =
 		<article class={tarjeta}>
 			<Icono nombre="landmark" />
 			<h3 class="mt-3 text-lg font-bold">Dona dinero</h3>
-			<p class="mt-1 text-texto-secundario">Pide los datos oficiales por WhatsApp para donar con seguridad.</p>
-			<a
-				href={pedirDatos}
-				data-umami-event="whatsapp"
-				data-umami-event-motivo="donativo"
-				target="_blank"
-				rel="noopener"
-				class={boton}
-			>
+			<p class="mt-1 text-texto-secundario">Pide los datos oficiales por Messenger para donar con seguridad.</p>
+			<EnlaceMessenger mensaje={pedirDatos} motivo="donativo" class={boton}>
 				Pedir datos para donar
-			</a>
+			</EnlaceMessenger>
 			<a
 				href="/donar"
 				class="mt-2 inline-flex min-h-11 items-center self-start px-1 text-acento underline underline-offset-4"
@@ -75,16 +65,9 @@ const boton =
 					</p>
 				)
 			}
-			<a
-				href={donarEspecie}
-				data-umami-event="whatsapp"
-				data-umami-event-motivo="especie"
-				target="_blank"
-				rel="noopener"
-				class={boton}
-			>
+			<EnlaceMessenger mensaje={donarEspecie} motivo="especie" class={boton}>
 				Quiero donar en especie
-			</a>
+			</EnlaceMessenger>
 		</article>
 	</div>
 </section>

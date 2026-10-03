@@ -1,10 +1,10 @@
 ---
-// Barra fija inferior de la ficha de un peludo (SPEC 13): "Quiero adoptar a {nombre}" por WhatsApp
+// Barra fija inferior de la ficha de un peludo (SPEC 13): "Quiero adoptar a {nombre}" por Messenger (SPEC 18)
 // y "Compartir". Mide 60 px más el área segura; la página pasa `barraAlta` a Layout.
 // "Compartir" usa el menú del teléfono; sin él copia el enlace, y sin ninguno de los dos no aparece.
+import EnlaceMessenger from '../EnlaceMessenger.astro';
 import Icono from '../Icono.astro';
 import { obtenerRefugio, type Peludo } from '../../lib/datos';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
 
 interface Props {
 	peludo: Peludo;
@@ -12,28 +12,22 @@ interface Props {
 
 const { nombre } = Astro.props.peludo.data;
 const refugio = await obtenerRefugio();
-const whatsapp = enlaceWhatsApp(
-	refugio.whatsapp,
-	`Hola, quiero adoptar a ${nombre}. La vi en la página de ${refugio.nombre}.`,
-);
+const mensaje = `Hola, quiero adoptar a ${nombre}. La vi en la página de ${refugio.nombre}.`;
 ---
 
 <div
 	class="fixed inset-x-0 bottom-0 z-10 bg-superficie shadow-[0_-1px_0_var(--color-lineas)] pb-[env(safe-area-inset-bottom)]"
 >
 	<div class="mx-auto flex h-15 max-w-5xl items-center gap-2 px-4">
-		<a
-			href={whatsapp}
-			data-umami-event="whatsapp"
-			data-umami-event-motivo="adopcion"
-			data-umami-event-peludo={nombre}
-			target="_blank"
-			rel="noopener"
+		<EnlaceMessenger
+			mensaje={mensaje}
+			motivo="adopcion"
+			extra={{ peludo: nombre }}
 			class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-acento px-4 text-center font-bold text-sobre-acento"
 		>
 			<Icono nombre="heart-handshake" tono="heredado" size={20} />
 			Quiero adoptar a {nombre}
-		</a>
+		</EnlaceMessenger>
 		<button
 			type="button"
 			data-compartir

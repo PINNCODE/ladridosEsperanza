@@ -1,14 +1,14 @@
 ---
 // Galería de peludos disponibles (SPEC 13, RF-11): tarjetas de foto con "me gusta" y chips
 // Todos · Perros · Gatos · Mis favoritos. El filtro vive en la URL (?ver=perros|gatos|favoritos).
-// Sin JS se ven todos y los chips quedan ocultos. Sin peludos, el mismo aviso y WhatsApp de la portada.
+// Sin JS se ven todos y los chips quedan ocultos. Sin peludos, el mismo aviso y Messenger de la portada.
+import EnlaceMessenger from '../EnlaceMessenger.astro';
 import TarjetaPeludo from '../TarjetaPeludo.astro';
 import { obtenerRefugio, peludosDisponibles } from '../../lib/datos';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const peludos = await peludosDisponibles();
-const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
+const mensaje = `Hola, les escribo desde la página de ${refugio.nombre}.`;
 
 const perros = peludos.filter(({ data }) => data.especie === 'perro').length;
 const gatos = peludos.length - perros;
@@ -67,14 +67,13 @@ const chip =
 		) : (
 			<div class="rounded-2xl bg-suave p-5">
 				<p>Por ahora no hay peludos en adopción. Escríbenos para saber cuándo llegan nuevos.</p>
-				<a
-					href={whatsapp}
-					target="_blank"
-					rel="noopener"
+				<EnlaceMessenger
+					mensaje={mensaje}
+					motivo="contacto"
 					class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
 				>
-					Escríbenos por WhatsApp
-				</a>
+					Escríbenos por Messenger
+				</EnlaceMessenger>
 			</div>
 		)
 	}

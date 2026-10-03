@@ -1,14 +1,14 @@
 ---
 // Pie común: dirección y "Cómo llegar" del refugio cuando existen (SPEC 12), redes como enlaces
-// de texto (no se incrustan) y WhatsApp.
+// de texto (no se incrustan) y Messenger (SPEC 18).
+import EnlaceMessenger from './EnlaceMessenger.astro';
 import { obtener, obtenerRefugio } from '../lib/datos';
 import { enlaceMapaRefugio } from '../lib/mapas';
-import { enlaceWhatsApp } from '../lib/whatsapp';
 
 const refugio = await obtenerRefugio();
 const redes = (await obtener('redes')).sort((a, b) => a.data.orden - b.data.orden);
 const comoLlegar = enlaceMapaRefugio(refugio);
-const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la página de ${refugio.nombre}.`);
+const mensaje = `Hola, les escribo desde la página de ${refugio.nombre}.`;
 ---
 
 <footer class="mt-12 border-t border-lineas bg-superficie">
@@ -50,16 +50,13 @@ const whatsapp = enlaceWhatsApp(refugio.whatsapp, `Hola, les escribo desde la p�
 					))
 				}
 				<li>
-					<a
-						href={whatsapp}
-						data-umami-event="whatsapp"
-						data-umami-event-motivo="contacto"
-						target="_blank"
-						rel="noopener"
+					<EnlaceMessenger
+						mensaje={mensaje}
+						motivo="contacto"
 						class="flex min-h-11 items-center rounded-lg px-2 text-acento underline underline-offset-4"
 					>
-						WhatsApp del refugio
-					</a>
+						Messenger del refugio
+					</EnlaceMessenger>
 				</li>
 				<li>
 					<a

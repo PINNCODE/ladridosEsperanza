@@ -1,0 +1,54 @@
+---
+// Aviso de los enlaces de Messenger (SPEC 18), una sola vez por página en Layout. Al tocar un
+// [data-mensaje] copia el mensaje en el mismo toque, sin detener el enlace, y avisa 6 s. Sin JS, sin
+// portapapeles o si la copia falla, el enlace abre Messenger igual y no aparece nada.
+// El aviso queda en el DOM vacío (transparente) para que el lector de pantalla anuncie el texto al llenarlo.
+
+interface Props {
+	/** Alto de la barra fija inferior de la página, para no taparla. */
+	barra?: 'ninguna' | 'baja' | 'alta';
+}
+
+const { barra = 'ninguna' } = Astro.props;
+const abajo = {
+	ninguna: 'bottom-[calc(1rem+env(safe-area-inset-bottom))]',
+	baja: 'bottom-[calc(4rem+env(safe-area-inset-bottom))]',
+	alta: 'bottom-[calc(4.75rem+env(safe-area-inset-bottom))]',
+}[barra];
+---
+
+<div
+	data-aviso-mensaje
+	role="status"
+	aria-live="polite"
+	class:list={[
+		'fixed inset-x-4 z-20 mx-auto max-w-md rounded-xl bg-texto px-4 py-3 text-center text-sm font-bold text-superficie shadow-lg empty:pointer-events-none empty:opacity-0',
+		abajo,
+	]}
+></div>
+
+<script>
+	const aviso = document.querySelector<HTMLElement>('[data-aviso-mensaje]');
+	const texto = 'Copiamos tu mensaje. Pégalo en Messenger para que sepamos de qué nos escribes.';
+	let espera: ReturnType<typeof setTimeout>;
+
+	if (aviso && typeof navigator.clipboard?.writeText === 'function') {
+		document.addEventListener('click', (evento) => {
+			const enlace = (evento.target as Element | null)?.closest<HTMLElement>('[data-mensaje]');
+			if (!enlace) return;
+			// En el mismo toque, antes de que el teléfono cambie a la app de Messenger.
+			navigator.clipboard.writeText(enlace.dataset.mensaje!).then(
+				() => {
+					clearTimeout(espera);
+					aviso.textContent = '';
+					// Vaciar y volver a llenar hace que se anuncie también al tocar otra vez.
+					requestAnimationFrame(() => (aviso.textContent = texto));
+					espera = setTimeout(() => (aviso.textContent = ''), 6000);
+				},
+				() => {
+					// Sin permiso para el portapapeles: Messenger se abre igual.
+				},
+			);
+		});
+	}
+</script>

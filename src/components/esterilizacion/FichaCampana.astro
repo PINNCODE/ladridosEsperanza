@@ -1,12 +1,11 @@
 ---
 // Ficha de la próxima campaña (RF-12, RF-24), fecha de la última y cartel ampliable.
 // Publicar una nueva fecha la cambia aquí y en la portada: las dos usan proximaCampana.
+import EnlaceMessenger from '../EnlaceMessenger.astro';
 import VisorCartel from '../VisorCartel.astro';
-import { campanaAnterior, obtenerRefugio, proximaCampana } from '../../lib/datos';
+import { campanaAnterior, proximaCampana } from '../../lib/datos';
 import { formatearFecha, formatearPesos } from '../../lib/formato';
-import { enlaceWhatsApp } from '../../lib/whatsapp';
 
-const refugio = await obtenerRefugio();
 const campana = await proximaCampana(new Date());
 const anterior = await campanaAnterior();
 
@@ -19,11 +18,7 @@ const datos = campana && [
 ];
 
 const reservar =
-	campana &&
-	enlaceWhatsApp(
-		refugio.whatsapp,
-		`Hola, quiero reservar un lugar para la campaña de esterilización del ${formatearFecha(campana.data.fecha)}.`,
-	);
+	campana && `Hola, quiero reservar un lugar para la campaña de esterilización del ${formatearFecha(campana.data.fecha)}.`;
 
 // El cartel de la próxima campaña o, si no tiene, el de la anterior con su leyenda.
 const conCartel = campana?.data.cartel ? campana : anterior?.data.cartel ? anterior : null;
@@ -50,16 +45,13 @@ const cartel = conCartel && {
 							))}
 						</dl>
 						<p class="mt-3 text-sm text-texto-secundario">{campana.data.forma_pago}</p>
-						<a
-							href={reservar}
-							data-umami-event="whatsapp"
-							data-umami-event-motivo="esterilizacion"
-							target="_blank"
-							rel="noopener"
+						<EnlaceMessenger
+							mensaje={reservar!}
+							motivo="esterilizacion"
 							class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-acento px-5 font-bold text-sobre-acento"
 						>
 							Reservar mi lugar
-						</a>
+						</EnlaceMessenger>
 					</>
 				) : (
 					<p>Pronto anunciaremos la próxima campaña.</p>
