@@ -1,7 +1,7 @@
 ---
 // Formas de ayudar (RF-25): 6 tarjetas con texto fijo (5 mientras los negocios estén ocultos, SPEC 17). Ningún dato bancario se publica:
 // los datos para donar se piden por Messenger a la página oficial del refugio (SPEC 18). La foto de "Donar en
-// especie" es de la SPEC 14.
+// especie" es de la SPEC 14 y "Siempre recibimos…", de la SPEC 20.
 import { Image } from 'astro:assets';
 import EnlaceMessenger from '../EnlaceMessenger.astro';
 import Icono from '../Icono.astro';
@@ -55,7 +55,8 @@ const botonSecundario =
 			<Icono nombre="package" />
 			<h3 class="mt-3 text-lg font-bold">Donar en especie</h3>
 			<p class="mt-1 text-texto-secundario">
-				Croquetas, medicinas, cobijas y artículos de limpieza. Mira lo que hace falta este mes.
+				Siempre recibimos croquetas de cualquier marca para perros y gatos, arena para gatos y artículos de
+				limpieza. Mira lo que hace falta este mes.
 			</p>
 			<ListaNecesidades nivel="h4" class="mt-4" />
 		</article>
