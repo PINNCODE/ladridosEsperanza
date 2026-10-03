@@ -2,6 +2,9 @@
 // Encabezado del panel /admin (SPEC 07, 08 y 09): nombre y rol de la cuenta, enlaces según el rol y "Salir".
 // Las secciones del refugio son para los dos roles; Negocios, Categorías, Solicitudes y QR, solo para el administrador.
 // prepararPanel() de src/lib/panel.ts lo llena; los enlaces de administrador empiezan ocultos.
+// Los de negocios no se generan mientras los negocios estén ocultos (SPEC 17).
+import { mostrarNegocios } from '../../lib/datos';
+
 const enlace = 'flex min-h-11 items-center rounded-lg px-3 hover:bg-suave';
 ---
 
@@ -15,10 +18,16 @@ const enlace = 'flex min-h-11 items-center rounded-lg px-3 hover:bg-suave';
 			<a href="/admin/necesidades" class={enlace}>Necesidades</a>
 			<a href="/admin/textos" class={enlace}>Textos</a>
 			<a href="/admin/cifras" class={enlace}>Cifras</a>
-			<a href="/admin/negocios" data-solo-administrador hidden class={enlace}>Negocios</a>
-			<a href="/admin/categorias" data-solo-administrador hidden class={enlace}>Categorías</a>
-			<a href="/admin/solicitudes" data-solo-administrador hidden class={enlace}>Solicitudes</a>
-			<a href="/admin/qr" data-solo-administrador hidden class={enlace}>QR</a>
+			{
+				mostrarNegocios && (
+					<>
+						<a href="/admin/negocios" data-solo-administrador hidden class={enlace}>Negocios</a>
+						<a href="/admin/categorias" data-solo-administrador hidden class={enlace}>Categorías</a>
+						<a href="/admin/solicitudes" data-solo-administrador hidden class={enlace}>Solicitudes</a>
+						<a href="/admin/qr" data-solo-administrador hidden class={enlace}>QR</a>
+					</>
+				)
+			}
 		</nav>
 		<div class="ml-auto flex items-center gap-3">
 			<p data-cuenta class="text-sm text-texto-secundario"></p>
