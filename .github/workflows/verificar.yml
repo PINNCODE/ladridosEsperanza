@@ -1,0 +1,61 @@
+# Revisa cada pull request antes de que llegue a main: aplica las migraciones y el seed en un Supabase
+# local, corre `astro check` y compila el sitio con los datos de ejemplo y los negocios visibles, así
+# se compilan todas las páginas. Producción no se toca.
+name: Verificar
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verificar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Tipos y compilación
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Solo lo que lee el build: base de datos, API y Storage (con las imágenes de semilla/).
+      - name: Supabase local
+        run: npx supabase start -x studio,mailpit,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+
+      - name: Variables de entorno
+        run: |
+          npx supabase status -o env > supabase.env
+          set -a; . ./supabase.env; set +a
+          {
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_SECRET_KEY=$SECRET_KEY"
+            echo "PUBLIC_SUPABASE_URL=$API_URL"
+            echo "PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+          } >> "$GITHUB_ENV"
+          rm supabase.env
+
+      - name: astro check
+        env:
+          PUBLIC_MOSTRAR_EJEMPLOS: 'true'
+          PUBLIC_MOSTRAR_NEGOCIOS: 'true'
+          PUBLIC_URL_SITIO: http://localhost:4321
+        run: npx astro check
+
+      - name: astro build
+        env:
+          PUBLIC_MOSTRAR_EJEMPLOS: 'true'
+          PUBLIC_MOSTRAR_NEGOCIOS: 'true'
+          PUBLIC_URL_SITIO: http://localhost:4321
+        run: npx astro build
